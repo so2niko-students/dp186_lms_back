@@ -5,7 +5,8 @@
     "outDir": "build",
     "sourceMap": true,
     "allowSyntheticDefaultImports": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "experimentalDecorators": true
   },
 
   "include": [
