@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "build",
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": false,
+    "resolveJsonModule": true
+  },
+
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".vscode"
+  ]
+}
