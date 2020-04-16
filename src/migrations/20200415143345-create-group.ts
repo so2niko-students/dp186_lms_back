@@ -1,12 +1,9 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { Group } from '../modules/groups/group.model';
+import { Groups } from '../modules/groups/groups.model';
 
-/**
- * function that sequelize-cli runs if you want to add this migration to your database
- * */
 export async function up(query: QueryInterface) {
   try {
-    return query.createTable(Group.TableName, {
+    return query.createTable(Groups.TableName, {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -21,7 +18,7 @@ export async function up(query: QueryInterface) {
         type: new DataTypes.STRING(255),
         allowNull: true,
       },
-      mentor_id: {
+      teacher_id: {
         type: new DataTypes.INTEGER(),
         allowNull: true,
       },
@@ -41,12 +38,9 @@ export async function up(query: QueryInterface) {
   }
 }
 
-/**
- * function that sequelize-cli runs if you want to remove this migration from your database
- * */
 export async function down(query: QueryInterface) {
   try {
-    return query.dropTable(Group.TableName);
+    return query.dropTable(Groups.TableName);
   } catch (e) {
     return Promise.reject(e);
   }
