@@ -1,6 +1,6 @@
-import { DataTypes, Model, ModelCtor, Sequelize } from 'sequelize';
+import { DataTypes, Model,  Sequelize } from 'sequelize';
 
-export class Teachers {
+export class Teachers extends Model {
   
   public static readonly ModelName: string = 'teacher';
   public static readonly TableName: string = 'teachers';
@@ -13,7 +13,6 @@ export class Teachers {
   public isAdmin: boolean;
   public createdAt: Date;
   public updatedAt: Date;
-  static init: any;
 
   public static prepareInit(sequelize: Sequelize) {
     this.init(
@@ -34,10 +33,5 @@ export class Teachers {
         tableName: this.TableName,
       },
     );
-  }
-
-  public static setAssociations(modelCtors: {
-    [modelName: string]: ModelCtor<Model>;
-  }) {
   }
 }
