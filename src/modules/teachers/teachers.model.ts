@@ -1,20 +1,9 @@
-import { DataTypes, FindOptions, Model, ModelCtor, Sequelize } from 'sequelize';
+import { DataTypes, Model, ModelCtor, Sequelize } from 'sequelize';
 
-export interface ITeacher {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  isAdmin: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export class Teachers implements ITeacher {
+export class Teachers {
   
-  public static readonly ModelName: string = 'Teacher';
-  public static readonly TableName: string = 'Teachers';
+  public static readonly ModelName: string = 'teacher';
+  public static readonly TableName: string = 'teachers';
 
   public id!: number;
   public firstName: string;
@@ -34,10 +23,10 @@ export class Teachers implements ITeacher {
           primaryKey: true,
           autoIncrement: true,
         },
-        firstName: new DataTypes.STRING(255),
-        lastName: new DataTypes.STRING(255),
-        email: new DataTypes.STRING(255),
-        password: new DataTypes.STRING(10),
+        firstName: DataTypes.STRING(255),
+        lastName: DataTypes.STRING(255),
+        email: DataTypes.STRING(255),
+        password: DataTypes.STRING(10),
         isAdmin: DataTypes.BOOLEAN,
       },
       {

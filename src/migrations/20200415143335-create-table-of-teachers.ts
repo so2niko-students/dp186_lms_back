@@ -1,8 +1,7 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { Teachers } from '../models/create_table_of_teachers';
+import { Teachers } from '../modules/teachers/teachers.model';
 
 export async function up(query: QueryInterface) {
-  try {
     return query.createTable(Teachers.TableName, {
       id: {
         type: DataTypes.INTEGER,
@@ -12,23 +11,23 @@ export async function up(query: QueryInterface) {
         comment: 'Id of the instance',
       },
       firstName: {
-        type: new DataTypes.STRING(255),
+        type: DataTypes.STRING(255),
         allowNull: false,
         comment: 'First name of the teacher',
       },
       lastName: {
-        type: new DataTypes.STRING(255),
+        type: DataTypes.STRING(255),
         allowNull: false,
         comment: 'Last name of the teacher',
       },
       email: {
-        type: new DataTypes.STRING(255),
+        type: DataTypes.STRING(255),
         allowNull: false,
         unique: true,
         comment: 'Email of the teacher',
       },
       password: {
-        type: new DataTypes.STRING(10),
+        type: DataTypes.STRING(10),
         allowNull: false,
         comment: 'Password of the teacher',
       },
@@ -49,15 +48,8 @@ export async function up(query: QueryInterface) {
       },
       deletedAt: DataTypes.DATE,
     });
-  } catch (e) {
-    return Promise.reject(e);
-  }
 }
 
 export async function down(query: QueryInterface) {
-  try {
     return query.dropTable(Teachers.TableName);
-  } catch (e) {
-    return Promise.reject(e);
-  }
 }
