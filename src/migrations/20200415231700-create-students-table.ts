@@ -2,7 +2,6 @@ import { QueryInterface, DataTypes } from 'sequelize';
 import Students from '../modules/students/students.model';
 
 export async function up(query: QueryInterface) {
-
     return query.createTable(Students.TableName, {
         id: {
             type: DataTypes.INTEGER,
@@ -39,8 +38,13 @@ export async function up(query: QueryInterface) {
             allowNull: false,
         },
         groupId: {
-            type: DataTypes.INTEGER(),
-            allowNull: false,
+          type: DataTypes.INTEGER,
+          references: {
+            model: 'Groups',
+            key: 'id',
+          },
+          onUpdate: 'CASCADE',
+          onDelete: 'SET NULL',
         },
         createdAt: {
             type: DataTypes.DATE,
