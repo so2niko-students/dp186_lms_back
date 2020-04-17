@@ -1,5 +1,5 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { Groups } from '../modules/groups/groups.model';
+import Groups from '../modules/groups/groups.model';
 
 export async function up(query: QueryInterface) {
     return query.createTable(Groups.TableName, {

@@ -1,5 +1,5 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { Teachers } from '../modules/teachers/teachers.model';
+import Teachers from '../modules/teachers/teachers.model';
 
 export async function up(query: QueryInterface) {
     return query.createTable(Teachers.TableName, {

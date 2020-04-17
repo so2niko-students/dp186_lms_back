@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
-export class Groups extends Model {
+export default class Groups extends Model {
   public static readonly TableName: string = 'Groups';
 
   public id!: number;

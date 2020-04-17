@@ -1,5 +1,5 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { Students } from '../modules/students/students.model';
+import Students from '../modules/students/students.model';
 
 export async function up(query: QueryInterface) {
 

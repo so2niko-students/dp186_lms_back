@@ -1,9 +1,7 @@
 import { DataTypes, Model,  Sequelize } from 'sequelize';
 
-export class Teachers extends Model {
-  
-  public static readonly ModelName: string = 'teacher';
-  public static readonly TableName: string = 'teachers';
+export default class Teachers extends Model {
+  public static readonly TableName: string = 'Teachers';
 
   public id!: number;
   public firstName: string;
