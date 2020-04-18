@@ -1,5 +1,6 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import Groups from '../modules/groups/groups.model';
+import { Groups } from '../modules/groups/groups.model';
+import { Teachers } from '../modules/teachers/teachers.model';
 
 export async function up(query: QueryInterface) {
     return query.createTable(Groups.TableName, {
@@ -20,7 +21,7 @@ export async function up(query: QueryInterface) {
       teacherId: {
         type: DataTypes.INTEGER,
         references: {
-          model: 'Teachers',
+          model: Teachers.tableName,
           key: 'id',
         },
         onUpdate: 'CASCADE',

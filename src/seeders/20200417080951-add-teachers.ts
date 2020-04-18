@@ -1,7 +1,8 @@
 import { QueryInterface, Sequelize } from 'sequelize';
+import { Teachers } from '../modules/teachers/teachers.model';
 
 export async function up(query: QueryInterface, sequelize: Sequelize) {
-  return query.bulkInsert("Teachers", [
+  return query.bulkInsert(Teachers.tableName, [
     {
       firstName: 'Nick',
       lastName: 'Sotula',
@@ -33,5 +34,5 @@ export async function up(query: QueryInterface, sequelize: Sequelize) {
 }
 
 export async function down(query: QueryInterface, sequelize: Sequelize) {
-  return query.bulkDelete('Teachers', null, {});
+  return query.bulkDelete(Teachers.tableName, null, {});
 }

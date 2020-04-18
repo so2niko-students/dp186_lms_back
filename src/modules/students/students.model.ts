@@ -1,9 +1,9 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import { sequelize } from '../../database';
-import Groups from '../groups/groups.model';
+import { Groups } from '../groups/groups.model';
 
-export default class Students extends Model {
-  public static readonly TableName: string = 'Students';
+export class Students extends Model {
+  public static readonly TableName: string = 'students';
 
   public id!: number;
   public firstNameUkr: string;

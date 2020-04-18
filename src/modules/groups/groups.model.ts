@@ -1,9 +1,9 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import { sequelize } from '../../database';
-import Teachers from '../teachers/teachers.model';
+import { Teachers } from '../teachers/teachers.model';
 
-export default class Groups extends Model {
-  public static readonly TableName: string = 'Groups';
+export class Groups extends Model {
+  public static readonly TableName: string = 'groups';
 
   public id!: number;
   public groupName: string;
@@ -34,7 +34,10 @@ export default class Groups extends Model {
           allowNull: true,
         },
       },
-      { sequelize }
+      {
+        sequelize: sequelize,
+        tableName: this.TableName,
+      }
     );
   }
 }
