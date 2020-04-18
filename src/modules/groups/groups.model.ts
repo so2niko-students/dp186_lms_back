@@ -1,4 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import { sequelize } from '../../database';
+import Teachers from '../teachers/teachers.model';
 
 export default class Groups extends Model {
   public static readonly TableName: string = 'Groups';
@@ -36,3 +38,15 @@ export default class Groups extends Model {
     );
   }
 }
+
+Groups.prepareInit(sequelize);
+
+Groups.belongsTo(Teachers, {
+  foreignKey: 'teacherId',
+  as: 'teachers',
+});
+
+Teachers.hasMany(Groups, {
+  foreignKey: 'teacherId',
+  as: 'teachers',
+});

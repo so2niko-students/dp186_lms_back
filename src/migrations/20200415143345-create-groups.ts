@@ -17,7 +17,7 @@ export async function up(query: QueryInterface) {
         type: DataTypes.STRING(255),
         allowNull: true,
       },
-      teachersId: {
+      teacherId: {
         type: DataTypes.INTEGER,
         references: {
           model: 'Teachers',

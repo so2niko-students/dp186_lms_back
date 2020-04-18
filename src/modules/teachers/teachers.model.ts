@@ -1,4 +1,5 @@
-import { DataTypes, Model,  Sequelize } from 'sequelize';
+import { DataTypes, Model, Sequelize } from 'sequelize';
+import { sequelize } from '../../database';
 
 export default class Teachers extends Model {
   public static readonly TableName: string = 'Teachers';
@@ -29,7 +30,9 @@ export default class Teachers extends Model {
       {
         sequelize: sequelize,
         tableName: this.TableName,
-      },
+      }
     );
   }
 }
+
+Teachers.prepareInit(sequelize);
