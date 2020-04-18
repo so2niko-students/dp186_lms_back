@@ -1,8 +1,8 @@
-import { DataTypes, Model, ModelCtor, Sequelize } from 'sequelize';
+import { DataTypes, Model, Sequelize } from 'sequelize';
+import { sequelize } from '../../database';
 import { Groups } from '../groups/groups.model';
 
 export class Tasks extends Model {
-  public static readonly ModelName: string = 'tasks';
   public static readonly TableName: string = 'tasks';
 
   public id!: number;
@@ -26,24 +26,18 @@ export class Tasks extends Model {
         fileURL: DataTypes.STRING(255),
       },
       {
-        sequelize: sequelize,
-        tableName: this.TableName,
-        name: {
-          singular: this.ModelName,
-        },
+        sequelize: sequelize
       },
     );
   }
-
-  public static setAssociations(modelCtors: {
-    [modelName: string]: ModelCtor<Model>;
-  }) {
-    Groups.hasMany(Tasks, {
-        sourceKey: 'id',
-        foreignKey: 'groupId',
-        as: 'tasks'
-    });
-    Tasks.belongsTo(Groups, {targetKey: 'id'});
-  };
 }
 
+Tasks.prepareInit(sequelize);
+
+Groups.hasMany(Tasks, {
+  sourceKey: 'id',
+  foreignKey: 'groupId',
+  as: 'tasks'
+});
+
+Tasks.belongsTo(Groups, {targetKey: 'id'});
