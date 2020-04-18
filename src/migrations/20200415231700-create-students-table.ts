@@ -41,7 +41,6 @@ export async function up(query: QueryInterface) {
         groupId: {
           type: DataTypes.INTEGER,
           references: {
-            // model: 'Groups',
             model: Groups.tableName,
             key: 'id',
           },

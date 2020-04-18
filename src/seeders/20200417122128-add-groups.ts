@@ -2,7 +2,6 @@ import { QueryInterface, Sequelize } from 'sequelize';
 import { Groups } from '../modules/groups/groups.model';
 
 export async function up(query: QueryInterface, sequelize: Sequelize) {
-  // return query.bulkInsert('groups', [
   return query.bulkInsert(Groups.tableName, [
     {
       groupName: 'NODE.JS',
@@ -22,6 +21,5 @@ export async function up(query: QueryInterface, sequelize: Sequelize) {
 }
 
 export async function down(query: QueryInterface, sequelize: Sequelize) {
-  // return query.bulkDelete('groups', null, {});
   return query.bulkDelete(Groups.tableName, null, {});
 }
