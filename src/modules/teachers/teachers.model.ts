@@ -28,7 +28,7 @@ export class Teachers extends Model {
         isAdmin: DataTypes.BOOLEAN,
       },
       {
-        sequelize: sequelize,
+        sequelize,
         tableName: this.TableName,
       }
     );

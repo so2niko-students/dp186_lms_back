@@ -36,7 +36,7 @@ export class Students extends Model {
         groupId: DataTypes.INTEGER(),
       },
       {
-        sequelize: sequelize,
+        sequelize,
         tableName: this.TableName,
       }
     );

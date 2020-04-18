@@ -35,7 +35,7 @@ export class Groups extends Model {
         },
       },
       {
-        sequelize: sequelize,
+        sequelize,
         tableName: this.TableName,
       }
     );
