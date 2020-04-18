@@ -1,4 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import {sequelize} from "../../database";
 
 export class Students extends Model {
 
@@ -35,9 +36,11 @@ export class Students extends Model {
                 password: DataTypes.STRING(),
                 groupId: DataTypes.INTEGER()
             }, {
-                sequelize: sequelize,
+                sequelize,
                 tableName: this.TableName,
-            }
-        )
-    };
+            },
+        );
+    }
 }
+
+Students.prepareInit(sequelize);

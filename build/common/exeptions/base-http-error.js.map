@@ -1,0 +1,1 @@
+{"version":3,"file":"base-http-error.js","sourceRoot":"","sources":["../../../src/common/exeptions/base-http-error.ts"],"names":[],"mappings":";;AAMA,MAAa,aAAa;IAGxB,YAAY,UAAU,EAAE,KAAK;QAC3B,IAAI,CAAC,UAAU,GAAG,UAAU,CAAC;QAC7B,IAAI,CAAC,KAAK,GAAG,KAAK,CAAC;QACnB,OAAO,CAAC,SAAS,CAAC,GAAG,IAAI,CAAC,UAAU,KAAK,IAAI,CAAC,KAAK,EAAE,CAAC,CAAC;IACzD,CAAC;CACF;AARD,sCAQC"}

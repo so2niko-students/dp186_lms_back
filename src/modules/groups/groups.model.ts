@@ -1,7 +1,8 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import { sequelize } from '../../database';
 
 export class Groups extends Model {
-  public static readonly TableName: string = 'Groups';
+  public static readonly TableName: string = 'groups';
 
   public id!: number;
   public groupName: string;
@@ -10,7 +11,7 @@ export class Groups extends Model {
   public createdAt: Date;
   public updatedAt: Date;
 
-  public static prepareInit(sequelize: Sequelize) {
+  public static prepareInit(seq: Sequelize) {
     this.init(
       {
         id: {
@@ -32,7 +33,9 @@ export class Groups extends Model {
           allowNull: true,
         },
       },
-      { sequelize }
+      { sequelize, tableName: this.TableName },
     );
   }
 }
+
+Groups.prepareInit(sequelize);
