@@ -1,4 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import { sequelize } from '../../database';
 
 export class Students extends Model {
 
@@ -41,3 +42,5 @@ export class Students extends Model {
         )
     };
 }
+
+Students.prepareInit(sequelize);

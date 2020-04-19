@@ -1,0 +1,18 @@
+[
+
+    {
+        "firstName": "Nikolay",
+        "lastName": "Sotula",
+        "email": "nikolay@gmail.com",
+        "password": "123456",
+        "isAdmin": false
+    },
+    {
+        "firstName": "Alex",
+        "lastName": "Morgan",
+        "email": "alex@gmail.com",
+        "password": "qwerty",
+        "isAdmin": false
+    }
+
+]
