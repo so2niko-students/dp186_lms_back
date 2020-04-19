@@ -3,7 +3,7 @@ import { Groups } from '../modules/groups/groups.model';
 import { Teachers } from '../modules/teachers/teachers.model';
 
 export async function up(query: QueryInterface) {
-    return query.createTable(Groups.TableName, {
+    return query.createTable(Groups.tableName, {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -41,5 +41,5 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-    return query.dropTable(Groups.TableName);
+    return query.dropTable(Groups.tableName);
 }

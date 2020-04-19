@@ -2,7 +2,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 import { sequelize } from '../../database';
 
 export class Teachers extends Model {
-  public static readonly TableName: string = 'teachers';
+  public static readonly tableName: string = 'teachers';
 
   public id: number;
   public firstName: string;
@@ -29,7 +29,7 @@ export class Teachers extends Model {
       },
       {
         sequelize,
-        tableName: this.TableName,
+        tableName: this.tableName,
       }
     );
   }
