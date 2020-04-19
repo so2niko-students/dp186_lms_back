@@ -5,7 +5,6 @@ class StudentsService {
     const teacher = await Students.findOne({
       where: { email }
     });
-    console.log(teacher);
 
     return teacher;
   }

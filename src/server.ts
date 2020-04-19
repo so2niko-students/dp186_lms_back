@@ -12,15 +12,15 @@ app.use('/api/v1/health', healthRoutes);
 
 //authorization
 import passport = require ('passport');
-import errorHandler from './common/middlewares/errors.middleware';
+import { errorHandler } from './common/middlewares/errors.middleware';
 import { strategy } from './common/passport/auth.strategy';
 passport.use(strategy);
 app.use(errorHandler);
 app.use(passport.initialize());
 import { authRoute } from './modules/auth/auth.routes'; 
 app.use('/auth', new authRoute().router);
-//import jwtAuth from './common/middlewares/auth.middleware';
-//app.use('/tasks', jwtAuth, require('./modules/tasks/tasks.routes'));// add task routes
+import { authJwt } from './common/middlewares/auth.middleware';
+app.use('/tasks', authJwt, require('./modules/tasks/tasks.routes'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
