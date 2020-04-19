@@ -1,4 +1,4 @@
-import * as passport from 'passport';
+import passport = require('passport');
 import { Unauthorized } from '../../common/exeptions/index';
 import { Request, Response, NextFunction } from 'express';
 

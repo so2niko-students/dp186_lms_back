@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const students_model_1 = require("../modules/students/students.model");
+const groups_model_1 = require("../modules/groups/groups.model");
 function up(query) {
     return __awaiter(this, void 0, void 0, function* () {
         return query.createTable(students_model_1.Students.TableName, {
@@ -49,8 +50,13 @@ function up(query) {
                 allowNull: false,
             },
             groupId: {
-                type: sequelize_1.DataTypes.INTEGER(),
-                allowNull: false,
+                type: sequelize_1.DataTypes.INTEGER,
+                references: {
+                    model: groups_model_1.Groups.tableName,
+                    key: 'id',
+                },
+                onUpdate: 'CASCADE',
+                onDelete: 'SET NULL',
             },
             createdAt: {
                 type: sequelize_1.DataTypes.DATE,

@@ -17,7 +17,7 @@ class GroupsController {
     createOne(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const group = yield groups_service_1.default.createOne(req.body);
+                const group = yield groups_service_1.default.createOne(req.body, req.user);
                 res.send(group);
             }
             catch (e) {
@@ -28,7 +28,7 @@ class GroupsController {
     findOne(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const group = yield groups_service_1.default.findOne(req.params.id);
+                const group = yield groups_service_1.default.findOne(Number(req.params.id), req.user);
                 res.send(group);
             }
             catch (e) {
@@ -39,7 +39,7 @@ class GroupsController {
     updateOne(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const group = yield groups_service_1.default.updateOne(req.params.id, req.body);
+                const group = yield groups_service_1.default.updateOne(Number(req.params.id), req.body, req.user);
                 res.send(group);
             }
             catch (e) {
@@ -50,7 +50,7 @@ class GroupsController {
     deleteOne(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const group = yield groups_service_1.default.deleteOne(req.params.id);
+                const group = yield groups_service_1.default.deleteOne(Number(req.params.id), req.user);
                 res.send(group);
             }
             catch (e) {
@@ -61,7 +61,7 @@ class GroupsController {
     findMany(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const groups = yield groups_service_1.default.findMany();
+                const groups = yield groups_service_1.default.findMany(req.user);
                 res.send(groups);
             }
             catch (e) {

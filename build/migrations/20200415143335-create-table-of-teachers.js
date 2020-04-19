@@ -57,7 +57,6 @@ function up(query) {
                 allowNull: false,
                 comment: 'Date of the last update',
             },
-            deletedAt: sequelize_1.DataTypes.DATE,
         });
     });
 }

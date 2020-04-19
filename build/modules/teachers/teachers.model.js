@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
+const database_1 = require("../../database");
 class Teachers extends sequelize_1.Model {
     static prepareInit(sequelize) {
         this.init({
@@ -15,12 +16,12 @@ class Teachers extends sequelize_1.Model {
             password: sequelize_1.DataTypes.STRING(10),
             isAdmin: sequelize_1.DataTypes.BOOLEAN,
         }, {
-            sequelize: sequelize,
+            sequelize,
             tableName: this.TableName,
         });
     }
 }
 exports.Teachers = Teachers;
-Teachers.ModelName = 'teacher';
 Teachers.TableName = 'teachers';
+Teachers.prepareInit(database_1.sequelize);
 //# sourceMappingURL=teachers.model.js.map

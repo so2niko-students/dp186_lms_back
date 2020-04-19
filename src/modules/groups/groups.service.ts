@@ -1,5 +1,6 @@
 import { Groups } from './groups.model';
 import { Teachers } from '../teachers/teachers.model';
+import { Students } from '../students/students.model';
 import { NotFound, BadRequest, Unauthorized } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
 
@@ -11,7 +12,7 @@ interface IGroupCreate {
 
 class GroupsService {
     public async createOne(data: IGroupCreate, user: any) {
-        await this.userVerification(user);
+        await this.mentorVerification(user);
         const { groupName } = data;
         const group = await Groups.findAll( { where: {groupName}} );
         if (group.length === 0) {
@@ -20,11 +21,23 @@ class GroupsService {
         }
         throw new BadRequest(`Group with name "${groupName} already exist`);
     }
-    public async findOne(id: string) {
+    public async findOne(id: number, user: any) {
+        const { email, password } = user;
+        const mentor = await Teachers.findOne( { where: { id: user.id, email, password }});
+        if (!mentor) {
+            const student = await Students.findOne({ where: { id: user.id, email, password }});
+            if (student) {
+                if (student.groupId === id) {
+                    return Groups.findOne({ where: {id} } );
+                }
+                throw new Unauthorized('You do not have rights to do this.');
+            }
+            throw new Unauthorized('You do not have rights to do this.');
+        }
         return Groups.findOne({ where: {id} } );
     }
-    public async updateOne(id: string, data: object, user: any) {
-        const mentor = await this.userVerification(user);
+    public async updateOne(id: number, data: object, user: any) {
+        const mentor = await this.mentorVerification(user);
         const group = await Groups.findOne({ where: {id} });
         if (group) {
             if (group.teacherId === mentor.id) {
@@ -36,8 +49,8 @@ class GroupsService {
         }
         throw new NotFound(`Group with ${id} not found.`);
     }
-    public async deleteOne(id: string, user: any) {
-        const mentor = await this.userVerification(user);
+    public async deleteOne(id: number, user: any) {
+        const mentor = await this.mentorVerification(user);
         const group = await Groups.findOne({ where: {id} });
         if (group) {
             if (group.teacherId === mentor.id) {
@@ -49,7 +62,7 @@ class GroupsService {
         throw new NotFound(`Group with ${id} not found.`);
     }
     public async findMany(user: any) {
-        await this.userVerification(user);
+        await this.mentorVerification(user);
         return Groups.findAll();
     }
 
@@ -58,8 +71,10 @@ class GroupsService {
         const hash = hashSync(name, salt);
         return hash.replace(/\//g, 'slash');
     }
-    private async userVerification(user: any): Promise<Teachers> {
-        const mentor = await Teachers.findOne( { where: {...user}}); // Check user in Teachers table
+    private async mentorVerification(user: any): Promise<Teachers> {
+        const { id, email, password } = user;
+        // Check user in Teachers table
+        const mentor = await Teachers.findOne( { where: {id, email, password}});
         if (mentor) {
             return mentor;
         }

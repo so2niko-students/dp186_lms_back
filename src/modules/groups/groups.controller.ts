@@ -13,7 +13,7 @@ class GroupsController {
     }
     public async findOne(req: Request, res: Response, next: NextFunction) {
         try {
-            const group: Groups = await groupsService.findOne(req.params.id);
+            const group: Groups = await groupsService.findOne(Number(req.params.id), req.user);
             res.send(group);
         } catch (e) {
             next(e);
@@ -21,7 +21,8 @@ class GroupsController {
     }
     public async updateOne(req: Request, res: Response, next: NextFunction) {
         try {
-            const group: Groups = await groupsService.updateOne(req.params.id, req.body, req.user);
+            const group: Groups = await groupsService.updateOne(Number(req.params.id),
+                req.body, req.user);
             res.send(group);
         } catch (e) {
             next(e);
@@ -29,7 +30,7 @@ class GroupsController {
     }
     public async deleteOne(req: Request, res: Response, next: NextFunction) {
         try {
-            const group: Groups = await groupsService.deleteOne(req.params.id, req.user);
+            const group: Groups = await groupsService.deleteOne(Number(req.params.id), req.user);
             res.send(group);
         } catch (e) {
             next(e);

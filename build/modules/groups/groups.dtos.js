@@ -1,17 +1,21 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const joi_1 = __importDefault(require("joi"));
-exports.createGroupDto = joi_1.default.object().keys({
-    groupName: joi_1.default.string().min(2).required(),
-    teacherId: joi_1.default.number().required(),
+const Joi = __importStar(require("joi"));
+exports.createGroupDto = Joi.object().keys({
+    groupName: Joi.string().min(2).required(),
+    teacherId: Joi.number().required(),
 });
-exports.updateGroupDto = joi_1.default.object().keys({
-    id: joi_1.default.number(),
-    groupName: joi_1.default.string().min(2),
-    groupToken: joi_1.default.string().min(5),
-    teacherId: joi_1.default.number(),
+exports.updateGroupDto = Joi.object().keys({
+    id: Joi.number(),
+    groupName: Joi.string().min(2),
+    groupToken: Joi.string().min(5),
+    teacherId: Joi.number(),
 });
 //# sourceMappingURL=groups.dtos.js.map

@@ -7,7 +7,8 @@ import teacherssService from '../../modules/teachers/teachers.service';
 
 class AuthService {
     public async login({email, password}) {
-        const user = await studentsService.findOneByEmail(email) || await teacherssService.findOneByEmail(email);
+        const user = await studentsService.findOneByEmail(email) ||
+            await teacherssService.findOneByEmail(email);
 
         if (!bcrypt.compareSync(password, user.password)) {
             throw new Unauthorized('Wrong password');
@@ -15,8 +16,8 @@ class AuthService {
         const token = jwt.sign({ id: user.id, email: user.email }, auth.secretKey);
         return {
             token,
-            expires: auth.expiresIn
-        }
+            expires: auth.expiresIn,
+        };
     }
 }
 

@@ -8,57 +8,93 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const groups_model_1 = require("./groups.model");
+const teachers_model_1 = require("../teachers/teachers.model");
+const students_model_1 = require("../students/students.model");
 const exeptions_1 = require("../../common/exeptions/");
 const bcrypt_1 = require("bcrypt");
-const bad_request_1 = __importDefault(require("../../common/exeptions/bad-request"));
 class GroupsService {
-    createOne(data) {
+    createOne(data, user) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.mentorVerification(user);
             const { groupName } = data;
             const group = yield groups_model_1.Groups.findAll({ where: { groupName } });
             if (group.length === 0) {
-                const salt = bcrypt_1.genSaltSync(5, 'b');
-                const hash = bcrypt_1.hashSync(data.groupName, salt);
-                data.groupToken = hash.replace(/\//g, 'slash');
+                data.groupToken = yield this.createGroupToken(groupName);
                 return groups_model_1.Groups.create(Object.assign({}, data));
             }
-            throw new bad_request_1.default(`Group with name "${groupName} already exist`);
+            throw new exeptions_1.BadRequest(`Group with name "${groupName} already exist`);
         });
     }
-    findOne(id) {
+    findOne(id, user) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { email, password } = user;
+            const mentor = yield teachers_model_1.Teachers.findOne({ where: { id: user.id, email, password } });
+            if (!mentor) {
+                const student = yield students_model_1.Students.findOne({ where: { id: user.id, email, password } });
+                if (student) {
+                    if (student.groupId === id) {
+                        return groups_model_1.Groups.findOne({ where: { id } });
+                    }
+                    throw new exeptions_1.Unauthorized('You do not have rights to do this.');
+                }
+                throw new exeptions_1.Unauthorized('You do not have rights to do this.');
+            }
             return groups_model_1.Groups.findOne({ where: { id } });
         });
     }
-    updateOne(id, data) {
+    updateOne(id, data, user) {
         return __awaiter(this, void 0, void 0, function* () {
+            const mentor = yield this.mentorVerification(user);
             const group = yield groups_model_1.Groups.findOne({ where: { id } });
             if (group) {
-                Object.keys(data).forEach((k) => group[k] = data[k]);
-                group.save();
-                return group;
+                if (group.teacherId === mentor.id) {
+                    Object.keys(data).forEach((k) => group[k] = data[k]);
+                    group.save();
+                    return group;
+                }
+                throw new exeptions_1.Unauthorized('You do not have rights to do this.');
             }
             throw new exeptions_1.NotFound(`Group with ${id} not found.`);
         });
     }
-    deleteOne(id) {
+    deleteOne(id, user) {
         return __awaiter(this, void 0, void 0, function* () {
+            const mentor = yield this.mentorVerification(user);
             const group = yield groups_model_1.Groups.findOne({ where: { id } });
             if (group) {
-                group.destroy();
-                return group;
+                if (group.teacherId === mentor.id) {
+                    group.destroy();
+                    return group;
+                }
+                throw new exeptions_1.Unauthorized('You do not have rights to do this.');
             }
             throw new exeptions_1.NotFound(`Group with ${id} not found.`);
         });
     }
-    findMany() {
+    findMany(user) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.mentorVerification(user);
             return groups_model_1.Groups.findAll();
+        });
+    }
+    createGroupToken(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const salt = bcrypt_1.genSaltSync(5, 'b');
+            const hash = bcrypt_1.hashSync(name, salt);
+            return hash.replace(/\//g, 'slash');
+        });
+    }
+    mentorVerification(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id, email, password } = user;
+            // Check user in Teachers table
+            const mentor = yield teachers_model_1.Teachers.findOne({ where: { id, email, password } });
+            if (mentor) {
+                return mentor;
+            }
+            throw new exeptions_1.Unauthorized('You do not have rights to do this.');
         });
     }
 }
