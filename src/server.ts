@@ -20,7 +20,7 @@ app.use(passport.initialize());
 import { authRoute } from './modules/auth/auth.routes'; 
 app.use('/auth', new authRoute().router);
 import { authJwt } from './common/middlewares/auth.middleware';
-app.use('/tasks', authJwt, require('./modules/tasks/tasks.routes'));
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
