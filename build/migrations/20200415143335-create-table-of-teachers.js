@@ -8,15 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const teachers_model_1 = __importDefault(require("../modules/teachers/teachers.model"));
+const teachers_model_1 = require("../modules/teachers/teachers.model");
 function up(query) {
     return __awaiter(this, void 0, void 0, function* () {
-        return query.createTable(teachers_model_1.default.TableName, {
+        return query.createTable(teachers_model_1.Teachers.TableName, {
             id: {
                 type: sequelize_1.DataTypes.INTEGER,
                 primaryKey: true,
@@ -60,14 +57,13 @@ function up(query) {
                 allowNull: false,
                 comment: "Date of the last update",
             },
-            deletedAt: sequelize_1.DataTypes.DATE,
         });
     });
 }
 exports.up = up;
 function down(query) {
     return __awaiter(this, void 0, void 0, function* () {
-        return query.dropTable(teachers_model_1.default.TableName);
+        return query.dropTable(teachers_model_1.Teachers.TableName);
     });
 }
 exports.down = down;

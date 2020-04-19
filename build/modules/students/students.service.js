@@ -19,9 +19,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const students_model_1 = __importDefault(require("./students.model"));
-const groups_model_1 = __importDefault(require("../groups/groups.model"));
-const teachers_model_1 = __importDefault(require("../teachers/teachers.model"));
+const students_model_1 = require("./students.model");
+const groups_model_1 = require("../groups/groups.model");
+const teachers_model_1 = require("../teachers/teachers.model");
 const groups_service_1 = __importDefault(require("../groups/groups.service"));
 const teachers_service_1 = __importDefault(require("../teachers/teachers.service"));
 const exeptions_1 = require("../../common/exeptions");
@@ -45,14 +45,14 @@ class StudentsService {
             if (group.groupToken !== groupToken) {
                 throw new exeptions_1.BadRequest("Not walid group token");
             }
-            const students = new students_model_1.default(studentsData);
+            const students = new students_model_1.Students(studentsData);
             students.password = yield bcrypt.hash(students.password, 10);
             return yield students.save();
         });
     }
     findOneByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const student = yield students_model_1.default.findOne({
+            const student = yield students_model_1.Students.findOne({
                 where: { email },
             });
             return student;
@@ -60,14 +60,14 @@ class StudentsService {
     }
     findOneById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const student = yield students_model_1.default.findOne({ where: { id } });
+            const student = yield students_model_1.Students.findOne({ where: { id } });
             return student;
         });
     }
     findMany() {
         return __awaiter(this, void 0, void 0, function* () {
-            const students = teachers_model_1.default.findAll({
-                include: [{ model: groups_model_1.default, include: [{ model: students_model_1.default }] }],
+            const students = teachers_model_1.Teachers.findAll({
+                include: [{ model: groups_model_1.Groups, include: [{ model: students_model_1.Students }] }],
             });
             if (!students) {
                 throw new exeptions_1.NotFound("Students not found");

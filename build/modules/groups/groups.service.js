@@ -8,16 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const groups_model_1 = __importDefault(require("./groups.model"));
+const groups_model_1 = require("./groups.model");
 const exeptions_1 = require("../../common/exeptions");
 class GroupsService {
     findOneById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const group = yield groups_model_1.default.findOne({ where: { id } });
+            const group = yield groups_model_1.Groups.findOne({ where: { id } });
             if (!group) {
                 throw new exeptions_1.NotFound("Group not found");
             }

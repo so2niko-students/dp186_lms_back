@@ -16,13 +16,12 @@ class Teachers extends sequelize_1.Model {
             password: new sequelize_1.DataTypes.STRING(10),
             isAdmin: sequelize_1.DataTypes.BOOLEAN,
         }, {
-            sequelize: sequelize,
+            sequelize,
             tableName: this.TableName,
         });
     }
 }
-Teachers.ModelName = "teacher";
+exports.Teachers = Teachers;
 Teachers.TableName = "teachers";
 Teachers.prepareInit(database_1.sequelize);
-exports.default = Teachers;
 //# sourceMappingURL=teachers.model.js.map

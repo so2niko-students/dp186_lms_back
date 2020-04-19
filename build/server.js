@@ -22,6 +22,15 @@ app.use(express.json());
 app.use("/api/v1/health", health_routes_1.default);
 app.use("/students", students_routes_1.default);
 app.use(error_handler_1.errorHandler);
+//authorization
+const passport = require("passport");
+// import { errorHandler } from './common/middlewares/errors.middleware';
+const auth_strategy_1 = require("./common/passport/auth.strategy");
+passport.use(auth_strategy_1.strategy);
+app.use(error_handler_1.errorHandler);
+app.use(passport.initialize());
+const auth_routes_1 = require("./modules/auth/auth.routes");
+app.use("/auth", new auth_routes_1.authRoute().router);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running in http://localhost:${PORT}`);

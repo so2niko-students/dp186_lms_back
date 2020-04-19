@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const database_1 = require("../../database");
+const groups_model_1 = require("../groups/groups.model");
 class Students extends sequelize_1.Model {
-    // region Static
     static prepareInit(sequelize) {
         this.init({
             id: {
@@ -21,34 +21,20 @@ class Students extends sequelize_1.Model {
             password: sequelize_1.DataTypes.STRING(),
             groupId: sequelize_1.DataTypes.INTEGER(),
         }, {
-            sequelize: sequelize,
+            sequelize,
             tableName: this.TableName,
         });
     }
 }
+exports.Students = Students;
 Students.TableName = "students";
 Students.prepareInit(database_1.sequelize);
-// class Students extends Model {}
-// const StudentsModel = Students.init(
-//   {
-//     id: {
-//       type: DataTypes.INTEGER,
-//       primaryKey: true,
-//       allowNull: false,
-//       autoIncrement: true,
-//     },
-//     firstNameUkr: DataTypes.STRING(),
-//     lastNameUkr: DataTypes.STRING(),
-//     firstNameEng: DataTypes.STRING(),
-//     lastNameEng: DataTypes.STRING(),
-//     email: DataTypes.STRING(),
-//     phoneNumber: DataTypes.STRING(),
-//     password: DataTypes.STRING(),
-//     groupId: DataTypes.INTEGER(),
-//   },
-//   {
-//     sequelize,
-//   }
-// );
-exports.default = Students;
+Students.belongsTo(groups_model_1.Groups, {
+    foreignKey: "groupId",
+    as: "group",
+});
+groups_model_1.Groups.hasMany(Students, {
+    foreignKey: "groupId",
+    as: "group",
+});
 //# sourceMappingURL=students.model.js.map

@@ -8,15 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const teachers_model_1 = __importDefault(require("./teachers.model"));
+const teachers_model_1 = require("./teachers.model");
 class TeachersService {
     findOneByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const teacher = yield teachers_model_1.default.findOne({
+            const teacher = yield teachers_model_1.Teachers.findOne({
                 where: { email },
             });
             console.log(teacher);
@@ -25,7 +22,7 @@ class TeachersService {
     }
     findOneById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const teacher = yield teachers_model_1.default.findOne({ where: { id } });
+            const teacher = yield teachers_model_1.Teachers.findOne({ where: { id } });
             console.log(teacher);
             return teacher;
         });
