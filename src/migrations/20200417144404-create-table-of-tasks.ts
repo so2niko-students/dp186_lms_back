@@ -1,25 +1,29 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { Groups } from '../modules/groups/groups.model';
+import { Tasks } from '../modules/tasks/tasks.model';
 
 export async function up(query: QueryInterface) {
-    return query.createTable(Groups.TableName, {
+    return query.createTable(Tasks.TableName, {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
+        comment: 'Id of the instance',
       },
-      groupName: {
-        type: DataTypes.STRING(),
+      groupId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
+        comment: 'Id of the group',
       },
-      groupToken: {
+      taskName: {
         type: DataTypes.STRING(255),
-        allowNull: true,
+        allowNull: false,
+        comment: 'Name of the task',
       },
-      teacherId: {
-        type: DataTypes.INTEGER(),
-        allowNull: true,
+      fileURL: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'URL of the task',
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -35,5 +39,5 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-    return query.dropTable(Groups.TableName);
+    return query.dropTable(Tasks.TableName);
 }
