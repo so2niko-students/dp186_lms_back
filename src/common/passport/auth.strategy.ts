@@ -12,7 +12,7 @@ const opts = {
     expiresIn: auth.expiresIn,
 };
 
-const strategy = new Strategy(opts, async (jwtPayload, done) => {
+export const strategy = new Strategy(opts, async (jwtPayload, done) => {
 
     try {
         const user = await studentsService.findOneByEmail(jwtPayload.email) || await teacherssService.findOneByEmail(jwtPayload.email);
@@ -26,4 +26,4 @@ const strategy = new Strategy(opts, async (jwtPayload, done) => {
     }
 });
 
-passport.use(strategy);
+//passport.use(strategy);

@@ -1,7 +1,7 @@
 //import * as express from 'express';
 import express = require('express'); 
 import  { default as healthRoutes } from './modules/health/health.routes';
-import * as dotenv from 'dotenv'
+import * as dotenv from 'dotenv';
 dotenv.config();
 import "./database";
 
@@ -13,7 +13,8 @@ app.use('/api/v1/health', healthRoutes);
 //authorization
 import passport = require ('passport');
 import errorHandler from './common/middlewares/errors.middleware';
-require('./common/passport/auth.strategy');
+import { strategy } from './common/passport/auth.strategy';
+passport.use(strategy);
 app.use(errorHandler);
 app.use(passport.initialize());
 import { authRoute } from './modules/auth/auth.routes'; 
