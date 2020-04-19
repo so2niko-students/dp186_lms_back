@@ -1,7 +1,8 @@
+import { ValidationError } from 'joi';
 
 export interface IBaseHttpError {
   statusCode: number;
-  error: any;
+  error: ValidationError | any;
 }
 
 export class BaseHttpError implements IBaseHttpError {

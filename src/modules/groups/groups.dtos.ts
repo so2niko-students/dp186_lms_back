@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import * as Joi from 'joi';
 
 export const createGroupDto = Joi.object().keys({
     groupName: Joi.string().min(2).required(),

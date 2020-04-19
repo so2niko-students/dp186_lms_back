@@ -3,7 +3,7 @@ import groupsController from './groups.controller';
 import { createValidator } from '../../common/middlewares/create-validator';
 import { createGroupDto, updateGroupDto } from './groups.dtos';
 
-export const router: Router = new Router();
+export const router: Router = Router();
 
 router.get('/', groupsController.findMany);
 router.get('/:id', groupsController.findOne);

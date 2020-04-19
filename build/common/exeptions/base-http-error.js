@@ -4,7 +4,6 @@ class BaseHttpError {
     constructor(statusCode, error) {
         this.statusCode = statusCode;
         this.error = error;
-        console.exception(`${this.statusCode}: ${this.error}`);
     }
 }
 exports.BaseHttpError = BaseHttpError;
