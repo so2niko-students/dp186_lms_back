@@ -5,7 +5,7 @@ import { Groups } from '../groups/groups.model';
 export class Students extends Model {
   public static readonly TableName: string = 'students';
 
-  public id!: number;
+  public id: number;
   public firstNameUkr: string;
   public lastNameUkr: string;
   public firstNameEng: string;

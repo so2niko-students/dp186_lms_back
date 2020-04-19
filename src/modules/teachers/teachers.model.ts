@@ -4,7 +4,7 @@ import { sequelize } from '../../database';
 export class Teachers extends Model {
   public static readonly TableName: string = 'teachers';
 
-  public id!: number;
+  public id: number;
   public firstName: string;
   public lastName: string;
   public email: string;
