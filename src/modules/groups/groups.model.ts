@@ -1,9 +1,10 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
+import { DataTypes, Model, Sequelize } from "sequelize";
+import { sequelize } from "../../database";
 
-export class Groups extends Model {
-  public static readonly TableName: string = 'Groups';
+class Groups extends Model {
+  public static readonly TableName: string = "groups";
 
-  public id!: number;
+  public id: number;
   public groupName: string;
   public groupToken: string;
   public teacherId: number;
@@ -32,7 +33,11 @@ export class Groups extends Model {
           allowNull: true,
         },
       },
-      { sequelize }
+      { sequelize, tableName: this.TableName }
     );
   }
 }
+
+Groups.prepareInit(sequelize);
+
+export default Groups;

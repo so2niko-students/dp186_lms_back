@@ -1,5 +1,5 @@
-import { QueryInterface, DataTypes } from 'sequelize';
-import { Groups } from '../modules/groups/groups.model';
+import { QueryInterface, DataTypes } from "sequelize";
+import Groups from "../modules/groups/groups.model";
 
 export async function up(query: QueryInterface) {
     return query.createTable(Groups.TableName, {
@@ -24,12 +24,12 @@ export async function up(query: QueryInterface) {
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
-        comment: 'Date of creation',
+        comment: "Date of creation",
       },
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
-        comment: 'Date of the last update',
+        comment: "Date of the last update",
       },
     });
 }

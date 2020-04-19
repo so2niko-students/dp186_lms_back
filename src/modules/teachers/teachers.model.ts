@@ -1,9 +1,8 @@
-import { DataTypes, Model,  Sequelize } from 'sequelize';
-
-export class Teachers extends Model {
-  
-  public static readonly ModelName: string = 'teacher';
-  public static readonly TableName: string = 'teachers';
+import { DataTypes, FindOptions, Model, ModelCtor, Sequelize } from "sequelize";
+import { sequelize } from "../../database";
+class Teachers extends Model {
+  public static readonly ModelName: string = "teacher";
+  public static readonly TableName: string = "teachers";
 
   public id!: number;
   public firstName: string;
@@ -13,6 +12,7 @@ export class Teachers extends Model {
   public isAdmin: boolean;
   public createdAt: Date;
   public updatedAt: Date;
+  static init: any;
 
   public static prepareInit(sequelize: Sequelize) {
     this.init(
@@ -22,16 +22,22 @@ export class Teachers extends Model {
           primaryKey: true,
           autoIncrement: true,
         },
-        firstName: DataTypes.STRING(255),
-        lastName: DataTypes.STRING(255),
-        email: DataTypes.STRING(255),
-        password: DataTypes.STRING(10),
+        firstName: new DataTypes.STRING(255),
+        lastName: new DataTypes.STRING(255),
+        email: new DataTypes.STRING(255),
+        password: new DataTypes.STRING(10),
         isAdmin: DataTypes.BOOLEAN,
       },
       {
         sequelize: sequelize,
         tableName: this.TableName,
-      },
+      }
     );
   }
+
+  // public static setAssociations(modelCtors: { [modelName: string]: ModelCtor<Model> }) {}
 }
+
+Teachers.prepareInit(sequelize);
+
+export default Teachers;
