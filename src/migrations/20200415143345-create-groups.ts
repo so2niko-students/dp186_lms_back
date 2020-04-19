@@ -1,47 +1,27 @@
 import { QueryInterface, DataTypes } from "sequelize";
-import { Students } from "../modules/students/students.model";
 import { Groups } from "../modules/groups/groups.model";
+import { Teachers } from "../modules/teachers/teachers.model";
 
 export async function up(query: QueryInterface) {
-  return query.createTable(Students.TableName, {
+  return query.createTable(Groups.TableName, {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    firstNameUkr: {
+    groupName: {
       type: DataTypes.STRING(),
       allowNull: false,
     },
-    lastNameUkr: {
-      type: DataTypes.STRING(),
-      allowNull: false,
+    groupToken: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
     },
-    firstNameEng: {
-      type: DataTypes.STRING(),
-      allowNull: false,
-    },
-    lastNameEng: {
-      type: DataTypes.STRING(),
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING(),
-      allowNull: false,
-    },
-    phoneNumber: {
-      type: DataTypes.DOUBLE(),
-      allowNull: false,
-    },
-    password: {
-      type: DataTypes.STRING(),
-      allowNull: false,
-    },
-    groupId: {
+    teacherId: {
       type: DataTypes.INTEGER,
       references: {
-        model: Groups.tableName,
+        model: Teachers.tableName,
         key: "id",
       },
       onUpdate: "CASCADE",
@@ -61,5 +41,5 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-  return query.dropTable(Students.TableName);
+  return query.dropTable(Groups.TableName);
 }

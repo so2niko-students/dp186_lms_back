@@ -46,7 +46,6 @@ export async function up(query: QueryInterface) {
       allowNull: false,
       comment: "Date of the last update",
     },
-    deletedAt: DataTypes.DATE,
   });
 }
 

@@ -1,10 +1,10 @@
-import { DataTypes, FindOptions, Model, ModelCtor, Sequelize } from "sequelize";
+import { DataTypes, Model, Sequelize } from "sequelize";
 import { sequelize } from "../../database";
-class Teachers extends Model {
-  public static readonly ModelName: string = "teacher";
+
+export class Teachers extends Model {
   public static readonly TableName: string = "teachers";
 
-  public id!: number;
+  public id: number;
   public firstName: string;
   public lastName: string;
   public email: string;
@@ -29,15 +29,11 @@ class Teachers extends Model {
         isAdmin: DataTypes.BOOLEAN,
       },
       {
-        sequelize: sequelize,
+        sequelize,
         tableName: this.TableName,
       }
     );
   }
-
-  // public static setAssociations(modelCtors: { [modelName: string]: ModelCtor<Model> }) {}
 }
 
 Teachers.prepareInit(sequelize);
-
-export default Teachers;

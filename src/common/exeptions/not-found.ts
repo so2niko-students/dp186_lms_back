@@ -1,8 +1,9 @@
+import { NOT_FOUND } from "http-status-codes";
 import { BaseHttpError } from "./base-http-error";
 
 class NotFound extends BaseHttpError {
   constructor(error) {
-    super(404, error);
+    super(NOT_FOUND, error);
   }
 }
 

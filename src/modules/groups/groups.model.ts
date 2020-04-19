@@ -1,7 +1,8 @@
 import { DataTypes, Model, Sequelize } from "sequelize";
 import { sequelize } from "../../database";
+import { Teachers } from "../teachers/teachers.model";
 
-class Groups extends Model {
+export class Groups extends Model {
   public static readonly TableName: string = "groups";
 
   public id: number;
@@ -33,11 +34,22 @@ class Groups extends Model {
           allowNull: true,
         },
       },
-      { sequelize, tableName: this.TableName }
+      {
+        sequelize,
+        tableName: this.TableName,
+      }
     );
   }
 }
 
 Groups.prepareInit(sequelize);
 
-export default Groups;
+Groups.belongsTo(Teachers, {
+  foreignKey: "teacherId",
+  as: "teachers",
+});
+
+Teachers.hasMany(Groups, {
+  foreignKey: "teacherId",
+  as: "teachers",
+});

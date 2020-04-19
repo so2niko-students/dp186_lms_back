@@ -1,6 +1,6 @@
-import Students from "./students.model";
-import Groups from "../groups/groups.model";
-import Teachers from "../teachers/teachers.model";
+import { Students } from "./students.model";
+import { Groups } from "../groups/groups.model";
+import { Teachers } from "../teachers/teachers.model";
 import groupsService from "../groups/groups.service";
 import teachersService from "../teachers/teachers.service";
 import { BadRequest, NotFound } from "../../common/exeptions";

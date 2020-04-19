@@ -1,12 +1,3 @@
-// class BaseHttpError {
-//   constructor(statusCode, error) {
-//     this.statusCode = statusCode;
-//     this.error = error;
-//   }
-// }
-
-// export default BaseHttpError;
-
 import { ValidationError } from "joi";
 
 export interface IBaseHttpError {

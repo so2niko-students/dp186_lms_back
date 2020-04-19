@@ -1,10 +1,11 @@
 import { DataTypes, Model, Sequelize } from "sequelize";
-
 import { sequelize } from "../../database";
+import { Groups } from "../groups/groups.model";
 
-class Students extends Model {
+export class Students extends Model {
   public static readonly TableName: string = "students";
-  public id!: number;
+
+  public id: number;
   public firstNameUkr: string;
   public lastNameUkr: string;
   public firstNameEng: string;
@@ -16,7 +17,6 @@ class Students extends Model {
   public createdAt: Date;
   public updatedAt: Date;
 
-  // region Static
   public static prepareInit(sequelize: Sequelize) {
     this.init(
       {
@@ -36,7 +36,7 @@ class Students extends Model {
         groupId: DataTypes.INTEGER(),
       },
       {
-        sequelize: sequelize,
+        sequelize,
         tableName: this.TableName,
       }
     );
@@ -45,28 +45,12 @@ class Students extends Model {
 
 Students.prepareInit(sequelize);
 
-// class Students extends Model {}
+Students.belongsTo(Groups, {
+  foreignKey: "groupId",
+  as: "group",
+});
 
-// const StudentsModel = Students.init(
-//   {
-//     id: {
-//       type: DataTypes.INTEGER,
-//       primaryKey: true,
-//       allowNull: false,
-//       autoIncrement: true,
-//     },
-//     firstNameUkr: DataTypes.STRING(),
-//     lastNameUkr: DataTypes.STRING(),
-//     firstNameEng: DataTypes.STRING(),
-//     lastNameEng: DataTypes.STRING(),
-//     email: DataTypes.STRING(),
-//     phoneNumber: DataTypes.STRING(),
-//     password: DataTypes.STRING(),
-//     groupId: DataTypes.INTEGER(),
-//   },
-//   {
-//     sequelize,
-//   }
-// );
-
-export default Students;
+Groups.hasMany(Students, {
+  foreignKey: "groupId",
+  as: "group",
+});

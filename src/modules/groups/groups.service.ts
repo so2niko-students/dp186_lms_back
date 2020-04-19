@@ -1,4 +1,4 @@
-import Groups from "./groups.model";
+import { Groups } from "./groups.model";
 import { NotFound } from "../../common/exeptions";
 
 class GroupsService {

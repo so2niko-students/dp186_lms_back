@@ -1,4 +1,4 @@
-import Teachers from "./teachers.model";
+import { Teachers } from "./teachers.model";
 
 class TeachersService {
   async findOneByEmail(email) {
