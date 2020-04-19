@@ -4,7 +4,7 @@ import { Students } from '../modules/students/students.model';
 import { Tasks } from '../modules/tasks/tasks.model';
 
 export async function up(query: QueryInterface) {
-    return query.createTable(Solutions.TableName, {
+    return query.createTable(Solutions.tableName, {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -14,7 +14,7 @@ export async function up(query: QueryInterface) {
         studentId: {
             type: DataTypes.INTEGER,
             references: {
-                model: Students.TableName,
+                model: Students.tableName,
                 key: 'id',
             },
             onUpdate: 'CASCADE',
@@ -23,7 +23,7 @@ export async function up(query: QueryInterface) {
         taskId: {
             type: DataTypes.INTEGER,
             references: {
-                model: Tasks.TableName,
+                model: Tasks.tableName,
                 key: 'id',
             },
             onUpdate: 'CASCADE',
@@ -55,5 +55,5 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-    return query.dropTable(Solutions.TableName);
+    return query.dropTable(Solutions.tableName);
 }

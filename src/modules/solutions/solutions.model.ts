@@ -4,7 +4,7 @@ import {Tasks} from '../tasks/tasks.model';
 import {Students} from '../students/students.model';
 
 export class Solutions extends Model {
-    public static readonly TableName: string = 'solutions';
+    public static readonly tableName: string = 'solutions';
 
     public id!: number;
     public studentId: number;
@@ -46,8 +46,8 @@ export class Solutions extends Model {
                 },
             },
             {
-                sequelize: sequelize,
-                tableName: this.TableName,
+                sequelize,
+                tableName: this.tableName,
             }
         );
     }
