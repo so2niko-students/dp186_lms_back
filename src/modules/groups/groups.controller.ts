@@ -13,7 +13,7 @@ class GroupsController {
     }
     public async findOne(req: Request, res: Response, next: NextFunction) {
         try {
-            const group: Groups = await groupsService.findOne(req.params.id, req.user);
+            const group: Groups = await groupsService.findOne(req.params.id);
             res.send(group);
         } catch (e) {
             next(e);

@@ -20,8 +20,7 @@ class GroupsService {
         }
         throw new BadRequest(`Group with name "${groupName} already exist`);
     }
-    public async findOne(id: string, user: any) {
-        await this.userVerification(user);
+    public async findOne(id: string) {
         return Groups.findOne({ where: {id} } );
     }
     public async updateOne(id: string, data: object, user: any) {
