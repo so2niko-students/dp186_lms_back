@@ -2,7 +2,7 @@ import { QueryInterface, DataTypes } from 'sequelize';
 import { Teachers } from '../modules/teachers/teachers.model';
 
 export async function up(query: QueryInterface) {
-    return query.createTable(Teachers.TableName, {
+    return query.createTable(Teachers.tableName, {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -50,5 +50,5 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-    return query.dropTable(Teachers.TableName);
+    return query.dropTable(Teachers.tableName);
 }

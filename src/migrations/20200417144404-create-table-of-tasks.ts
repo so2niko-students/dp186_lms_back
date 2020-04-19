@@ -2,7 +2,7 @@ import { QueryInterface, DataTypes } from 'sequelize';
 import { Tasks } from '../modules/tasks/tasks.model';
 
 export async function up(query: QueryInterface) {
-    return query.createTable(Tasks.TableName, {
+    return query.createTable(Tasks.tableName, {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -39,5 +39,5 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-    return query.dropTable(Tasks.TableName);
+    return query.dropTable(Tasks.tableName);
 }
