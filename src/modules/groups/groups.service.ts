@@ -22,19 +22,14 @@ class GroupsService {
         throw new BadRequest(`Group with name "${groupName} already exist`);
     }
     public async findOne(id: number, user: any) {
-        const { email, password } = user;
-        const mentor = await Teachers.findOne( { where: { id: user.id, email, password }});
-        if (!mentor) {
-            const student = await Students.findOne({ where: { id: user.id, email, password }});
-            if (student) {
-                if (student.groupId === id) {
-                    return Groups.findOne({ where: {id} } );
-                }
-                throw new Unauthorized('You do not have rights to do this.');
+        if (user.isMentor) {
+            return Groups.findOne({ where: {id} } );
+        } else {
+            if (user.groupId === id) {
+                return Groups.findOne({ where: {id} } );
             }
             throw new Unauthorized('You do not have rights to do this.');
         }
-        return Groups.findOne({ where: {id} } );
     }
     public async updateOne(id: number, data: object, user: any) {
         const mentor = await this.mentorVerification(user);
@@ -72,11 +67,9 @@ class GroupsService {
         return hash.replace(/\//g, 'slash');
     }
     private async mentorVerification(user: any): Promise<Teachers> {
-        const { id, email, password } = user;
-        // Check user in Teachers table
-        const mentor = await Teachers.findOne( { where: {id, email, password}});
-        if (mentor) {
-            return mentor;
+        const { isMentor } = user;
+        if (isMentor) {
+            return user;
         }
         throw new Unauthorized('You do not have rights to do this.');
     }
