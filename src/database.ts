@@ -10,23 +10,11 @@ export const sequelize: Sequelize = new Sequelize(
     port: +process.env.DB_PORT,
     // @ts-ignore
     dialect: process.env.DB_DIALECT,
-    // dialect: "postgres",
     dialectOptions: {
       supportBigNumbers: true,
     },
   }
 );
-
-// export const sequelize: Sequelize = new Sequelize("lms", "postgres", "123456", {
-//   host: "127.0.0.1",
-//   port: +"5432",
-//   // @ts-ignore
-//   dialect: "postgres",
-//   // dialect: "postgres",
-//   dialectOptions: {
-//     supportBigNumbers: true,
-//   },
-// });
 
 sequelize
   .authenticate()
