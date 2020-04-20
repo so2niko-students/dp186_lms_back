@@ -8,16 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const students_service_1 = __importDefault(require("./students.service"));
+const students_service_1 = require("./students.service");
 class StudentsController {
     createOne(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const student = yield students_service_1.default.createOne(req.body);
+                const student = yield students_service_1.studentsService.createOne(req.body);
                 res.json(student);
             }
             catch (e) {
@@ -25,18 +22,6 @@ class StudentsController {
             }
         });
     }
-    findMany(req, res, next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield students_service_1.default.findMany();
-                res.json(data);
-            }
-            catch (e) {
-                next(e);
-            }
-        });
-    }
 }
-const studentsController = new StudentsController();
-exports.default = studentsController;
+exports.studentsController = new StudentsController();
 //# sourceMappingURL=students.controller.js.map

@@ -1,5 +1,4 @@
 "use strict";
-// import data from "../data/students.json";
 const studentsData = require("../../data/students");
 studentsData.forEach((obj) => {
     obj.createdAt = new Date();

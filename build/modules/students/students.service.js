@@ -20,8 +20,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const students_model_1 = require("./students.model");
-const groups_model_1 = require("../groups/groups.model");
-const teachers_model_1 = require("../teachers/teachers.model");
 const groups_service_1 = __importDefault(require("../groups/groups.service"));
 const teachers_service_1 = __importDefault(require("../teachers/teachers.service"));
 const exeptions_1 = require("../../common/exeptions");
@@ -64,17 +62,6 @@ class StudentsService {
             return student;
         });
     }
-    findMany() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const students = teachers_model_1.Teachers.findAll({
-                include: [{ model: groups_model_1.Groups, include: [{ model: students_model_1.Students }] }],
-            });
-            if (!students) {
-                throw new exeptions_1.NotFound("Students not found");
-            }
-            return students;
-        });
-    }
 }
-exports.default = new StudentsService();
+exports.studentsService = new StudentsService();
 //# sourceMappingURL=students.service.js.map

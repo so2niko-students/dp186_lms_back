@@ -1,13 +1,23 @@
 import { Students } from "./students.model";
-import { Groups } from "../groups/groups.model";
-import { Teachers } from "../teachers/teachers.model";
 import groupsService from "../groups/groups.service";
 import teachersService from "../teachers/teachers.service";
 import { BadRequest, NotFound } from "../../common/exeptions";
 import * as bcrypt from "bcrypt";
 
+interface IstudentsData {
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+  firstNameUkr: string;
+  lastNameUkr: string;
+  phoneNumber: number;
+  groupId: number;
+  groupToken: string;
+  firstNameEng: string;
+  lastNameEng: string;
+}
 class StudentsService {
-  async createOne(studentsData) {
+  public async createOne(studentsData: IstudentsData) {
     const { groupId, email, groupToken } = studentsData;
 
     const isExistTeacherEmail = await teachersService.findOneByEmail(email);
@@ -38,7 +48,7 @@ class StudentsService {
     return await students.save();
   }
 
-  async findOneByEmail(email) {
+  public async findOneByEmail(email: string) {
     const student = await Students.findOne({
       where: { email },
     });
@@ -46,23 +56,11 @@ class StudentsService {
     return student;
   }
 
-  async findOneById(id) {
+  public async findOneById(id: number) {
     const student = await Students.findOne({ where: { id } });
 
     return student;
   }
-
-  async findMany() {
-    const students = Teachers.findAll({
-      include: [{ model: Groups, include: [{ model: Students }] }],
-    });
-
-    if (!students) {
-      throw new NotFound("Students not found");
-    }
-
-    return students;
-  }
 }
 
-export default new StudentsService();
+export const studentsService = new StudentsService();

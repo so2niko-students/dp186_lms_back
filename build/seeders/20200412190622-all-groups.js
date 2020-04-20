@@ -1,5 +1,4 @@
 "use strict";
-// import data from "../data/groups.json";
 const groupsData = require("../../data/groups");
 groupsData.forEach((obj) => {
     obj.createdAt = new Date();

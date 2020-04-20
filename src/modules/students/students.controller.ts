@@ -1,7 +1,8 @@
-import studentsService from "./students.service";
+import { Request, Response, NextFunction } from "express";
+import { studentsService } from "./students.service";
 
 class StudentsController {
-  async createOne(req, res, next) {
+  public async createOne(req: Request, res: Response, next: NextFunction) {
     try {
       const student = await studentsService.createOne(req.body);
       res.json(student);
@@ -9,17 +10,6 @@ class StudentsController {
       next(e);
     }
   }
-
-  async findMany(req, res, next) {
-    try {
-      const data = await studentsService.findMany();
-
-      res.json(data);
-    } catch (e) {
-      next(e);
-    }
-  }
 }
 
-const studentsController = new StudentsController();
-export default studentsController;
+export const studentsController = new StudentsController();
