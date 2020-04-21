@@ -3,7 +3,7 @@ import { sequelize } from '../../database';
 import { Teachers } from '../teachers/teachers.model';
 
 export class Groups extends Model {
-  public static readonly TableName: string = 'groups';
+  public static readonly tableName: string = 'groups';
 
   public id: number;
   public groupName: string;
@@ -36,7 +36,7 @@ export class Groups extends Model {
       },
       {
         sequelize,
-        tableName: this.TableName,
+        tableName: this.tableName,
       }
     );
   }

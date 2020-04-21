@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { auth } from './auth.config';
 import { Unauthorized } from '../../common/exeptions/index';
-import studentsService from '../../modules/students/students.service';
+import { studentsService } from '../../modules/students/students.service';
 import teachersService from '../../modules/teachers/teachers.service';
 import { Students } from '../students/students.model';
 import { Teachers } from '../teachers/teachers.model';
