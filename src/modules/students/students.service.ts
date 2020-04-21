@@ -1,9 +1,9 @@
 import { Students } from './students.model';
 
 class StudentsService {
-  async findOneByEmail(email: string) {
+  public async findOneByEmail(email: string): Promise<Students> {
     const teacher = await Students.findOne({
-      where: { email }
+      where: { email },
     });
 
     return teacher;

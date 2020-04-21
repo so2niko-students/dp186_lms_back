@@ -1,19 +1,24 @@
-import { LoginDto } from './auth.dtos';
+import { loginDto, updatePasswordDto } from './auth.dtos';
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
-import { createValidator } from '../../common/middlewares/create.validation';
+import { createValidator } from '../../common/middlewares/create-validator';
 
-export class authRoute {
+export class AuthRoute {
 
-    router: Router;
-    public authController: AuthController = new AuthController()
+    public router: Router;
+    public authController: AuthController = new AuthController();
 
     constructor() {
         this.router = Router();
         this.route();
     }
 
-    route() {
-        this.router.post('/login', createValidator(LoginDto), this.authController.login);
+    public route() {
+        this.router.post('/login', createValidator(loginDto), this.authController.login);
+        this.router.put('/student/:id', createValidator(updatePasswordDto),
+            this.authController.updateStudentPassword);
+        this.router.put('/teacher/:id', createValidator(updatePasswordDto),
+            this.authController.updateTeacherPassword);
     }
 }
+

@@ -11,4 +11,22 @@ export class AuthController {
             next(e);
         }
     }
+
+    public async updateStudentPassword(req: Request, res: Response, next: NextFunction) {
+        try {
+            const result = await authService.updateStudentPassword (req.body);
+            res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    public async updateTeacherPassword(req: Request, res: Response, next: NextFunction) {
+        try {
+            const result = await authService.updateTeacherPassword (req.body);
+            res.json(result);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
