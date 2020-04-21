@@ -1,4 +1,4 @@
-import { ValidationError } from "joi";
+import { ValidationError } from 'joi';
 
 export interface IBaseHttpError {
   statusCode: number;

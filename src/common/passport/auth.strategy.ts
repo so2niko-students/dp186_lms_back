@@ -26,4 +26,3 @@ export const strategy = new Strategy(opts, async (jwtPayload, done) => {
   }
 });
 
-//passport.use(strategy);

@@ -12,7 +12,6 @@ export class Teachers extends Model {
   public isAdmin: boolean;
   public createdAt: Date;
   public updatedAt: Date;
-  static init: any;
 
   public static prepareInit(sequelize: Sequelize) {
     this.init(

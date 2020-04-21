@@ -81,8 +81,8 @@ class GroupsService {
     throw new Unauthorized("You do not have rights to do this.");
   }
 
-  public async findOneById(id: number) {
-    const group = await Groups.findOne({ where: { id } });
+  public async findOneByToken(groupToken: string) {
+    const group = await Groups.findOne({ where: { groupToken } });
 
     if (!group) {
       throw new NotFound("Group not found");

@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { studentsService } from "./students.service";
+import { Request, Response, NextFunction } from 'express';
+import { studentsService } from './students.service';
 
 class StudentsController {
   public async createOne(req: Request, res: Response, next: NextFunction) {

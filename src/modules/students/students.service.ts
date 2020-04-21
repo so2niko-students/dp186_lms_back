@@ -1,8 +1,8 @@
-import { Students } from "./students.model";
-import groupsService from "../groups/groups.service";
-import teachersService from "../teachers/teachers.service";
-import { BadRequest, NotFound } from "../../common/exeptions";
-import * as bcrypt from "bcrypt";
+import { Students } from './students.model';
+import groupsService from '../groups/groups.service';
+import teachersService from '../teachers/teachers.service';
+import { BadRequest, NotFound } from '../../common/exeptions';
+import * as bcrypt from 'bcrypt';
 
 interface IstudentsData {
   email: string;
@@ -11,36 +11,34 @@ interface IstudentsData {
   firstNameUkr: string;
   lastNameUkr: string;
   phoneNumber: number;
-  groupId: number;
   groupToken: string;
   firstNameEng: string;
   lastNameEng: string;
+  groupId: number;
 }
 class StudentsService {
   public async createOne(studentsData: IstudentsData) {
-    const { groupId, email, groupToken } = studentsData;
+    const { email, groupToken } = studentsData;
 
     const isExistTeacherEmail = await teachersService.findOneByEmail(email);
 
     if (isExistTeacherEmail) {
-      throw new BadRequest("User with provided email already exists");
+      throw new BadRequest('User with provided email already exists');
     }
 
     const isExistSudentEmail = await this.findOneByEmail(email);
 
     if (isExistSudentEmail) {
-      throw new BadRequest("User with provided email already exists");
+      throw new BadRequest('User with provided email already exists');
     }
 
-    const group = await groupsService.findOneById(groupId);
+    const group = await groupsService.findOneByToken(groupToken);
 
     if (!group) {
-      throw new NotFound("Group not found");
+      throw new NotFound('Group not found');
     }
 
-    if (group.groupToken !== groupToken) {
-      throw new BadRequest("Not walid group token");
-    }
+    studentsData.groupId = group.id;
 
     const students = new Students(studentsData);
     students.password = await bcrypt.hash(students.password, 10);

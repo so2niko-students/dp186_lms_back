@@ -1,9 +1,9 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
-import { sequelize } from "../../database";
-import { Teachers } from "../teachers/teachers.model";
+import { DataTypes, Model, Sequelize } from 'sequelize';
+import { sequelize } from '../../database';
+import { Teachers } from '../teachers/teachers.model';
 
 export class Groups extends Model {
-  public static readonly TableName: string = "groups";
+  public static readonly tableName: string = 'groups';
 
   public id: number;
   public groupName: string;
@@ -36,7 +36,7 @@ export class Groups extends Model {
       },
       {
         sequelize,
-        tableName: this.TableName,
+        tableName: this.tableName,
       }
     );
   }
@@ -45,11 +45,11 @@ export class Groups extends Model {
 Groups.prepareInit(sequelize);
 
 Groups.belongsTo(Teachers, {
-  foreignKey: "teacherId",
-  as: "teachers",
+  foreignKey: 'teacherId',
+  as: 'teachers',
 });
 
 Teachers.hasMany(Groups, {
-  foreignKey: "teacherId",
-  as: "teachers",
+  foreignKey: 'teacherId',
+  as: 'teachers',
 });
