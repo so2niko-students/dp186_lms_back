@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-const dotenv = require("dotenv").config();
+import { Sequelize } from 'sequelize';
+const dotenv = require('dotenv').config();
 
 export const sequelize: Sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -18,5 +18,5 @@ export const sequelize: Sequelize = new Sequelize(
 
 sequelize
   .authenticate()
-  .then(() => console.log("Connection to DataBase is successfully set."))
+  .then(() => console.log('Connection to DataBase is successfully set.'))
   .catch((err) => console.log(err));
