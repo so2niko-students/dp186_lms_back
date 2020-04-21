@@ -10,7 +10,6 @@ export class Solutions extends Model {
     public studentId: number;
     public taskId: number;
     public solutionLink: string;
-    public comment: string;
     public grade: number;
     public createdAt: Date;
     public updatedAt: Date;
@@ -33,10 +32,6 @@ export class Solutions extends Model {
                     allowNull: false,
                 },
                 solutionLink: {
-                    type: DataTypes.STRING(),
-                    allowNull: true,
-                },
-                comment: {
                     type: DataTypes.STRING(),
                     allowNull: true,
                 },

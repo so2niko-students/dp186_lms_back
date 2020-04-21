@@ -43,14 +43,6 @@ export async function up(query: QueryInterface) {
             type: DataTypes.STRING(),
             allowNull: false,
         },
-        dateCreate: {
-            type: DataTypes.DATE(),
-            allowNull: false,
-        },
-        filesLink: {
-            type: DataTypes.STRING(),
-            allowNull: true,
-        },
         createdAt: {
             type: DataTypes.DATE,
             allowNull: false,

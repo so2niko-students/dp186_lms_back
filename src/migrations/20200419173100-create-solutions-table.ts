@@ -33,10 +33,6 @@ export async function up(query: QueryInterface) {
             type: DataTypes.STRING(),
             allowNull: true,
         },
-        comment: {
-            type: DataTypes.STRING(),
-            allowNull: true,
-        },
         grade: {
             type: DataTypes.INTEGER(),
             allowNull: true,

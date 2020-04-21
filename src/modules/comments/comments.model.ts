@@ -13,8 +13,6 @@ export class Comments extends Model {
     public studentId: number;
     public teacherId: number;
     public text: string;
-    public dateCreate: Date;
-    public filesLink: string;
     public createdAt: Date;
     public updatedAt: Date;
 
@@ -42,14 +40,6 @@ export class Comments extends Model {
                 text: {
                     type: DataTypes.STRING(),
                     allowNull: false,
-                },
-                dateCreate: {
-                    type: DataTypes.DATE(),
-                    allowNull: false,
-                },
-                filesLink: {
-                    type: DataTypes.STRING(),
-                    allowNull: true,
                 },
             },
             {
