@@ -20,15 +20,11 @@ class StudentsService {
   public async createOne(studentsData: IstudentsData) {
     const { email, groupToken } = studentsData;
 
-    const isExistTeacherEmail = await teachersService.findOneByEmail(email);
-
-    if (isExistTeacherEmail) {
+    if (await teachersService.findOneByEmail(email)) {
       throw new BadRequest('User with provided email already exists');
     }
 
-    const isExistSudentEmail = await this.findOneByEmail(email);
-
-    if (isExistSudentEmail) {
+    if (await this.findOneByEmail(email)) {
       throw new BadRequest('User with provided email already exists');
     }
 
