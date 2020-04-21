@@ -16,7 +16,7 @@ export const strategy = new Strategy(opts, async (jwtPayload, done) => {
         const user: any = await studentsService.findOneByEmail(jwtPayload.email) ||
             await teachersService.findOneByEmail(jwtPayload.email);
         if (user) {
-            user.isMentor  = user instanceof Teachers ? true : false;
+            user.isMentor = user instanceof Teachers;
             done(null, user);
         } else {
             done(null, false);

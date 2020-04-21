@@ -6,57 +6,52 @@ import { hashSync, genSaltSync } from 'bcrypt';
 
 interface IGroupCreate {
     groupName: string;
-    teacherId?: number;
+    user: Teachers | Students;
     groupToken?: string;
 }
 
+type CustomUser<T> = T & {isMentor: boolean; groupId?: number};
+
 class GroupsService {
-    public async createOne(data: IGroupCreate, user: any) {
+    public async createOne(data: IGroupCreate, user: CustomUser<Teachers | Students>) {
         await this.mentorVerification(user);
         const { groupName } = data;
-        const group = await Groups.findAll( { where: {groupName}} );
-        if (group.length === 0) {
-            data.groupToken = await this.createGroupToken(groupName);
-            return Groups.create({...data});
+        const group = await Groups.findOne( { where: {groupName, teacherId: data.user.id}} );
+        if (group) {
+            throw new BadRequest(`Group with name "${groupName} already exist`);
         }
-        throw new BadRequest(`Group with name "${groupName} already exist`);
+        data.groupToken = await this.createGroupToken(groupName);
+        return Groups.create({...data});
     }
-    public async findOne(id: number, user: any) {
+    public async findOne(id: number, user: CustomUser<Teachers | Students>) {
         if (user.isMentor) {
             return Groups.findOne({ where: {id} } );
-        } else {
-            if (user.groupId === id) {
-                return Groups.findOne({ where: {id} } );
-            }
+        }
+        if (user.groupId !== id) {
             throw new Unauthorized('You do not have rights to do this.');
         }
+        return Groups.findOne({ where: {id} } );
     }
-    public async updateOne(id: number, data: object, user: any) {
+    public async updateOne(id: number, data: object, user: CustomUser<Teachers | Students>) {
         const mentor = await this.mentorVerification(user);
-        const group = await Groups.findOne({ where: {id} });
-        if (group) {
-            if (group.teacherId === mentor.id) {
-                Object.keys(data).forEach((k) => group[k] = data[k]);
-                group.save();
-                return group;
-            }
+        const group = await this.isGroupAvailable(id);
+        if (group.teacherId !== mentor.id) {
             throw new Unauthorized('You do not have rights to do this.');
         }
-        throw new NotFound(`Group with ${id} not found.`);
+        Object.keys(data).forEach((k) => group[k] = data[k]);
+        group.save();
+        return group;
     }
-    public async deleteOne(id: number, user: any) {
+    public async deleteOne(id: number, user: CustomUser<Teachers | Students>) {
         const mentor = await this.mentorVerification(user);
-        const group = await Groups.findOne({ where: {id} });
-        if (group) {
-            if (group.teacherId === mentor.id) {
-                group.destroy();
-                return group;
-            }
+        const group = await this.isGroupAvailable(id);
+        if (group.teacherId !== mentor.id) {
             throw new Unauthorized('You do not have rights to do this.');
         }
-        throw new NotFound(`Group with ${id} not found.`);
+        group.destroy();
+        return group;
     }
-    public async findMany(user: any) {
+    public async findMany(user: CustomUser<Teachers | Students>) {
         await this.mentorVerification(user);
         return Groups.findAll();
     }
@@ -66,14 +61,20 @@ class GroupsService {
         const hash = hashSync(name, salt);
         return hash.replace(/\//g, 'slash');
     }
-    private async mentorVerification(user: any): Promise<Teachers> {
+    private async mentorVerification(user: CustomUser<Teachers | Students>) {
         const { isMentor } = user;
-        if (isMentor) {
-            return user;
+        if (!isMentor) {
+            throw new Unauthorized('You do not have rights to do this.');
         }
-        throw new Unauthorized('You do not have rights to do this.');
+        return user;
+    }
+    private async isGroupAvailable(id: number) {
+        const group = await Groups.findOne({ where: {id} });
+        if (!group) {
+            throw new NotFound(`Group with ${id} not found.`);
+        }
+        return group;
     }
 }
 
-const groupsService = new GroupsService();
-export default groupsService;
+export const groupsService = new GroupsService();

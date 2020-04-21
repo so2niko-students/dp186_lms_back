@@ -1,44 +1,48 @@
 import { Request, Response, NextFunction} from 'express';
-import { Groups } from './groups.model';
-import groupsService from './groups.service';
+import { Groups as Group } from './groups.model';
+import { groupsService } from './groups.service';
 
 class GroupsController {
-    public async createOne(req: Request, res: Response, next: NextFunction): Promise<any> {
+    public async createOne(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const group: Groups = await groupsService.createOne(req.body, req.user);
+            // @ts-ignore
+            const group: Group = await groupsService.createOne(req.body, req.user);
             res.send(group);
         } catch (e) {
             next(e);
         }
     }
-    public async findOne(req: Request, res: Response, next: NextFunction) {
+    public async findOne(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const group: Groups = await groupsService.findOne(Number(req.params.id), req.user);
+            // @ts-ignore
+            const group: Group = await groupsService.findOne(+req.params.id, req.user);
             res.send(group);
         } catch (e) {
             next(e);
         }
     }
-    public async updateOne(req: Request, res: Response, next: NextFunction) {
+    public async updateOne(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const group: Groups = await groupsService.updateOne(Number(req.params.id),
-                req.body, req.user);
+            // @ts-ignore
+            const group: Group = await groupsService.updateOne(+req.params.id, req.body, req.user);
             res.send(group);
         } catch (e) {
             next(e);
         }
     }
-    public async deleteOne(req: Request, res: Response, next: NextFunction) {
+    public async deleteOne(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const group: Groups = await groupsService.deleteOne(Number(req.params.id), req.user);
+            // @ts-ignore
+            const group: Group = await groupsService.deleteOne(+req.params.id, req.user);
             res.send(group);
         } catch (e) {
             next(e);
         }
     }
-    public async findMany(req: Request, res: Response, next: NextFunction) {
+    public async findMany(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const groups: Groups[] = await groupsService.findMany(req.user);
+            // @ts-ignore
+            const groups: Group[] = await groupsService.findMany(req.user);
             res.send(groups);
         } catch (e) {
             next(e);
