@@ -3,7 +3,7 @@ import { Teachers } from "../modules/teachers/teachers.model";
 
 export async function up(query: QueryInterface) {
   return query.changeColumn(Teachers.tableName, "password", {
-    type: DataTypes.STRING(),
+    type: DataTypes.STRING(100),
     allowNull: false,
     comment: "Password of the teacher",
   });
