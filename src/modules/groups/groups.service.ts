@@ -3,7 +3,7 @@ import { Teachers } from '../teachers/teachers.model';
 import { Students } from '../students/students.model';
 import { NotFound, BadRequest, Unauthorized } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
-import { AuthRequest } from '../../common/types/types';
+import {CustomUser} from '../../common/types/types';
 
 interface IGroupCreate {
     groupName: string;
@@ -12,7 +12,7 @@ interface IGroupCreate {
 }
 
 class GroupsService {
-    public async createOne(data: IGroupCreate, user: AuthRequest) {
+    public async createOne(data: IGroupCreate, user: CustomUser) {
         await this.mentorVerification(user);
         const { groupName } = data;
         const group = await Groups.findOne( { where: {groupName, teacherId: data.user.id}} );
@@ -22,7 +22,7 @@ class GroupsService {
         data.groupToken = await this.createGroupToken(groupName);
         return Groups.create({...data});
     }
-    public async findOne(id: number, user: AuthRequest) {
+    public async findOne(id: number, user: CustomUser) {
         if (user.isMentor) {
             return Groups.findOne({ where: {id} } );
         }
@@ -38,7 +38,7 @@ class GroupsService {
         }
         return group;
     }
-    public async updateOne(id: number, data: object, user: AuthRequest) {
+    public async updateOne(id: number, data: object, user: CustomUser) {
         const mentor = await this.mentorVerification(user);
         const group = await this.isGroupAvailable(id);
         if (group.teacherId !== mentor.id) {
@@ -48,7 +48,7 @@ class GroupsService {
         group.save();
         return group;
     }
-    public async deleteOne(id: number, user: AuthRequest) {
+    public async deleteOne(id: number, user: CustomUser) {
         const mentor = await this.mentorVerification(user);
         const group = await this.isGroupAvailable(id);
         if (group.teacherId !== mentor.id) {
@@ -57,7 +57,7 @@ class GroupsService {
         group.destroy();
         return group;
     }
-    public async findMany(user: AuthRequest) {
+    public async findMany(user: CustomUser) {
         await this.mentorVerification(user);
         return Groups.findAll();
     }
@@ -67,7 +67,7 @@ class GroupsService {
         const hash = hashSync(name, salt);
         return hash.replace(/\//g, 'slash');
     }
-    private async mentorVerification(user: AuthRequest) {
+    private async mentorVerification(user: CustomUser) {
         const { isMentor } = user;
         if (!isMentor) {
             throw new Unauthorized('You do not have rights to do this.');
