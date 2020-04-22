@@ -1,21 +1,33 @@
 import { Tasks } from './tasks.model';
 
-interface ITaskCreate {
+interface TasksInterface {
   groupId: number;
   taskName: string;
   fileURL: string;
 }
 
 class TasksService {
-  async findAll(): Promise<object> {
+  public async findAll(): Promise<TasksInterface[]> {
     return await Tasks.findAll();
   }
 
-  async createOne(task: ITaskCreate): Promise<object> {
+  public async findOneById(id: number): Promise<TasksInterface[]> {
+    return await Tasks.findAll({ where: { id } });
+  }
+
+  public async createOne(task: TasksInterface): Promise<TasksInterface> {
     return await Tasks.create(task);
   }
 
-  async deleteOne(id: number): Promise<void> {
+  public async updateOne(id: number, updates: object): Promise<TasksInterface> {
+    const [updatedRow, [updatedTask]] = await Tasks.update(updates, {
+      returning: true,
+      where: { id },
+    });
+    return updatedTask;
+  }
+
+  public async deleteOne(id: number): Promise<void> {
     await Tasks.destroy({ where: { id } });
   }
 }

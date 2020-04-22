@@ -42,7 +42,6 @@ Groups.hasMany(Tasks, {
   as: 'tasks'
 });
 
-// Tasks.belongsTo(Groups, {targetKey: 'id'});{
 Tasks.belongsTo(Groups, {
   foreignKey: 'groupId',
   as: 'tasks'
