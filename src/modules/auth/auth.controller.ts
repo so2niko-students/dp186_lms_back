@@ -12,21 +12,13 @@ export class AuthController {
         }
     }
 
-    public async updateStudentPassword(req: Request, res: Response, next: NextFunction) {
+    public async updatePassword(req: Request, res: Response, next: NextFunction) {
         try {
-            const result = await authService.updateStudentPassword (req.body);
-            res.json(result);
+            const student = await authService.updatePassword(req.body);
+            res.json(student);
         } catch (e) {
             next(e);
         }
     }
 
-    public async updateTeacherPassword(req: Request, res: Response, next: NextFunction) {
-        try {
-            const result = await authService.updateTeacherPassword (req.body);
-            res.json(result);
-        } catch (e) {
-            next(e);
-        }
-    }
 }

@@ -1,7 +1,7 @@
 import { Teachers } from './teachers.model';
 
 class TeachersService {
-  async findOneByEmail(email: string) {
+  public async findOneByEmail(email: string) {
     const teacher = await Teachers.findOne({
       where: { email },
     });
@@ -9,11 +9,13 @@ class TeachersService {
     return teacher;
   }
 
-  async findOneById(id) {
-    const teacher = await Teachers.findOne({ where: { id } });
+  public async findOneByPassword(password: string) {
+    const teacher = await Teachers.findOne({
+      where: { password },
+    });
 
     return teacher;
   }
 }
 
-export default new TeachersService();
+export const teachersService = new TeachersService();

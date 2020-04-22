@@ -9,6 +9,7 @@ import passport = require('passport');
 import { strategy } from './common/passport/auth.strategy';
 import { AuthRoute } from './modules/auth/auth.routes';
 import { authJwt } from './common/middlewares/auth.middleware';
+import * as bodyParser from 'body-parser';
 
 const app: express.Express = express();
 app.use(express.json());

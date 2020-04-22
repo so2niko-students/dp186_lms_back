@@ -15,10 +15,7 @@ export class AuthRoute {
 
     public route() {
         this.router.post('/login', createValidator(loginDto), this.authController.login);
-        this.router.put('/student/:id', createValidator(updatePasswordDto),
-            this.authController.updateStudentPassword);
-        this.router.put('/teacher/:id', createValidator(updatePasswordDto),
-            this.authController.updateTeacherPassword);
+        this.router.put('/updatePassword', createValidator(updatePasswordDto),
+            this.authController.updatePassword);
     }
 }
-
