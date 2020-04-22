@@ -21,7 +21,11 @@ export class Avatars extends Model {
           defaultValue: DataTypes.INTEGER,
           comment: 'Id of the instance',
         },
-        avatarLink: DataTypes.INTEGER,
+        avatarLink: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          comment: 'Link to the avatar image'
+        }
       },
       {
         sequelize,
@@ -36,7 +40,7 @@ Avatars.prepareInit(sequelize);
 Avatars.hasOne(Groups, {
   sourceKey: 'id',
   foreignKey: 'avatarId',
-  as: 'avatarForGroups'
+  as: 'groups'
 });
 
 Groups.belongsTo(Avatars, {targetKey: 'id'});
@@ -44,7 +48,7 @@ Groups.belongsTo(Avatars, {targetKey: 'id'});
 Avatars.hasOne(Teachers, {
   sourceKey: 'id',
   foreignKey: 'avatarId',
-  as: 'avatarForTeachers'
+  as: 'teachers'
 });
 
 Teachers.belongsTo(Avatars, {targetKey: 'id'});
@@ -52,7 +56,7 @@ Teachers.belongsTo(Avatars, {targetKey: 'id'});
 Avatars.hasOne(Students, {
   sourceKey: 'id',
   foreignKey: 'avatarId',
-  as: 'avatarForStudets'
+  as: 'studets'
 });
 
 Students.belongsTo(Avatars, {targetKey: 'id'});
