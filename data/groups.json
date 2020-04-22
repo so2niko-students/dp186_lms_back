@@ -1,0 +1,17 @@
+[{
+        "groupName": "Kh-172 Node.JS",
+        "groupToken": "$2b$05$943T3yvmEEZBoMBwdaNLwOVRWLHVXHjkgAS.lbtw.9tBUPob0CuIi",
+        "teacherId": 1
+    },
+    {
+        "groupName": "Cv-159 WEBUI",
+        "groupToken": "$2b$05$vY57mlM5GvlDOnAJ7jeaEuAlzr.xhdXSW0YrAv5CJ4ASZ3ipLzislash6",
+        "teacherId": 2
+    },
+    {
+        "groupName": "Dp-191 DEVOPS",
+        "groupToken": "$2b$05$9Y57mlM5GvlDOnAJ7jeaEuAlzr.xhdXSW0YrAv5CJ4ASZ3ipLzislashi",
+        "teacherId": 1
+    }
+
+]

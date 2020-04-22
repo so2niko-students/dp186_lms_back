@@ -1,9 +1,9 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
-import { sequelize } from '../../database';
-import { Groups } from '../groups/groups.model';
+import { DataTypes, Model, Sequelize } from "sequelize";
+import { sequelize } from "../../database";
+import { Groups } from "../groups/groups.model";
 
 export class Students extends Model {
-  public static readonly tableName: string = 'students';
+  public static readonly tableName: string = "students";
 
   public id: number;
   public firstNameUkr: string;
@@ -46,11 +46,11 @@ export class Students extends Model {
 Students.prepareInit(sequelize);
 
 Students.belongsTo(Groups, {
-  foreignKey: 'groupId',
-  as: 'group',
-})
+  foreignKey: "groupId",
+  as: "group",
+});
 
 Groups.hasMany(Students, {
-  foreignKey: 'groupId',
-  as: 'group',
-})
+  foreignKey: "groupId",
+  as: "group",
+});
