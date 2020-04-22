@@ -2,6 +2,7 @@ import { loginDto, updatePasswordDto } from './auth.dtos';
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
 import { createValidator } from '../../common/middlewares/create-validator';
+import { authJwt } from '../../common/middlewares/auth.middleware';
 
 export class AuthRoute {
 
@@ -15,7 +16,7 @@ export class AuthRoute {
 
     public route() {
         this.router.post('/login', createValidator(loginDto), this.authController.login);
-        this.router.put('/updatePassword', createValidator(updatePasswordDto),
+        this.router.put('/updatePassword', authJwt, createValidator(updatePasswordDto),
             this.authController.updatePassword);
     }
 }

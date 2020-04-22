@@ -4,37 +4,53 @@ import { auth } from './auth.config';
 import { Unauthorized } from '../../common/exeptions/index';
 import { studentsService } from '../../modules/students/students.service';
 import { teachersService } from '../../modules/teachers/teachers.service';
-import BadRequest from '../../common/exeptions/bad-request';
+import { hashFunc } from './password.hash';
 import { Students } from '../students/students.model';
+import { Teachers } from '../teachers/teachers.model';
+import { CustomUser } from '../../common/types/types';
+
+interface ILogin {
+    email: string;
+    password: string;
+}
+
+interface IUpdatePassport {
+    oldPassword: string;
+    newPassword: string;
+}
 
 class AuthService {
-    public async login({email, password}) {
-        const user = await studentsService.findOneByEmail(email) ||
+    public async login(data: ILogin) {
+        const { email, password } = data;
+        const user: Students | Teachers = await studentsService.findOneByEmail(email) ||
             await teachersService.findOneByEmail(email);
 
         if (!bcrypt.compareSync(password, user.password)) {
             throw new Unauthorized('Wrong password');
         }
-        const token = jwt.sign({ id: user.id, email: user.email }, auth.secretKey);
+
+        const token: string = jwt.sign({ id: user.id, email: user.email }, auth.secretKey);
+
         return {
             token,
             expires: auth.expiresIn,
         };
     }
 
-    public async updatePassword({oldPassword, newPassword}) {
-        
-        const existingUser = await Students.findOne({
-            where: { password: bcrypt.hashSync(oldPassword, 10) },
-        });
+    public async updatePassword(data: IUpdatePassport, user: CustomUser) {
+        const { oldPassword, newPassword } = data;
+        const { email, password } = user;
 
-        if (!existingUser) {
-            throw new  BadRequest('User with provided password does not exist');
+        const userForUpdate: Students | Teachers = await studentsService.findOneByEmail(email) ||
+            await teachersService.findOneByEmail(email);
+
+        if (!bcrypt.compareSync(oldPassword, password)) {
+            throw new Unauthorized('Wrong password');
         }
 
-        existingUser.password = bcrypt.hashSync(newPassword, 10);
+        userForUpdate.password = hashFunc(newPassword);
 
-        return existingUser.save();
+        return userForUpdate.save();
     }
 
 }
