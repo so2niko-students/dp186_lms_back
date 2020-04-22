@@ -5,6 +5,7 @@ import { Unauthorized } from '../../common/exeptions/index';
 import { studentsService } from '../../modules/students/students.service';
 import { teachersService } from '../../modules/teachers/teachers.service';
 import BadRequest from '../../common/exeptions/bad-request';
+import { Students } from '../students/students.model';
 
 class AuthService {
     public async login({email, password}) {
@@ -27,37 +28,15 @@ class AuthService {
             where: { password: bcrypt.hashSync(oldPassword, 10) },
         });
 
-        if (!existingStudent) {
+        if (!existingUser) {
             throw new  BadRequest('User with provided password does not exist');
         }
 
-        existingStudent.password = bcrypt.hashSync(newPassword, 10);
+        existingUser.password = bcrypt.hashSync(newPassword, 10);
 
-        return existingStudent.save();
+        return existingUser.save();
     }
-
-    // public async updateTeacherPassword({oldPassword, newPassword}) {
-    //     console.log(oldPassword, newPassword);
-    //     const passport = bcrypt.hashSync(oldPassword, 10);
-    //     console.log(passport);
-        
-    //     const existingTeacher = await Teachers.findOne({
-    //         where: { password: bcrypt.hashSync(oldPassword, 10) },
-    //     });
-
-    //     if (!existingTeacher) {
-    //         throw new  BadRequest('User with provided password does not exist');
-    //     }
-
-    //     existingTeacher.password = bcrypt.hashSync(newPassword, 10);
-
-    //     return existingTeacher.save();
-    // }
 
 }
 
 export const authService = new AuthService();
-
-
-
-// $2b$10$y6R41bSS0ebb/Lnz68ezk.DFCUYHEUAyyAEoMEkAwgBH/ie5LM3ki

@@ -1,21 +1,20 @@
-import passport = require('passport');
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { auth } from '../../modules/auth/auth.config';
 import { studentsService } from '../../modules/students/students.service';
 import { teachersService } from '../../modules/teachers/teachers.service';
 import { Unauthorized } from '../../common/exeptions/index';
 import { Teachers } from '../../modules/teachers/teachers.model';
-import { Students } from '../../modules/students/students.model';
+import {CustomUser} from '../../common/types/types';
 
 const opts = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: auth.secretKey,
-  expiresIn: auth.expiresIn,
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: auth.secretKey,
+    expiresIn: auth.expiresIn,
 };
 
 export const strategy = new Strategy(opts, async (jwtPayload, done) => {
   try {
-    const user: Teachers | Students =
+    const user: any=
       (await studentsService.findOneByEmail(jwtPayload.email)) ||
       (await teachersService.findOneByEmail(jwtPayload.email));
     if (user) {
@@ -26,5 +25,6 @@ export const strategy = new Strategy(opts, async (jwtPayload, done) => {
     }
   } catch (err) {
     done(new Unauthorized(err.message), false);
-  }
+}
+
 });

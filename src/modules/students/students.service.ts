@@ -1,6 +1,6 @@
 import { Students } from './students.model';
-import groupsService from '../groups/groups.service';
-import teachersService from '../teachers/teachers.service';
+import {groupsService} from '../groups/groups.service';
+import {teachersService} from '../teachers/teachers.service';
 import { BadRequest, NotFound } from '../../common/exeptions';
 import * as bcrypt from 'bcrypt';
 
