@@ -3,6 +3,7 @@ import { Teachers } from '../teachers/teachers.model';
 import { Students } from '../students/students.model';
 import { NotFound, BadRequest, Unauthorized } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
+import { AuthRequest } from '../../common/types/types';
 
 interface IGroupCreate {
     groupName: string;
@@ -10,10 +11,8 @@ interface IGroupCreate {
     groupToken?: string;
 }
 
-type CustomUser<T> = T & {isMentor: boolean; groupId?: number};
-
 class GroupsService {
-    public async createOne(data: IGroupCreate, user: CustomUser<Teachers | Students>) {
+    public async createOne(data: IGroupCreate, user: AuthRequest) {
         await this.mentorVerification(user);
         const { groupName } = data;
         const group = await Groups.findOne( { where: {groupName, teacherId: data.user.id}} );
@@ -23,7 +22,7 @@ class GroupsService {
         data.groupToken = await this.createGroupToken(groupName);
         return Groups.create({...data});
     }
-    public async findOne(id: number, user: CustomUser<Teachers | Students>) {
+    public async findOne(id: number, user: AuthRequest) {
         if (user.isMentor) {
             return Groups.findOne({ where: {id} } );
         }
@@ -32,7 +31,14 @@ class GroupsService {
         }
         return Groups.findOne({ where: {id} } );
     }
-    public async updateOne(id: number, data: object, user: CustomUser<Teachers | Students>) {
+    public async findOneByToken(groupToken: string) {
+        const group = await Groups.findOne({ where: { groupToken } });
+        if (!group) {
+            throw new NotFound('Group not found');
+        }
+        return group;
+    }
+    public async updateOne(id: number, data: object, user: AuthRequest) {
         const mentor = await this.mentorVerification(user);
         const group = await this.isGroupAvailable(id);
         if (group.teacherId !== mentor.id) {
@@ -42,7 +48,7 @@ class GroupsService {
         group.save();
         return group;
     }
-    public async deleteOne(id: number, user: CustomUser<Teachers | Students>) {
+    public async deleteOne(id: number, user: AuthRequest) {
         const mentor = await this.mentorVerification(user);
         const group = await this.isGroupAvailable(id);
         if (group.teacherId !== mentor.id) {
@@ -51,7 +57,7 @@ class GroupsService {
         group.destroy();
         return group;
     }
-    public async findMany(user: CustomUser<Teachers | Students>) {
+    public async findMany(user: AuthRequest) {
         await this.mentorVerification(user);
         return Groups.findAll();
     }
@@ -61,7 +67,7 @@ class GroupsService {
         const hash = hashSync(name, salt);
         return hash.replace(/\//g, 'slash');
     }
-    private async mentorVerification(user: CustomUser<Teachers | Students>) {
+    private async mentorVerification(user: AuthRequest) {
         const { isMentor } = user;
         if (!isMentor) {
             throw new Unauthorized('You do not have rights to do this.');

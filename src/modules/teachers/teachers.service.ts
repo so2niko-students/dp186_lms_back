@@ -16,4 +16,4 @@ class TeachersService {
   }
 }
 
-export default new TeachersService();
+export const teachersService = new TeachersService();

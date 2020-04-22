@@ -2,10 +2,10 @@ import { Request, Response, NextFunction} from 'express';
 import { Groups as Group } from './groups.model';
 import { groupsService } from './groups.service';
 
+
 class GroupsController {
     public async createOne(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // @ts-ignore
             const group: Group = await groupsService.createOne(req.body, req.user);
             res.send(group);
         } catch (e) {
@@ -14,7 +14,6 @@ class GroupsController {
     }
     public async findOne(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // @ts-ignore
             const group: Group = await groupsService.findOne(+req.params.id, req.user);
             res.send(group);
         } catch (e) {

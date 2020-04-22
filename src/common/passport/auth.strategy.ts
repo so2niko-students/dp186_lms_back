@@ -1,8 +1,8 @@
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { Teachers } from '../../modules/teachers/teachers.model';
 import { auth } from '../../modules/auth/auth.config';
-import studentsService from '../../modules/students/students.service';
-import teachersService from '../../modules/teachers/teachers.service';
+import {studentsService} from '../../modules/students/students.service';
+import {teachersService} from '../../modules/teachers/teachers.service';
 import { Unauthorized } from '../../common/exeptions/index';
 
 const opts = {
