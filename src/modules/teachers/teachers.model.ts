@@ -1,8 +1,8 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
-import { sequelize } from "../../database";
+import { DataTypes, Model, Sequelize } from 'sequelize';
+import { sequelize } from '../../database';
 
 export class Teachers extends Model {
-  public static readonly tableName: string = "teachers";
+  public static readonly tableName: string = 'teachers';
 
   public id: number;
   public firstName: string;
@@ -21,10 +21,10 @@ export class Teachers extends Model {
           primaryKey: true,
           autoIncrement: true,
         },
-        firstName: new DataTypes.STRING(255),
-        lastName: new DataTypes.STRING(255),
-        email: new DataTypes.STRING(255),
-        password: new DataTypes.STRING(10),
+        firstName: DataTypes.STRING(255),
+        lastName: DataTypes.STRING(255),
+        email: DataTypes.STRING(255),
+        password: DataTypes.STRING(100),
         isAdmin: DataTypes.BOOLEAN,
       },
       {
