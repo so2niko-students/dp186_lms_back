@@ -3,7 +3,7 @@ import { sequelize } from '../../database';
 import { Groups } from '../groups/groups.model';
 
 export class Tasks extends Model {
-  public static readonly TableName: string = 'tasks';
+  public static readonly tableName: string = 'tasks';
 
   public id!: number;
   public groupId: number;
@@ -26,7 +26,8 @@ export class Tasks extends Model {
         fileURL: DataTypes.STRING(255),
       },
       {
-        sequelize: sequelize
+        sequelize,
+        tableName: this.tableName,
       },
     );
   }

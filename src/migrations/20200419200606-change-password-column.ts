@@ -1,18 +1,18 @@
-import { QueryInterface, DataTypes } from "sequelize";
-import { Teachers } from "../modules/teachers/teachers.model";
+import { QueryInterface, DataTypes } from 'sequelize';
+import { Teachers } from '../modules/teachers/teachers.model';
 
 export async function up(query: QueryInterface) {
-  return query.changeColumn(Teachers.tableName, "password", {
-    type: DataTypes.STRING(),
+  return query.changeColumn(Teachers.tableName, 'password', {
+    type: DataTypes.STRING(100),
     allowNull: false,
-    comment: "Password of the teacher",
+    comment: 'Password of the teacher',
   });
 }
 
 export async function down(query: QueryInterface) {
-  return query.changeColumn(Teachers.tableName, "password", {
+  return query.changeColumn(Teachers.tableName, 'password', {
     type: DataTypes.STRING(10),
     allowNull: false,
-    comment: "Password of the teacher",
+    comment: 'Password of the teacher',
   });
 }
