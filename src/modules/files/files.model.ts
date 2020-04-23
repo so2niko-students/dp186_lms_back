@@ -1,9 +1,9 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import { sequelize } from '../../database';
 import { Tasks } from '../tasks/tasks.model';
-import { Comments } from '../comments/comments.model';
+import { Comment } from '../comments/comments.model';
 
-export class Files extends Model {
+export class File extends Model {
     public static readonly tableName: string = 'files';
 
     public id: number;
@@ -48,24 +48,22 @@ export class Files extends Model {
     }
 }
 
-Files.prepareInit(sequelize);
+File.prepareInit(sequelize);
 
-Files.belongsTo(Comments, {
+File.belongsTo(Comment, {
     foreignKey: 'commentId',
     as: 'comment'
 });
 
-Comments.hasMany(Files, {
+Comment.hasMany(File, {
     foreignKey: 'commentId',
-    as: 'comment'
 });
 
-Files.belongsTo(Tasks, {
+File.belongsTo(Tasks, {
     foreignKey: 'taskId',
-    // as: 'task'
+    as: 'task'
 });
 
-Tasks.hasMany(Files, {
+Tasks.hasMany(File, {
     foreignKey: 'taskId',
-    // as: 'task'
 });

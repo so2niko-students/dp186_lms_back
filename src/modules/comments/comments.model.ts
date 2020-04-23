@@ -2,10 +2,10 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 import {sequelize} from '../../database';
 import {Teachers} from '../teachers/teachers.model';
 import {Students} from '../students/students.model';
-import {Solutions} from '../solutions/solutions.model';
+import {Solution} from '../solutions/solutions.model';
 
 
-export class Comments extends Model {
+export class Comment extends Model {
     public static readonly tableName: string = 'comments';
 
     public id!: number;
@@ -50,34 +50,31 @@ export class Comments extends Model {
     }
 }
 
-Comments.prepareInit(sequelize);
+Comment.prepareInit(sequelize);
 
-Comments.belongsTo(Solutions, {
+Comment.belongsTo(Solution, {
     foreignKey: 'solutionId',
     as: 'solution'
 });
 
-Solutions.hasMany(Comments, {
+Solution.hasMany(Comment, {
     foreignKey: 'solutionId',
-    as: 'solution',
 });
 
-Comments.belongsTo(Students, {
+Comment.belongsTo(Students, {
     foreignKey: 'studentId',
-    // as: 'student',
+    as: 'student',
 });
 
-Students.hasMany(Comments, {
+Students.hasMany(Comment, {
     foreignKey: 'studentId',
-    // as: 'student',
 });
 
-Comments.belongsTo(Teachers, {
+Comment.belongsTo(Teachers, {
     foreignKey: 'teacherId',
     as: 'teacher',
 });
 
-Teachers.hasMany(Comments, {
+Teachers.hasMany(Comment, {
     foreignKey: 'teacherId',
-    as: 'teacher',
 });

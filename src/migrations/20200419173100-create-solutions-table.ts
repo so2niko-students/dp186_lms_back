@@ -1,10 +1,10 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { Solutions } from '../modules/solutions/solutions.model';
+import { Solution } from '../modules/solutions/solutions.model';
 import { Students } from '../modules/students/students.model';
 import { Tasks } from '../modules/tasks/tasks.model';
 
 export async function up(query: QueryInterface) {
-    return query.createTable(Solutions.tableName, {
+    return query.createTable(Solution.tableName, {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -29,10 +29,6 @@ export async function up(query: QueryInterface) {
             onUpdate: 'CASCADE',
             onDelete: 'SET NULL',
         },
-        solutionLink: {
-            type: DataTypes.STRING(),
-            allowNull: true,
-        },
         grade: {
             type: DataTypes.INTEGER(),
             allowNull: true,
@@ -51,5 +47,5 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-    return query.dropTable(Solutions.tableName);
+    return query.dropTable(Solution.tableName);
 }

@@ -1,11 +1,11 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { Comments } from '../modules/comments/comments.model';
-import { Solutions } from '../modules/solutions/solutions.model';
+import { Comment } from '../modules/comments/comments.model';
+import { Solution } from '../modules/solutions/solutions.model';
 import { Students } from '../modules/students/students.model';
 import { Teachers } from '../modules/teachers/teachers.model';
 
 export async function up(query: QueryInterface) {
-    return query.createTable(Comments.tableName, {
+    return query.createTable(Comment.tableName, {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -15,7 +15,7 @@ export async function up(query: QueryInterface) {
         solutionId: {
             type: DataTypes.INTEGER,
             references: {
-                model: Solutions.tableName,
+                model: Solution.tableName,
                 key: 'id',
             },
             onUpdate: 'CASCADE',
@@ -57,5 +57,5 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-    return query.dropTable(Comments.tableName);
+    return query.dropTable(Comment.tableName);
 }
