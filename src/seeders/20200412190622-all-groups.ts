@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-const groupsData = require("../../data/groups");
+const groupsData = require('../../data/groups');
 
 groupsData.forEach((obj) => {
   obj.createdAt = new Date();
@@ -9,9 +9,9 @@ groupsData.forEach((obj) => {
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.bulkInsert("groups", groupsData);
+    return queryInterface.bulkInsert('groups', groupsData);
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete("groups", null, {});
+    return queryInterface.bulkDelete('groups', null, {});
   },
 };

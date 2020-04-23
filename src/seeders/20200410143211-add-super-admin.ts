@@ -3,7 +3,6 @@ import { QueryInterface, Sequelize } from 'sequelize';
 export async function up(query: QueryInterface, sequelize: Sequelize) {
     return query.bulkInsert('teachers', [
       {
-        id: 1,
         firstName: 'Alan',
         lastName: 'Morgan',
         email: "alanmorgan@gmail.com",
