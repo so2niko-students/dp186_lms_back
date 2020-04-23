@@ -4,11 +4,16 @@ import { Students } from '../students/students.model';
 import { Teachers } from '../teachers/teachers.model';
 import { AuthRequest } from '../../common/types/types';
 
+interface IResult {
+    token: string;
+    expires: number;
+}
+
 export class AuthController {
 
     public async login(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const result: object = await authService.login(req.body);
+            const result: IResult = await authService.login(req.body);
             res.json(result);
         } catch (e) {
             next(e);
