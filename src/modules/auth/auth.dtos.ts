@@ -6,7 +6,7 @@ const loginDto: any = Joi.object().keys({
 });
 
 const updatePasswordDto: any = Joi.object().keys({
-    oldPassword: Joi.string().min(6).required(),
+    oldPassword: Joi.string().min(6),
     newPassword: Joi.string().min(6).required(),
 });
 

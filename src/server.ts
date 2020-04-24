@@ -20,7 +20,7 @@ app.use('/api/v1/health', healthRoutes);
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
 
-//authorization
+// authorization
 passport.use(strategy);
 app.use(passport.initialize());
 app.use('/auth', new AuthRoute().router);

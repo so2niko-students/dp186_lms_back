@@ -7,7 +7,6 @@ import { teachersService } from '../../modules/teachers/teachers.service';
 import { hashFunc } from './password.hash';
 import { Students } from '../students/students.model';
 import { Teachers } from '../teachers/teachers.model';
-import { CustomUser } from '../../common/types/types';
 
 interface ILogin {
     email: string;
@@ -15,7 +14,7 @@ interface ILogin {
 }
 
 interface IUpdatePassport {
-    oldPassword: string;
+    oldPassword?: string;
     newPassword: string;
 }
 
@@ -37,14 +36,35 @@ class AuthService {
         };
     }
 
-    public async updatePassword(data: IUpdatePassport, user: CustomUser) {
+    public async updateStudentPassword(data: IUpdatePassport, user: Students) {
         const { oldPassword, newPassword } = data;
         const { email, password } = user;
-
-        const userForUpdate: Students | Teachers = await studentsService.findOneByEmail(email) ||
-            await teachersService.findOneByEmail(email);
+        const userForUpdate: Students = await studentsService.findOneByEmail(email);
 
         if (!bcrypt.compareSync(oldPassword, password)) {
+            throw new Unauthorized('Wrong password');
+        }
+
+        userForUpdate.password = hashFunc(newPassword);
+
+        return userForUpdate.save();
+    }
+
+    public async updateTeacherPassword(id: number, data: IUpdatePassport, user: Teachers) {
+        const { oldPassword, newPassword } = data;
+        const userForUpdate: Teachers = await teachersService.findOneById(id);
+
+        if (user.isAdmin) {
+            userForUpdate.password = hashFunc(newPassword);
+
+            return userForUpdate.save();
+        }
+
+        if (!(user.id === id)) {
+            throw new Unauthorized('You cannot change password for another teacher');
+        }
+
+        if (!bcrypt.compareSync(oldPassword, user.password)) {
             throw new Unauthorized('Wrong password');
         }
 

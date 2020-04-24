@@ -8,6 +8,14 @@ class TeachersService {
 
     return teacher;
   }
+
+  public async findOneById(id: number) {
+    const teacher = await Teachers.findOne({
+      where: { id },
+    });
+
+    return teacher;
+  }
 }
 
 export const teachersService = new TeachersService();
