@@ -60,7 +60,7 @@ class AuthService {
             return userForUpdate.save();
         }
 
-        if (!(user.id === id)) {
+        if (user.id !== id) {
             throw new Unauthorized('You cannot change password for another teacher');
         }
 
