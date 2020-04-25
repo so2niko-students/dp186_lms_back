@@ -16,6 +16,7 @@ export class Students extends Model {
   public groupId: number;
   public createdAt: Date;
   public updatedAt: Date;
+  public avatarId: number;
 
   public static prepareInit(sequelize: Sequelize) {
     this.init(
@@ -34,6 +35,10 @@ export class Students extends Model {
         phoneNumber: DataTypes.STRING(),
         password: DataTypes.STRING(),
         groupId: DataTypes.INTEGER(),
+        avatarId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
       },
       {
         sequelize,
@@ -54,3 +59,5 @@ Groups.hasMany(Students, {
   foreignKey: 'groupId',
   as: 'group',
 });
+
+

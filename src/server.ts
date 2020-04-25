@@ -14,19 +14,18 @@ dotenv.config();
 import './database';
 
 const app: express.Express = express();
-app.use(bodyParser.json());
-app.use(bodyParser.json({limit: '60mb'}))
-app.use(bodyParser.urlencoded({limit: '60mb', extended: true}))
+app.use(bodyParser.json({limit: '100mb'}));
+app.use(bodyParser.urlencoded({limit: '100mb', extended: true}));
 
 app.use('/api/v1/health', healthRoutes);
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
-app.use('/avatar', avatarsRoutes)
+app.use('/avatar', authJwt, avatarsRoutes);
 
-//authorization
+// authorization
 passport.use(strategy);
 app.use(passport.initialize());
-app.use('/auth', new AuthRoute().router);)
+app.use('/auth', new AuthRoute().router);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

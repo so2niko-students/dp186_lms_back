@@ -11,6 +11,7 @@ export class Avatars extends Model {
   public avatarLink: string;
   public createdAt: Date;
   public updatedAt: Date;
+  public publicId: string;
 
   public static prepareInit(sequelize: Sequelize) {
     this.init(
@@ -18,14 +19,20 @@ export class Avatars extends Model {
         id: {
           type: DataTypes.INTEGER,
           primaryKey: true,
-          defaultValue: DataTypes.INTEGER,
+          autoIncrement: true,
+          allowNull: false,
           comment: 'Id of the instance',
         },
         avatarLink: {
           type: DataTypes.STRING,
           allowNull: false,
-          comment: 'Link to the avatar image'
-        }
+          comment: 'Link to the avatar image',
+        },
+        publicId: {
+          type: DataTypes.STRING(100),
+          allowNull: false,
+          comment: 'Cloudinary id',
+        },
       },
       {
         sequelize,
@@ -43,7 +50,7 @@ Avatars.hasOne(Groups, {
   as: 'groups'
 });
 
-Groups.belongsTo(Avatars, {targetKey: 'id'});
+Groups.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId'});
 
 Avatars.hasOne(Teachers, {
   sourceKey: 'id',
@@ -51,7 +58,7 @@ Avatars.hasOne(Teachers, {
   as: 'teachers'
 });
 
-Teachers.belongsTo(Avatars, {targetKey: 'id'});
+Teachers.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId'});
 
 Avatars.hasOne(Students, {
   sourceKey: 'id',
@@ -59,4 +66,4 @@ Avatars.hasOne(Students, {
   as: 'studets'
 });
 
-Students.belongsTo(Avatars, {targetKey: 'id'});
+Students.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId'});

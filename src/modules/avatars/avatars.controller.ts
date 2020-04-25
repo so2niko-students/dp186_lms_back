@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import {avatarService} from './avatars.service';
- // CustomRequest type
+import { AuthRequest } from '../../common/types/types';
 
 function TryCatch(target: any, propName: string, descriptor: PropertyDescriptor) {
     const fn = descriptor.value;
@@ -15,13 +15,14 @@ function TryCatch(target: any, propName: string, descriptor: PropertyDescriptor)
 }
 
 class AvatarsController {
-    public async setOne(req, res: Response, next: NextFunction) {
+    public async setOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             const avatar = await avatarService.setOne(
                 req.body.img,
                 req.body.format,
                 req.params.purpose,
-                req.body.groupId);
+                req.body.groupId,
+                req.user);
             res.send(avatar);
         } catch (e) {
             next(e);

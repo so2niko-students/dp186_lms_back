@@ -11,6 +11,7 @@ export class Groups extends Model {
   public teacherId: number;
   public createdAt: Date;
   public updatedAt: Date;
+  public avatarId: number;
 
   public static prepareInit(seq: Sequelize) {
     this.init(
@@ -32,6 +33,10 @@ export class Groups extends Model {
         teacherId: {
           type: DataTypes.INTEGER(),
           allowNull: true,
+        },
+        avatarId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
         },
       },
       {
