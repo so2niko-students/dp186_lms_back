@@ -1,5 +1,7 @@
 import NotFound from "./not-found";
 import BadRequest from "./bad-request";
 import Unauthorized from "./unauthorized";
+import PayloadToLarge from './payload-to-large';
+import UnsupportedMediaType from './unsupported-media-type';
 
-export { NotFound, BadRequest, Unauthorized };
+export { NotFound, BadRequest, Unauthorized, PayloadToLarge, UnsupportedMediaType };
