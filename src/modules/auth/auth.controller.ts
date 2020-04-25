@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { authService } from './auth.service';
 import { Students } from '../students/students.model';
 import { Teachers } from '../teachers/teachers.model';
-import { PasswordRequest } from '../../common/types/types';
+import { UpdateRequest } from '../../common/types/types';
 
 interface IResult {
     token: string;
@@ -20,7 +20,7 @@ export class AuthController {
         }
     }
 
-    public async updatePasswordStudent(req: PasswordRequest<Students>,
+    public async updatePasswordStudent(req: UpdateRequest<Students>,
                                        res: Response, next: NextFunction)
     : Promise<void> {
         try {
@@ -32,7 +32,7 @@ export class AuthController {
         }
     }
 
-    public async updatePasswordTeacher(req: PasswordRequest<Teachers>,
+    public async updatePasswordTeacher(req: UpdateRequest<Teachers>,
                                        res: Response, next: NextFunction)
     : Promise<void> {
         try {
@@ -44,7 +44,7 @@ export class AuthController {
         }
     }
 
-    public async updatePasswordSuperAdmin(req: PasswordRequest<Teachers>,
+    public async updatePasswordSuperAdmin(req: UpdateRequest<Teachers>,
                                           res: Response, next: NextFunction)
     : Promise<void> {
         try {

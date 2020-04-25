@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 
-export const CreateStudentsDto = Joi.object().keys({
+export const createStudentsDto = Joi.object().keys({
   firstNameUkr: Joi.string().min(1).required(),
   lastNameUkr: Joi.string().min(1).required(),
   firstNameEng: Joi.string().min(1).required(),
@@ -10,4 +10,14 @@ export const CreateStudentsDto = Joi.object().keys({
   email: Joi.string().email().required(),
   phoneNumber: Joi.number().integer().required(),
   groupToken: Joi.string().min(1).required(),
+});
+
+export const updateStudentsDto = Joi.object().keys({
+  firstNameUkr: Joi.string().min(1),
+  lastNameUkr: Joi.string().min(1),
+  firstNameEng: Joi.string().min(1),
+  lastNameEng: Joi.string().min(1),
+  email: Joi.string().email(),
+  phoneNumber: Joi.number().integer(),
+  groupId: Joi.string().min(1),
 });

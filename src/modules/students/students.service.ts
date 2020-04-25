@@ -6,7 +6,7 @@ import { hashFunc } from '../auth/password.hash';
 import { Unauthorized } from '../../common/exeptions/index';
 import * as bcrypt from 'bcrypt';
 
-interface IstudentsData {
+interface IStudentsData {
   email: string;
   password: string;
   passwordConfirmation: string;
@@ -24,8 +24,18 @@ interface IUpdatePassport {
   newPassword: string;
 }
 
+interface IUpdateStudent {
+  email?: string;
+  firstNameUkr?: string;
+  lastNameUkr?: string;
+  phoneNumber?: number;
+  firstNameEng?: string;
+  lastNameEng?: string;
+  groupId?: number;
+}
+
 class StudentsService {
-  public async createOne(studentsData: IstudentsData) {
+  public async createOne(studentsData: IStudentsData) {
     const { email, groupToken } = studentsData;
 
     if (await teachersService.findOneByEmail(email)) {
@@ -76,6 +86,17 @@ class StudentsService {
     userForUpdate.password = hashFunc(newPassword);
 
     return userForUpdate.save();
+  }
+
+  public async updateOne(id: number, data: IUpdateStudent, user: Students) {
+    await this.findOneById(id);
+
+    if (id !== user.id) {
+      throw new Unauthorized('You cannot change another profile');
+    }
+
+    await Students.update(data, {where: {id}});
+    return this.findOneById(id);
   }
 }
 
