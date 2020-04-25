@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { authService } from './auth.service';
 import { Students } from '../students/students.model';
 import { Teachers } from '../teachers/teachers.model';
-import { PasswordStudentRequest, PasswordTeacherRequest } from '../../common/types/types';
+import { PasswordRequest } from '../../common/types/types';
 
 interface IResult {
     token: string;
@@ -20,23 +20,36 @@ export class AuthController {
         }
     }
 
-    public async updateStudentPassword(req: PasswordStudentRequest,
+    public async updatePasswordStudent(req: PasswordRequest<Students>,
                                        res: Response, next: NextFunction)
     : Promise<void> {
         try {
-            const user: Students  = await authService.updateStudentPassword(req.body, req.user);
+            const user: Students  =
+                await authService.updatePasswordStudent(req.body, req.user);
             res.json(user);
         } catch (e) {
             next(e);
         }
     }
 
-    public async updateTeacherPassword(req: PasswordTeacherRequest,
+    public async updatePasswordTeacher(req: PasswordRequest<Teachers>,
                                        res: Response, next: NextFunction)
     : Promise<void> {
         try {
             const user: Teachers =
-                await authService.updateTeacherPassword(+req.params.id, req.body, req.user);
+                await authService.updatePasswordTeacher(req.body, req.user);
+            res.json(user);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    public async updatePasswordSuperAdmin(req: PasswordRequest<Teachers>,
+                                          res: Response, next: NextFunction)
+    : Promise<void> {
+        try {
+            const user: Teachers =
+                await authService.updatePasswordSuperAdmin(+req.params.id, req.body, req.user);
             res.json(user);
         } catch (e) {
             next(e);
