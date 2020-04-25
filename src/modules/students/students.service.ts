@@ -1,7 +1,9 @@
 import { Students } from './students.model';
-import groupsService from '../groups/groups.service';
-import teachersService from '../teachers/teachers.service';
+import {groupsService} from '../groups/groups.service';
+import {teachersService} from '../teachers/teachers.service';
 import { BadRequest, NotFound } from '../../common/exeptions';
+import { hashFunc } from '../auth/password.hash';
+import { Unauthorized } from '../../common/exeptions/index';
 import * as bcrypt from 'bcrypt';
 
 interface IstudentsData {
@@ -16,6 +18,12 @@ interface IstudentsData {
   lastNameEng: string;
   groupId: number;
 }
+
+interface IUpdatePassport {
+  oldPassword?: string;
+  newPassword: string;
+}
+
 class StudentsService {
   public async createOne(studentsData: IstudentsData) {
     const { email, groupToken } = studentsData;
@@ -37,7 +45,7 @@ class StudentsService {
     studentsData.groupId = group.id;
 
     const students = new Students(studentsData);
-    students.password = await bcrypt.hash(students.password, 10);
+    students.password = hashFunc(students.password);
 
     return await students.save();
   }
@@ -54,6 +62,20 @@ class StudentsService {
     const student = await Students.findOne({ where: { id } });
 
     return student;
+  }
+
+  public async updatePassword(data: IUpdatePassport, user: Students) {
+    const { oldPassword, newPassword } = data;
+    const { email, password } = user;
+    const userForUpdate: Students = await this.findOneByEmail(email);
+
+    if (!bcrypt.compareSync(oldPassword, password)) {
+        throw new Unauthorized('Wrong password');
+    }
+
+    userForUpdate.password = hashFunc(newPassword);
+
+    return userForUpdate.save();
   }
 }
 

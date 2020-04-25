@@ -12,7 +12,7 @@ export class Groups extends Model {
   public createdAt: Date;
   public updatedAt: Date;
 
-  public static prepareInit(sequelize: Sequelize) {
+  public static prepareInit(seq: Sequelize) {
     this.init(
       {
         id: {
