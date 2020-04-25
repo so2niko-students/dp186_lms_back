@@ -8,7 +8,7 @@ export async function up(query: QueryInterface, sequelize: Sequelize) {
         firstName: 'Alan',
         lastName: 'Morgan',
         email: "alanmorgan@gmail.com",
-        password: hashFunc("123456"),
+        password: hashFunc("superAdmin"),
         isAdmin: true,
         createdAt: new Date(),
         updatedAt: new Date(),
