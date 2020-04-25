@@ -50,7 +50,7 @@ Avatars.hasOne(Groups, {
   as: 'groups'
 });
 
-Groups.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId'});
+Groups.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId', as: 'avatar'});
 
 Avatars.hasOne(Teachers, {
   sourceKey: 'id',
@@ -58,7 +58,7 @@ Avatars.hasOne(Teachers, {
   as: 'teachers'
 });
 
-Teachers.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId'});
+Teachers.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId', as: 'avatar'});
 
 Avatars.hasOne(Students, {
   sourceKey: 'id',
@@ -66,4 +66,4 @@ Avatars.hasOne(Students, {
   as: 'studets'
 });
 
-Students.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId'});
+Students.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId', as: 'avatar'});

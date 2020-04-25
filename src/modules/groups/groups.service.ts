@@ -3,6 +3,7 @@ import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
 import {CustomUser} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
+import {Avatars} from '../avatars/avatars.model';
 
 interface IGroupCreate {
     groupName: string;
@@ -35,7 +36,11 @@ class GroupsService {
         if (user.groupId !== id && !user.isMentor) {
             throw new Forbidden('You do not have rights to do this.');
         }
-        const group = Groups.findOne({ where: {id} } );
+        const group = Groups.findOne({
+            include: [{
+               model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+            where: {id} } );
         if (!group) {
             throw new NotFound(`Group with ${id} not found.`);
         }
@@ -74,7 +79,11 @@ class GroupsService {
         if (!user.isMentor) {
             return Groups.findAll({ where: {id: user.groupId} });
         }
-        return Groups.findAll();
+        return Groups.findAll({
+            include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+        });
     }
     private async createGroupToken(name: string): Promise<string> {
         const salt = genSaltSync(5, 'b');
