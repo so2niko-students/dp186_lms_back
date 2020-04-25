@@ -1,8 +1,8 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { Tasks } from '../modules/tasks/tasks.model';
+import { Avatars } from '../modules/avatars/avatars.model';
 
 export async function up(query: QueryInterface) {
-    return query.createTable(Tasks.tableName, {
+    return query.createTable(Avatars.tableName, {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -10,20 +10,10 @@ export async function up(query: QueryInterface) {
         allowNull: false,
         comment: 'Id of the instance',
       },
-      groupId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        comment: 'Id of the group',
-      },
-      taskName: {
+      avatarLink: {
         type: DataTypes.STRING(255),
         allowNull: false,
-        comment: 'Name of the task',
-      },
-      fileURL: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-        comment: 'URL of the task',
+        comment: 'Link to the image',
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -39,5 +29,5 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-    return query.dropTable(Tasks.tableName);
+    return query.dropTable(Avatars.tableName);
 }

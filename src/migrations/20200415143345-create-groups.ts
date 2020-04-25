@@ -1,6 +1,6 @@
-import { QueryInterface, DataTypes } from "sequelize";
-import { Groups } from "../modules/groups/groups.model";
-import { Teachers } from "../modules/teachers/teachers.model";
+import { QueryInterface, DataTypes } from 'sequelize';
+import { Groups } from '../modules/groups/groups.model';
+import { Teachers } from '../modules/teachers/teachers.model';
 
 export async function up(query: QueryInterface) {
   return query.createTable(Groups.tableName, {
@@ -22,20 +22,20 @@ export async function up(query: QueryInterface) {
       type: DataTypes.INTEGER,
       references: {
         model: Teachers.tableName,
-        key: "id",
+        key: 'id',
       },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL",
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      comment: "Date of creation",
+      comment: 'Date of creation',
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      comment: "Date of the last update",
+      comment: 'Date of the last update',
     },
   });
 }
