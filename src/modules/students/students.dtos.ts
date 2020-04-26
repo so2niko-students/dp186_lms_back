@@ -18,6 +18,5 @@ export const updateStudentsDto = Joi.object().keys({
   firstNameEng: Joi.string().min(1),
   lastNameEng: Joi.string().min(1),
   email: Joi.string().email(),
-  phoneNumber: Joi.number().integer(),
-  groupId: Joi.string().min(1),
+  phoneNumber: Joi.number().integer()
 });
