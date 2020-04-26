@@ -1,6 +1,5 @@
 import express = require('express');
 import * as bodyParser from 'body-parser';
-import { default as healthRoutes } from './modules/health/health.routes';
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
 import { errorHandler } from './common/middlewares/errors.middleware';
@@ -16,7 +15,6 @@ const app: express.Express = express();
 app.use(express.json());
 app.use(bodyParser.json());
 
-app.use('/api/v1/health', healthRoutes);
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
 

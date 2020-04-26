@@ -1,10 +1,10 @@
 import { Students } from './students.model';
 import {groupsService} from '../groups/groups.service';
 import {teachersService} from '../teachers/teachers.service';
-import { BadRequest, NotFound } from '../../common/exeptions';
+import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import * as bcrypt from 'bcrypt';
 
-interface IstudentsData {
+interface IStudentsData {
   email: string;
   password: string;
   passwordConfirmation: string;
@@ -16,8 +16,19 @@ interface IstudentsData {
   lastNameEng: string;
   groupId: number;
 }
+
+interface IUpdateStudent {
+  email?: string;
+  firstNameUkr?: string;
+  lastNameUkr?: string;
+  phoneNumber?: number;
+  groupToken?: string;
+  firstNameEng?: string;
+  lastNameEng?: string;
+}
+
 class StudentsService {
-  public async createOne(studentsData: IstudentsData) {
+  public async createOne(studentsData: IStudentsData) {
     const { email, groupToken } = studentsData;
 
     if (await teachersService.findOneByEmail(email)) {
@@ -54,6 +65,17 @@ class StudentsService {
     const student = await Students.findOne({ where: { id } });
 
     return student;
+  }
+
+  public async updateOne(id: number, data: IUpdateStudent, user: Students) {
+    await this.findOneById(id);
+
+    if (id !== user.id) {
+      throw new Unauthorized('You cannot change another profile');
+    }
+
+    await Students.update(data, {where: {id}});
+    return this.findOneById(id);
   }
 }
 
