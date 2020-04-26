@@ -4,6 +4,7 @@ import { hashSync, genSaltSync } from 'bcrypt';
 import {CustomUser} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
 import {Avatars} from '../avatars/avatars.model';
+import {Transaction} from 'sequelize';
 
 interface IGroupCreate {
     groupName: string;
@@ -32,7 +33,7 @@ class GroupsService {
         }
         return Groups.create({groupName,  groupToken: data.groupToken, teacherId: user.id});
     }
-    public async findOneOrThrow(id: number, user: CustomUser) {
+    public async findOneOrThrow(id: number, user: CustomUser, transaction ?: Transaction) {
         if (user.groupId !== id && !user.isMentor) {
             throw new Forbidden('You do not have rights to do this.');
         }
@@ -40,7 +41,9 @@ class GroupsService {
             include: [{
                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
             }],
-            where: {id} } );
+            where: {id},
+            transaction,
+        });
         if (!group) {
             throw new NotFound(`Group with ${id} not found.`);
         }

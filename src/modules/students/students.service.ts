@@ -3,6 +3,8 @@ import {groupsService} from '../groups/groups.service';
 import {teachersService} from '../teachers/teachers.service';
 import { BadRequest, NotFound } from '../../common/exeptions';
 import * as bcrypt from 'bcrypt';
+import {Avatars} from '../avatars/avatars.model';
+import {Transaction} from 'sequelize';
 
 interface IstudentsData {
   email: string;
@@ -45,14 +47,36 @@ class StudentsService {
   public async findOneByEmail(email: string) {
     const student = await Students.findOne({
       where: { email },
+      include: [{
+        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+      }],
     });
 
     return student;
   }
 
   public async findOneById(id: number) {
-    const student = await Students.findOne({ where: { id } });
+    const student = await Students.findOne({
+      where: { id },
+      include: [{
+        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+      }],
+    });
 
+    return student;
+  }
+  public async findOneByIdOrThrow(id: number, transaction?: Transaction) {
+    const student = await Students.findOne({
+      where: { id },
+      include: [{
+        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+      }],
+      attributes: {exclude: ['password']},
+      transaction,
+    });
+    if (!student) {
+      throw new NotFound(`User with id ${id} not found.`);
+    }
     return student;
   }
 }
