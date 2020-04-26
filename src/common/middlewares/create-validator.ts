@@ -1,13 +1,12 @@
-import * as Joi from "joi";
+import * as Joi from 'joi';
+import { Request, Response, NextFunction } from 'express';
+import BadRequest from '../exeptions/bad-request';
 
-const createValidator = (schema, key = "body") => (req, res, next) => {
-  const { error } = Joi.validate(req[key], schema);
-
-  if (error) {
-    return res.send(error);
-  }
-
-  next();
+export const createValidator = (schema: Joi.Schema, key: string = 'body') =>
+    (req: Request, res: Response, next: NextFunction) => {
+    const { error } = Joi.validate(req[key], schema);
+    if (error) {
+        throw new BadRequest(error);
+    }
+    next();
 };
-
-export { createValidator };
