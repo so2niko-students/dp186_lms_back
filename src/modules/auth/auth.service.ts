@@ -23,6 +23,7 @@ class AuthService {
             token,
             expires: auth.expiresIn,
         };
+
     }
 
     public async updateStudentPassword(data: IUpdatePassword, user: Students ) {

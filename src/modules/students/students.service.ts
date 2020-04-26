@@ -32,7 +32,7 @@ class StudentsService {
       throw new BadRequest('User with provided email already exists');
     }
 
-    const group = await groupsService.findOneByToken(groupToken);
+    const group = await groupsService.findByTokenOrThrow(groupToken);
 
     if (!group) {
       throw new NotFound('Group not found');

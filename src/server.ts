@@ -1,4 +1,5 @@
 import express = require('express');
+import * as bodyParser from 'body-parser';
 import { default as healthRoutes } from './modules/health/health.routes';
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
@@ -8,7 +9,6 @@ import passport = require ('passport');
 import { strategy } from './common/passport/auth.strategy';
 import { AuthRoute } from './modules/auth/auth.routes';
 import * as dotenv from 'dotenv';
-import * as bodyParser from 'body-parser';
 dotenv.config();
 import './database';
 
@@ -20,7 +20,7 @@ app.use('/api/v1/health', healthRoutes);
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
 
-// authorization
+//authorization
 passport.use(strategy);
 app.use(passport.initialize());
 app.use('/auth', new AuthRoute().router);
