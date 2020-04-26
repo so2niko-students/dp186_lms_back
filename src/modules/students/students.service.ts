@@ -4,9 +4,9 @@ import {teachersService} from '../teachers/teachers.service';
 import { BadRequest, NotFound } from '../../common/exeptions';
 import * as bcrypt from 'bcrypt';
 import {Avatars} from '../avatars/avatars.model';
-import {Transaction} from 'sequelize';
+import {CustomUser} from '../../common/types/types';
 
-interface IstudentsData {
+interface IStudentsData {
   email: string;
   password: string;
   passwordConfirmation: string;
@@ -17,9 +17,13 @@ interface IstudentsData {
   firstNameEng: string;
   lastNameEng: string;
   groupId: number;
+  avatar?: {
+    img: string;
+    format: string;
+  };
 }
 class StudentsService {
-  public async createOne(studentsData: IstudentsData) {
+  public async createOne(studentsData: IStudentsData) {
     const { email, groupToken } = studentsData;
 
     if (await teachersService.findOneByEmail(email)) {
@@ -65,19 +69,8 @@ class StudentsService {
 
     return student;
   }
-  public async findOneByIdOrThrow(id: number, transaction?: Transaction) {
-    const student = await Students.findOne({
-      where: { id },
-      include: [{
-        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-      }],
-      attributes: {exclude: ['password']},
-      transaction,
-    });
-    if (!student) {
-      throw new NotFound(`User with id ${id} not found.`);
-    }
-    return student;
+  public async updateOneOrThrow(data: IStudentsData, user: CustomUser) {
+    //do something :D
   }
 }
 

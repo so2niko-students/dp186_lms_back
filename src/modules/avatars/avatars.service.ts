@@ -1,11 +1,6 @@
 import isBase64 = require('is-base64');
 import { cd } from '../../config/cloudinary.config';
-import { PayloadToLarge, UnsupportedMediaType, BadRequest,
-         Forbidden } from '../../common/exeptions';
-import { groupsService } from '../groups/groups.service';
-import { studentsService } from '../students/students.service';
-import { teachersService } from '../teachers/teachers.service';
-import { CustomUser } from '../../common/types/types';
+import { PayloadToLarge, UnsupportedMediaType, NotFound } from '../../common/exeptions';
 import { sequelize } from '../../database';
 import { Avatars } from './avatars.model';
 import { Groups } from '../groups/groups.model';
@@ -23,54 +18,30 @@ class AvatarsService {
     public async findOneById(id: number, transaction?: Transaction) {
         return await Avatars.findOne({where: {id}, transaction });
     }
-    public async setOne(base64: string, type: string, purpose: string, groupId?: number,
-                        user?: CustomUser) {
-        switch (purpose) {
-            case 'user': {
-                return sequelize.transaction(async (transaction) => {
-                    const { id: userId, isMentor } = user;
-                    const _user: Teachers | Students =
-                        isMentor ? await teachersService.findOneByIdOrThrow(userId, transaction) :
-                                   await studentsService.findOneByIdOrThrow(userId, transaction);
-                    const { avatarId: oldAvatarId } = _user;
-                    if (oldAvatarId) {
-                        await this.deleteImgFromDBaseAndCloudianry(oldAvatarId, transaction);
-                    }
-                    const { url, public_id } = await this.uploadImgOrThrow(base64, type);
-                    const avatar: Avatars = await this.createOne(url, public_id, transaction);
-                    _user.avatarId = avatar.id;
-                    await _user.save({transaction});
-                    return isMentor ? await teachersService.findOneByIdOrThrow(userId, transaction)
-                        : await studentsService.findOneByIdOrThrow(userId, transaction);
-                });
-                break;
+    public async setAvatarToGroupOrThrow(base64: string, type: string, group: Groups) {
+        return sequelize.transaction(async (transaction) => {
+            const {avatarId: oldAvatarId} = group;
+            if (oldAvatarId) {
+                await this.deleteImgFromDBaseAndCloudianry(oldAvatarId, transaction);
             }
-            case 'group': {
-                if (!groupId) {
-                    throw new BadRequest(`Unable to set avatar for group without groupId`);
-                }
-                return sequelize.transaction(async (transaction) => {
-                    const group: Groups = await groupsService.findOneOrThrow(
-                        groupId, user, transaction);
-                    if (group.teacherId !== user.id) {
-                        throw new Forbidden('You do not have rights to do this.');
-                    }
-                    const {avatarId: oldAvatarId} = group;
-                    if (oldAvatarId) {
-                        await this.deleteImgFromDBaseAndCloudianry(oldAvatarId, transaction);
-                    }
-                    const { url, public_id } = await this.uploadImgOrThrow(base64, type);
-                    const avatar: Avatars = await this.createOne(url, public_id, transaction);
-                    group.avatarId = avatar.id;
-                    await group.save({transaction});
-                    return await groupsService.findOneOrThrow(group.id, user, transaction);
-                });
-                break;
+            const { url, public_id } = await this.uploadImgOrThrow(base64, type);
+            const avatar: Avatars = await this.createOne(url, public_id, transaction);
+            group.avatarId = avatar.id;
+            await group.save({transaction});
+            return group;
+        });
+    }
+    public async setAvatarToUserOrThrow(base64: string, type: string, user: Teachers | Students) {
+        return sequelize.transaction(async (transaction) => {
+            const { avatarId: oldAvatarId } = user;
+            if (oldAvatarId) {
+                await this.deleteImgFromDBaseAndCloudianry(oldAvatarId, transaction);
             }
-            default: {
-                throw new BadRequest(`Unable to set avatar for ${purpose}`);
-            }
-        }
+            const { url, public_id } = await this.uploadImgOrThrow(base64, type);
+            const avatar: Avatars = await this.createOne(url, public_id, transaction);
+            user.avatarId = avatar.id;
+            return await user.save({transaction});
+        });
     }
     private async uploadImgOrThrow(base64: string, type: string) {
         const img = `data:${type};base64,${base64}`;
@@ -93,8 +64,7 @@ class AvatarsService {
             });
             return del;
         } catch (e) {
-            // If Cloudinary gives error in deleting img
-            console.log('Cloudinary Error', e);
+            throw new NotFound('Error updating avatar. Try again later');
         }
     }
     private async deleteImgFromDBaseAndCloudianry(delAvatarId: number, transaction: Transaction) {

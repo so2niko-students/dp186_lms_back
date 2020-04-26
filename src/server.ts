@@ -1,9 +1,7 @@
 import express = require('express');
 import * as bodyParser from 'body-parser';
-import { default as healthRoutes } from './modules/health/health.routes';
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
-import { router as avatarsRoutes } from './modules/avatars/avatars.routes';
 import { errorHandler } from './common/middlewares/errors.middleware';
 import { authJwt } from './common/middlewares/auth.middleware';
 import passport = require ('passport');
@@ -17,10 +15,8 @@ const app: express.Express = express();
 app.use(bodyParser.json({limit: '100mb'}));
 app.use(bodyParser.urlencoded({limit: '100mb', extended: true}));
 
-app.use('/api/v1/health', healthRoutes);
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
-app.use('/avatar', authJwt, avatarsRoutes);
 
 // authorization
 passport.use(strategy);

@@ -1,8 +1,8 @@
 import {BaseHttpError} from './base-http-error';
-import {UNSUPPORTED_MEDIA_TYPE} from 'http-status-codes';
+
 class UnsupportedMediaType extends BaseHttpError {
     constructor(error) {
-        super(UNSUPPORTED_MEDIA_TYPE, error);
+        super(415, error);
     }
 }
 
