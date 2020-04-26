@@ -31,7 +31,6 @@ interface IUpdateStudent {
   phoneNumber?: number;
   firstNameEng?: string;
   lastNameEng?: string;
-  groupId?: number;
 }
 
 class StudentsService {
