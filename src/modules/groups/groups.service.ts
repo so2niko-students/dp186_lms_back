@@ -4,36 +4,31 @@ import { hashSync, genSaltSync } from 'bcrypt';
 import {CustomUser} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
 
-interface IGroupCreate {
-    groupName: string;
-    teacherId?: number;
-    groupToken?: string;
-}
+const NO_RIGHTS = 'You do not have rights to do this.';
 
 class GroupsService {
-    public async createOne(data: IGroupCreate, user: CustomUser) {
+    public async createOne({ groupName, teacherId }, user: CustomUser) {
         const mentor = await this.mentorVerification(user);
-        const { groupName, teacherId } = data;
         if (teacherId && !mentor.isAdmin) {
-            throw new Forbidden('You do not have the right to establish another teacher as a mentor of a new group.');
+            throw new Forbidden(NO_RIGHTS);
         }
         const group = await Groups.findOne( { where: {groupName}} );
         if (group) {
             throw new BadRequest(`Group with name "${groupName} already exists`);
         }
-        data.groupToken = await this.createGroupToken(groupName);
+        const groupToken = await this.createGroupToken(groupName);
         if (teacherId) {
             const teacher = await teachersService.findOneById(teacherId);
             if (!teacher) {
                 throw new BadRequest(`Teacher with id "${teacherId} not found`);
             }
-            return Groups.create({groupName, groupToken: data.groupToken, teacherId});
+            return Groups.create({groupName, groupToken, teacherId});
         }
-        return Groups.create({groupName,  groupToken: data.groupToken, teacherId: user.id});
+        return Groups.create({groupName,  groupToken, teacherId: user.id});
     }
     public async findOneOrThrow(id: number, user: CustomUser) {
         if (user.groupId !== id && !user.isMentor) {
-            throw new Forbidden('You do not have rights to do this.');
+            throw new Forbidden(NO_RIGHTS);
         }
         const group = Groups.findOne({ where: {id} } );
         if (!group) {
@@ -52,10 +47,10 @@ class GroupsService {
         const mentor = await this.mentorVerification(user);
         const group = await this.findOneOrThrow(id, user);
         if (group.teacherId !== mentor.id && !mentor.isAdmin) {
-            throw new Forbidden('You do not have rights to do this.');
+            throw new Forbidden(NO_RIGHTS);
         }
         if (data.teacherId && !mentor.isAdmin) {
-            throw new Forbidden('You do not have rights to do this.');
+            throw new Forbidden(NO_RIGHTS);
         }
         Object.keys(data).forEach((k) => group[k] = data[k]);
         group.save();
@@ -65,7 +60,7 @@ class GroupsService {
         const mentor = await this.mentorVerification(user);
         const group = await this.findOneOrThrow(id, user);
         if (group.teacherId !== mentor.id && !mentor.isAdmin) {
-            throw new Forbidden('You do not have rights to do this.');
+            throw new Forbidden(NO_RIGHTS);
         }
         group.destroy();
         return group;
@@ -84,7 +79,7 @@ class GroupsService {
     private async mentorVerification(user: CustomUser) {
         const { isMentor } = user;
         if (!isMentor) {
-            throw new Forbidden('You do not have rights to do this.');
+            throw new Forbidden(NO_RIGHTS);
         }
         return user;
     }
