@@ -6,7 +6,11 @@ import { Tasks as Task } from './tasks.model';
 import { CustomUser } from '../../common/types/types';
 
 class TasksController {
-  public async findByGroup(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  public async findByGroup(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const user = req.user;
       const tasks: Task[] = await tasksService.findByGroup(user);
@@ -16,7 +20,11 @@ class TasksController {
     }
   }
 
-  public async findOneById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  public async findOneById(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const idNumb: number = parseInt(req.params.id);
       const task: Task[] = await tasksService.findOneById(idNumb);
@@ -27,7 +35,11 @@ class TasksController {
     }
   }
 
-  public async createOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  public async createOne(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const taskData = req.body;
       const user: CustomUser = req.user;
@@ -39,13 +51,21 @@ class TasksController {
     }
   }
 
-  public async updateOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  public async updateOne(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const idNumb: number = parseInt(req.params.id);
       const updates: object = req.body;
       const user: CustomUser = req.user;
 
-      const updatedTask: Task = await tasksService.updateOne(idNumb, updates, user);
+      const updatedTask: Task = await tasksService.updateOne(
+        idNumb,
+        updates,
+        user
+      );
       res.json(updatedTask);
     } catch (e) {
       console.log(e);
@@ -53,7 +73,11 @@ class TasksController {
     }
   }
 
-  public async deleteOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  public async deleteOne(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const idNumb: number = parseInt(req.params.id);
       const user: CustomUser = req.user;
