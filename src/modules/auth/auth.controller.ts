@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { authService } from './auth.service';
 import { Students } from '../students/students.model';
 import { Teachers } from '../teachers/teachers.model';
-import { PasswordRequest } from '../../common/types/types';
+import { UpdateRequest } from '../../common/types/types';
 
 interface IResult {
     token: string;
@@ -20,36 +20,37 @@ export class AuthController {
         }
     }
 
-    public async updatePasswordStudent(req: PasswordRequest<Students>,
+    public async updateStudentPassword(req: UpdateRequest<Students>,
                                        res: Response, next: NextFunction)
     : Promise<void> {
         try {
             const user: Students  =
-                await authService.updatePasswordStudent(req.body, req.user);
+                await authService.updateStudentPassword(req.body, req.user);
             res.json(user);
         } catch (e) {
             next(e);
         }
     }
 
-    public async updatePasswordTeacher(req: PasswordRequest<Teachers>,
+    public async updateTeacherPassword(req: UpdateRequest<Teachers>,
                                        res: Response, next: NextFunction)
     : Promise<void> {
         try {
             const user: Teachers =
-                await authService.updatePasswordTeacher(req.body, req.user);
+                await authService.updateTeacherPassword(req.body, req.user);
             res.json(user);
         } catch (e) {
             next(e);
         }
     }
 
-    public async updatePasswordSuperAdmin(req: PasswordRequest<Teachers>,
-                                          res: Response, next: NextFunction)
+    public async updateTeacherPasswordBySuperAdmin(req: UpdateRequest<Teachers>,
+                                                   res: Response, next: NextFunction)
     : Promise<void> {
         try {
             const user: Teachers =
-                await authService.updatePasswordSuperAdmin(+req.params.id, req.body, req.user);
+                await authService.updateTeacherPasswordBySuperAdmin(+req.params.id,
+                    req.body, req.user);
             res.json(user);
         } catch (e) {
             next(e);

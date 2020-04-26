@@ -17,10 +17,10 @@ export class AuthRoute {
     public route() {
         this.router.post('/login', createValidator(loginDto), this.authController.login);
         this.router.put('/change-password/student', authJwt, createValidator(updatePasswordDto),
-            this.authController.updatePasswordStudent);
+            this.authController.updateStudentPassword);
         this.router.put('/change-password/teacher', authJwt, createValidator(updatePasswordDto),
-            this.authController.updatePasswordTeacher);
-        this.router.put('/change-password/teacher/:id', authJwt,
-            createValidator(updatePasswordDto), this.authController.updatePasswordSuperAdmin);
+            this.authController.updateTeacherPassword);
+        this.router.put('/change-password/teacher/:id', authJwt, createValidator(updatePasswordDto),
+            this.authController.updateTeacherPasswordBySuperAdmin);
     }
 }

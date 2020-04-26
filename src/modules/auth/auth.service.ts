@@ -6,20 +6,10 @@ import { studentsService } from '../../modules/students/students.service';
 import { teachersService } from '../../modules/teachers/teachers.service';
 import { Students } from '../students/students.model';
 import { Teachers } from '../teachers/teachers.model';
-
-interface ILogin {
-    email: string;
-    password: string;
-}
-
-interface IUpdatePassport {
-    oldPassword?: string;
-    newPassword: string;
-}
+import { ILogin, IUpdatePassword } from '../../common/interfaces/interfaces';
 
 class AuthService {
-    public async login(data: ILogin) {
-        const { email, password } = data;
+    public async login({ email, password }: ILogin) {
         const user: Students | Teachers = await studentsService.findOneByEmail(email) ||
             await teachersService.findOneByEmail(email);
 
@@ -35,16 +25,17 @@ class AuthService {
         };
     }
 
-    public async updatePasswordStudent(data: IUpdatePassport, user: Students ) {
+    public async updateStudentPassword(data: IUpdatePassword, user: Students ) {
         return studentsService.updatePassword(data, user);
     }
 
-    public async updatePasswordTeacher(data: IUpdatePassport, user: Teachers ) {
-        return teachersService.updatePasswordTeacher(data, user);
+    public async updateTeacherPassword(data: IUpdatePassword, user: Teachers ) {
+        return teachersService.updatePassword(data, user);
     }
 
-    public async updatePasswordSuperAdmin(id: number, data: IUpdatePassport, user: Teachers ) {
-        return teachersService.updatePasswordSuperAdmin(id, data, user);
+    public async updateTeacherPasswordBySuperAdmin(id: number,
+                                                   data: IUpdatePassword, user: Teachers ) {
+        return teachersService.updatePasswordBySuperAdmin(id, data, user);
     }
 
 }

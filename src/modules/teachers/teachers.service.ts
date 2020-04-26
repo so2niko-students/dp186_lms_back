@@ -2,11 +2,7 @@ import { Teachers } from './teachers.model';
 import { hashFunc } from '../auth/password.hash';
 import { Unauthorized } from '../../common/exeptions/index';
 import * as bcrypt from 'bcrypt';
-
-interface IUpdatePassport {
-  oldPassword?: string;
-  newPassword: string;
-}
+import { IUpdatePassword } from '../../common/interfaces/interfaces';
 
 class TeachersService {
   public async findOneByEmail(email: string) {
@@ -25,8 +21,8 @@ class TeachersService {
     return teacher;
   }
 
-  public async updatePasswordTeacher(data: IUpdatePassport, user: Teachers) {
-    const { oldPassword, newPassword } = data;
+  public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
+                              user: Teachers) {
     const userForUpdate: Teachers = await this.findOneById(user.id);
 
     if (!bcrypt.compareSync(oldPassword, user.password)) {
@@ -38,8 +34,8 @@ class TeachersService {
     return userForUpdate.save();
   }
 
-  public async updatePasswordSuperAdmin(id: number, data: IUpdatePassport, user: Teachers) {
-    const { newPassword } = data;
+  public async updatePasswordBySuperAdmin(id: number,
+                                          { newPassword }: IUpdatePassword, user: Teachers) {
     const userForUpdate: Teachers = await this.findOneById(id);
 
     if (!user.isAdmin) {
