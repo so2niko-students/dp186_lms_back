@@ -1,44 +1,51 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
+import { AuthRequest } from '../../common/types/types';
 import { tasksService } from './tasks.service';
 
+import { Tasks as Task } from './tasks.model';
+import { CustomUser } from '../../common/types/types';
+
 class TasksController {
-  public async findAll(req: Request, res: Response, next: NextFunction): Promise<any> {
+  public async findByGroup(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tasks: object[] = await tasksService.findAll();
+      const user = req.user;
+      const tasks: Task[] = await tasksService.findByGroup(user);
       res.json(tasks);
     } catch (e) {
-      console.log(e);
       next(e);
     }
   }
 
-  public async findOneById(req: Request, res: Response, next: NextFunction): Promise<any> {
+  public async findOneById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const idNumb: number = parseInt(req.params.id);
-      const task: object[] = await tasksService.findOneById(idNumb);
+      const task: Task[] = await tasksService.findOneById(idNumb);
+
       res.json(task);
     } catch (e) {
-      console.log(e);
       next(e);
     }
   }
 
-  public async createOne(req: Request, res: Response, next: NextFunction): Promise<any> {
+  public async createOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const createdTask: object = await tasksService.createOne(req.body);
+      const taskData = req.body;
+      const user: CustomUser = req.user;
+
+      const createdTask: Task = await tasksService.createOne(taskData, user);
       res.json(createdTask);
     } catch (e) {
-      console.log(e);
       next(e);
     }
   }
 
-  public async updateOne(req: Request, res: Response, next: NextFunction): Promise<any> {
+  public async updateOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const idNumb: number = parseInt(req.params.id);
       const updates: object = req.body;
+      const user: CustomUser = req.user;
 
-      const updatedTask: object = await tasksService.updateOne(idNumb, updates);
+      const updatedTask: Task = await tasksService.updateOne(idNumb, updates, user);
       res.json(updatedTask);
     } catch (e) {
       console.log(e);
@@ -46,14 +53,14 @@ class TasksController {
     }
   }
 
-  public async deleteOne(req: Request, res: Response, next: NextFunction): Promise<any> {
+  public async deleteOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const idNumb: number = parseInt(req.params.id);
-      await tasksService.deleteOne(idNumb);
-      res.end();
+      const user: CustomUser = req.user;
+
+      const removedTaskId: number = await tasksService.deleteOne(idNumb, user);
+      res.json(removedTaskId);
     } catch (e) {
-      console.log(typeof e)
-      console.log(e);
       next(e);
     }
   }

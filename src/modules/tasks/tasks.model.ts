@@ -5,7 +5,7 @@ import { Groups } from '../groups/groups.model';
 export class Tasks extends Model {
   public static readonly tableName: string = 'tasks';
 
-  public id!: number;
+  public id: number;
   public groupId: number;
   public taskName: string;
   public fileURL: string;
