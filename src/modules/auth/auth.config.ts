@@ -1,4 +1,4 @@
 export const auth = {
     secretKey: process.env.SECRET,
-    expiresIn: 360000 
+    expiresIn: 360000,
 }

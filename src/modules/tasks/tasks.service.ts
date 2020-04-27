@@ -1,6 +1,6 @@
 import { Tasks as Task } from './tasks.model';
 import { CustomUser } from '../../common/types/types';
-import { NotFound, BadRequest, Unauthorized } from '../../common/exeptions/';
+import { NotFound, BadRequest, Forbidden} from '../../common/exeptions/';
 import { sequelize } from '../../database';
 
 interface TasksInterface {
@@ -26,7 +26,7 @@ class TasksService {
     user: CustomUser
   ): Promise<Task> {
     if (!user.isMentor) {
-      throw new Unauthorized('You do not have permission for this');
+      throw new Forbidden('You do not have permission for this');
     }
     return await Task.create(task);
   }
@@ -37,7 +37,7 @@ class TasksService {
     user: CustomUser
   ): Promise<Task> {
     if (!user.isMentor) {
-      throw new Unauthorized('You do not have permission for this');
+      throw new Forbidden('You do not have permission for this');
     }
 
     return await sequelize.transaction(async (transaction) => {
@@ -56,7 +56,7 @@ class TasksService {
 
   public async deleteOne(id: number, user: CustomUser): Promise<number> {
     if (!user.isMentor) {
-      throw new Unauthorized('You do not have permission for this');
+      throw new Forbidden('You do not have permission for this');
     }
 
     return await sequelize.transaction(async (transaction) => {

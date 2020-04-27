@@ -1,9 +1,8 @@
-import { FORBIDDEN } from "http-status-codes";
-import { BaseHttpError } from "./base-http-error";
+import { BaseHttpError } from './base-http-error';
 
 class Unauthorized extends BaseHttpError {
   constructor(error) {
-    super(FORBIDDEN, error);
+    super(401, error);
   }
 }
 
