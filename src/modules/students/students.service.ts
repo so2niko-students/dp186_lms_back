@@ -1,6 +1,6 @@
 import { Students } from './students.model';
-import groupsService from '../groups/groups.service';
-import { teachersService } from '../teachers/teachers.service';
+import {groupsService} from '../groups/groups.service';
+import {teachersService} from '../teachers/teachers.service';
 import { BadRequest, NotFound } from '../../common/exeptions';
 import * as bcrypt from 'bcrypt';
 
@@ -29,7 +29,7 @@ class StudentsService {
       throw new BadRequest('User with provided email already exists');
     }
 
-    const group = await groupsService.findOneByToken(groupToken);
+    const group = await groupsService.findByTokenOrThrow(groupToken);
 
     if (!group) {
       throw new NotFound('Group not found');
