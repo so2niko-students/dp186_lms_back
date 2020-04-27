@@ -78,8 +78,8 @@ class GroupsService {
             await avatarService.setAvatarToGroupOrThrow(img, format, group);
         }
         Object.keys(data).forEach((k) => group[k] = data[k]);
-        group.save();
-        return group;
+        await group.save();
+        return await this.findOneOrThrow(id, user);
     }
     public async deleteOne(id: number, user: CustomUser) {
         const mentor = await this.mentorVerification(user);
