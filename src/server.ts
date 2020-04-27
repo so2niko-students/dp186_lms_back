@@ -3,6 +3,7 @@ import * as bodyParser from 'body-parser';
 import { default as healthRoutes } from './modules/health/health.routes';
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
+import { router as teachersRoutes } from './modules/teachers/teachers.routes';
 import { errorHandler } from './common/middlewares/errors.middleware';
 import { authJwt } from './common/middlewares/auth.middleware';
 import passport = require ('passport');
@@ -22,7 +23,7 @@ app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
 
 // Krivobok
-app.use("/teachers", teachersRoutes);
+app.use("/teachers", authJwt, teachersRoutes);
 
 //authorization
 passport.use(strategy);

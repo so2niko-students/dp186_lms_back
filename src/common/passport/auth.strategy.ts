@@ -1,18 +1,9 @@
-<<<<<<< HEAD
-import passport = require("passport");
-import { Strategy, ExtractJwt } from "passport-jwt";
-import { auth } from "../../modules/auth/auth.config";
-import { studentsService } from "../../modules/students/students.service";
-import { teachersService } from "../../modules/teachers/teachers.service";
-import { Unauthorized } from "../../common/exeptions/index";
-=======
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { Teachers } from '../../modules/teachers/teachers.model';
 import { auth } from '../../modules/auth/auth.config';
 import {studentsService} from '../../modules/students/students.service';
 import {teachersService} from '../../modules/teachers/teachers.service';
 import { Unauthorized } from '../../common/exeptions/index';
->>>>>>> master
 
 const opts = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -21,16 +12,6 @@ const opts = {
 };
 
 export const strategy = new Strategy(opts, async (jwtPayload, done) => {
-<<<<<<< HEAD
-  try {
-    const user =
-      (await studentsService.findOneByEmail(jwtPayload.email)) ||
-      (await teachersService.findOneByEmail(jwtPayload.email));
-    if (user) {
-      done(null, user);
-    } else {
-      done(null, false);
-=======
     try {
         const user: any = await studentsService.findOneByEmail(jwtPayload.email) ||
             await teachersService.findOneByEmail(jwtPayload.email);
@@ -42,6 +23,5 @@ export const strategy = new Strategy(opts, async (jwtPayload, done) => {
         }
     } catch (err) {
         done(new Unauthorized(err.message), false);
->>>>>>> master
     }
 });
