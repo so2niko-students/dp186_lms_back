@@ -1,6 +1,6 @@
 import { Students } from './students.model';
 import groupsService from '../groups/groups.service';
-import teachersService from '../teachers/teachers.service';
+import { teachersService } from '../teachers/teachers.service';
 import { BadRequest, NotFound } from '../../common/exeptions';
 import * as bcrypt from 'bcrypt';
 
@@ -16,6 +16,7 @@ interface IstudentsData {
   lastNameEng: string;
   groupId: number;
 }
+
 class StudentsService {
   public async createOne(studentsData: IstudentsData) {
     const { email, groupToken } = studentsData;
