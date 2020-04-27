@@ -1,11 +1,26 @@
 import { Teachers } from './teachers.model';
-import { Unauthorized } from '../../common/exeptions';
+import { Unauthorized, BadRequest, NotFound } from '../../common/exeptions';
 
-// some interface for req.body
+interface TeacherData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  isAdmin: boolean;
+}
 
 class TeachersService {
 
-  async findAllTeachers(){ // : Promise<Teachers[]> ????
+  async createOneTeacher(body: TeacherData) : Promise<Teachers> {
+
+    if (await this.findOneByEmail(body.email)) {
+      throw new BadRequest('User with provided email already exists');
+    }
+    
+    return await Teachers.create(body);
+  }
+
+  async findAllTeachers() : Promise<Teachers[]>{
     const teachers = await Teachers.findAll();
 
     return teachers;
@@ -23,17 +38,15 @@ class TeachersService {
     return await Teachers.findOne( { where: {id} } );
   }
 
-  async createOneTeacher(body) {
-    return await Teachers.create(body);
-  }
+  
 
-  // async deleteOneById(id: number) {
-  //   const teacher = await Teachers.findOne( { where: {id} } );
-  //   if (!(typeof teacher == 'object')) {
-  //    throw new NotFound('no id u set exists');
-  //   }
-  //   return await Teachers.destroy( { where: {id} } );
-  // }
+  async deleteOneById(id: number) {
+    const teacher = await Teachers.findOne( { where: {id} } );
+    if (!(typeof teacher == 'object')) {
+     throw new NotFound('no id u set exists');
+    }
+    return await Teachers.destroy( { where: {id} } );
+  }
 }
 
 export const teachersService = new TeachersService();
