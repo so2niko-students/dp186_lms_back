@@ -2,7 +2,7 @@ import { Students } from './students.model';
 import {groupsService} from '../groups/groups.service';
 import {teachersService} from '../teachers/teachers.service';
 import { BadRequest, NotFound } from '../../common/exeptions';
-import * as bcrypt from 'bcrypt';
+import { hashFunc } from '../auth/password.hash';
 
 interface IstudentsData {
   email: string;
@@ -38,7 +38,7 @@ class StudentsService {
     studentsData.groupId = group.id;
 
     const students = new Students(studentsData);
-    students.password = await bcrypt.hash(students.password, 10);
+    students.password = hashFunc(students.password);
 
     return await students.save();
   }

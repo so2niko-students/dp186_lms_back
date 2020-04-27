@@ -1,6 +1,13 @@
 import * as Joi from 'joi';
 
-export const LoginDto: any = Joi.object().keys({
+const loginDto: any = Joi.object().keys({
     email: Joi.string().email().required(),
-    password: Joi.string().min(6).required()
+    password: Joi.string().min(6).required(),
 });
+
+const updatePasswordDto: any = Joi.object().keys({
+    oldPassword: Joi.string().min(6).required(),
+    newPassword: Joi.string().min(6).required(),
+});
+
+export { loginDto, updatePasswordDto};
