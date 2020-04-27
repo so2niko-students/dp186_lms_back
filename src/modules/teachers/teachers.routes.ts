@@ -11,6 +11,6 @@ router.get('/:id', teachersController.findTeacherById );
 
 router.post('/', createValidator(CreateTeachersDto), teachersController.createOneTeacher ); 
 
-router.delete('/', teachersController.deleteOneById );
+router.delete('/:id', teachersController.deleteOneById );
 // router.post();
 // router.delete();

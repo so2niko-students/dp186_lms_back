@@ -1,48 +1,56 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
+import { AuthRequest } from '../../common/types/types';
 import { teachersService } from './teachers.service'
-import { Teachers } from './teachers.model';
+// import { Teachers } from './teachers.model';
+
+import { CustomUser } from '../../common/types/types';
 
 class TeachersController {
 
-  async createOneTeacher(req: Request, res: Response, next: NextFunction) {
+  async createOneTeacher(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const teachers = await teachersService.createOneTeacher(req.body);
+      const body = req.body;
+      const user: CustomUser = req.user;
+
+      const teachers = await teachersService.createOneTeacher(body, user); // передать токен
       res.json(teachers);
     }
-    catch (err) {
-      next(err);
+    catch (e) {
+      next(e);
     }
   }
 
-  async findAllTeachers(req: Request, res: Response, next: NextFunction) {
+  async deleteOneById(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const id = +req.params.id;
+      const user: CustomUser = req.user;
+
+      const removedTeacherId = await teachersService.deleteOneById(id, user);
+      res.json(removedTeacherId);
+    }
+    catch (e) {
+      next(e);
+    }
+  }
+
+  async findAllTeachers(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const teachers = await teachersService.findAllTeachers();
       res.json(teachers);
     }
-    catch (err) {
-      next(err);
+    catch (e) {
+      next(e);
     }
   }
 
-  async findTeacherById(req: Request, res: Response, next: NextFunction) {
+  async findTeacherById(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const id = +req.params.id;
       const teacher = await teachersService.findOneById(id);
       res.json(teacher);
     }
-    catch (err) {
-      next(err);
-    }
-  }
-
-  async deleteOneById(req: Request, res: Response, next: NextFunction) {
-    try {
-      const id = +req.params.id;
-      const deleted = await teachersService.deleteOneById(id);
-      res.json(deleted);
-    }
-    catch (err) {
-      next(err);
+    catch (e) {
+      next(e);
     }
   }
 }
