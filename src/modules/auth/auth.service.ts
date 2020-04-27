@@ -6,7 +6,7 @@ import { studentsService } from '../../modules/students/students.service';
 import { teachersService } from '../../modules/teachers/teachers.service';
 import { Students } from '../students/students.model';
 import { Teachers } from '../teachers/teachers.model';
-import { ILogin, IUpdatePassword } from '../../common/interfaces/interfaces';
+import { ILogin, IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 
 class AuthService {
     public async login({ email, password }: ILogin) {

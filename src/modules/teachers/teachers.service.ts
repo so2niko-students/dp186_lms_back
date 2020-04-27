@@ -2,7 +2,7 @@ import { Teachers } from './teachers.model';
 import { hashFunc } from '../auth/password.hash';
 import { Unauthorized } from '../../common/exeptions/index';
 import * as bcrypt from 'bcrypt';
-import { IUpdatePassword } from '../../common/interfaces/interfaces';
+import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 
 class TeachersService {
   public async findOneByEmail(email: string) {
