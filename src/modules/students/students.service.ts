@@ -3,6 +3,8 @@ import {groupsService} from '../groups/groups.service';
 import {teachersService} from '../teachers/teachers.service';
 import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import * as bcrypt from 'bcrypt';
+import { PartialUpdateStudent } from '../../common/types/types';
+import { sequelize } from '../../database';
 
 interface IStudentsData {
   email: string;
@@ -15,16 +17,6 @@ interface IStudentsData {
   firstNameEng: string;
   lastNameEng: string;
   groupId: number;
-}
-
-interface IUpdateStudent {
-  email?: string;
-  firstNameUkr?: string;
-  lastNameUkr?: string;
-  phoneNumber?: number;
-  groupToken?: string;
-  firstNameEng?: string;
-  lastNameEng?: string;
 }
 
 class StudentsService {
@@ -67,15 +59,15 @@ class StudentsService {
     return student;
   }
 
-  public async updateOne(id: number, data: IUpdateStudent, user: Students) {
-    await this.findOneById(id);
-
+  public async updateOne(id: number, data: PartialUpdateStudent<IStudentsData>, user: Students) {
     if (id !== user.id) {
       throw new Unauthorized('You cannot change another profile');
     }
 
-    await Students.update(data, {where: {id}});
-    return this.findOneById(id);
+    return await sequelize.transaction(async (transaction) => {
+      await Students.update(data, {where: {id}, transaction});
+      return this.findOneById(id);
+    });
   }
 }
 

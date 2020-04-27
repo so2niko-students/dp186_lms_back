@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { studentsService } from './students.service';
 import { Students } from './students.model';
 import { UpdateRequest } from '../../common/types/types';
+import { validateIdOrThrow } from '../../common/validators/';
 
 class StudentsController {
   public async createOne(req: Request, res: Response, next: NextFunction) {
@@ -16,7 +17,8 @@ class StudentsController {
   public async updateOne(req: UpdateRequest<Students>,
                          res: Response, next: NextFunction): Promise<void> {
     try {
-      const student: Students = await studentsService.updateOne(+req.params.id, req.body, req.user);
+      validateIdOrThrow(+req.params.id);
+      const student = await studentsService.updateOne(+req.params.id, req.body, req.user);
       res.json(student);
     } catch (e) {
       next(e);

@@ -8,4 +8,4 @@ import { updateStudentsDto } from './students.dtos';
 export const router: Router = Router();
 
 router.post('/', createValidator(CreateStudentsDto), studentsController.createOne);
-router.post('/:id', authJwt, createValidator(updateStudentsDto), studentsController.updateOne);
+router.put('/:id', authJwt, createValidator(updateStudentsDto), studentsController.updateOne);
