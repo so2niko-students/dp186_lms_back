@@ -1,4 +1,5 @@
 import express = require("express");
+import cors = require('cors');
 import { default as healthRoutes } from "./modules/health/health.routes";
 import { router as studentsRoutes } from "./modules/students/students.routes";
 import * as dotenv from "dotenv";
@@ -7,6 +8,8 @@ import "./database";
 import { errorHandler } from "./common/middlewares/errors.middleware";
 
 const app: express.Express = express();
+app.use(cors());
+
 app.use(express.json());
 
 app.use("/api/v1/health", healthRoutes);
