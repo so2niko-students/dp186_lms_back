@@ -11,3 +11,5 @@ export const CreateStudentsDto = Joi.object().keys({
   phoneNumber: Joi.number().integer().required(),
   groupToken: Joi.string().min(1).required(),
 });
+
+export const DeleteStudentsDto = Joi.array().items(Joi.number().integer());

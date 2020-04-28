@@ -1,8 +1,11 @@
 import { Students } from './students.model';
-import {groupsService} from '../groups/groups.service';
-import {teachersService} from '../teachers/teachers.service';
-import { BadRequest, NotFound } from '../../common/exeptions';
+import { groupsService } from '../groups/groups.service';
+import { teachersService } from '../teachers/teachers.service';
+import { BadRequest, NotFound, Forbidden } from '../../common/exeptions';
 import * as bcrypt from 'bcrypt';
+import { CustomUser } from '../../common/types/types';
+
+const NO_RIGHTS = 'You do not have rights to do this.';
 
 interface IstudentsData {
   email: string;
@@ -54,6 +57,18 @@ class StudentsService {
     const student = await Students.findOne({ where: { id } });
 
     return student;
+  }
+
+  public async deleteStudents(users, user: CustomUser ) {
+      if (!user.isMentor) {
+          throw new Forbidden(NO_RIGHTS);
+      }
+
+      const res = await Students.destroy({where: {
+        id: users
+      }});
+
+      return res;
   }
 }
 

@@ -1,8 +1,10 @@
-import { CreateStudentsDto } from './students.dtos';
+import { CreateStudentsDto, DeleteStudentsDto } from './students.dtos';
 import { Router } from 'express';
 import { studentsController } from './students.controller';
 import { createValidator } from '../../common/middlewares/create-validator';
+import { authJwt } from '../../common/middlewares/auth.middleware';
 
 export const router: Router = Router();
 
 router.post('/', createValidator(CreateStudentsDto), studentsController.createOne);
+router.delete('/delete', authJwt, createValidator(DeleteStudentsDto), studentsController.deleteStudents);
