@@ -12,7 +12,7 @@ class TeachersController {
       const body = req.body;
       const user: CustomUser = req.user;
 
-      const teachers = await teachersService.createOneTeacher(body, user); // передать токен
+      const teachers = await teachersService.createOneTeacher(body, user);
       res.json(teachers);
     }
     catch (e) {

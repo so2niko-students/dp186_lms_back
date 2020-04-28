@@ -2,6 +2,7 @@ import { Teachers } from './teachers.model';
 import { Unauthorized, BadRequest, NotFound } from '../../common/exeptions';
 import { CustomUser } from '../../common/types/types';
 import { sequelize } from '../../database';
+import { hashFunc } from '../auth/password.hash';
 
 interface TeacherData {
   firstName: string;
@@ -24,8 +25,24 @@ class TeachersService {
     if (await this.findOneByEmail(teacherData.email)) {
       throw new BadRequest('User with provided email already exists');
     }
+
+    // no mutation of teacherData
+    // const { email, password, firstName, lastName, isAdmin } = teacherData;
+
+    // const myData: TeacherData = {
+    //   email,
+    //   password: hashFunc(password),
+    //   firstName,
+    //   lastName,
+    //   isAdmin
+    // }
+
+    // with mutation of teacherData
+    const { password } = teacherData;
+
+    teacherData.password = hashFunc(password);
     
-    return await Teachers.create(teacherData);
+    return await Teachers.create(teacherData); // or myData if no mutation option
   }
 
   async deleteOneById(id: number, user: CustomUser): Promise<number> {
@@ -68,10 +85,6 @@ class TeachersService {
   async findOneById(id: number) {
     return await Teachers.findOne( { where: {id} } );
   }
-
-  
-
-  
 }
 
 export const teachersService = new TeachersService();
