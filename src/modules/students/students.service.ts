@@ -63,10 +63,9 @@ class StudentsService {
       throw new Unauthorized('You cannot change another profile');
     }
 
-    return await sequelize.transaction(async (transaction) => {
-      await Students.update(data, {where: {id}, transaction});
-      return id;
-    });
+    await Students.update(data, {where: {id}});
+    
+    return id;
   }
 }
 
