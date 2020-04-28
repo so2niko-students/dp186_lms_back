@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 app.use('/api/v1/health', healthRoutes);
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
-app.use("/tasks", authJwt, tasksRoutes);
+app.use('/tasks', authJwt, tasksRoutes);
 
 //authorization
 passport.use(strategy);
