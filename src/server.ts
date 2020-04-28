@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({limit: '100mb', extended: true}));
 
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
-app.use('/teachers', teachersRoutes);
+app.use('/teachers', authJwt, teachersRoutes);
 
 // authorization
 passport.use(strategy);
