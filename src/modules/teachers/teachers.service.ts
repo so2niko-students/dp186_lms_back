@@ -5,6 +5,16 @@ import {Transaction} from 'sequelize';
 import {CustomUser} from '../../common/types/types';
 import {avatarService} from '../avatars/avatars.service';
 
+interface ITeachersData {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    isAdmin?: boolean;
+    avatar?: {
+        img: string;
+        format: string;
+    };
+}
 class TeachersService {
     public async findOneByEmail(email: string) {
         const teacher = await Teachers.findOne({
@@ -41,7 +51,7 @@ class TeachersService {
         }
         return teacher;
     }
-    public async updateOneOrThrow(data: any, user: CustomUser) {
+    public async updateOneOrThrow(data: ITeachersData, user: CustomUser) {
         const { id } = user;
         const teacher = await this.findOneByIdOrThrow(id);
         const { avatar } = data;
