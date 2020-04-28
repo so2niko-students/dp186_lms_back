@@ -3,7 +3,7 @@ import { CustomUser } from '../../common/types/types';
 import { NotFound, Forbidden} from '../../common/exeptions/';
 import { sequelize } from '../../database';
 
-interface TasksInterface {
+interface ITasks {
   groupId: number;
   taskName: string;
   fileURL: string;
@@ -38,7 +38,7 @@ class TasksService {
   }
 
   public async createOne(
-    task: TasksInterface,
+    task: ITasks,
     user: CustomUser
   ): Promise<Task> {
     if (!user.isMentor) {
@@ -49,7 +49,7 @@ class TasksService {
 
   public async updateOne(
     id: number,
-    updates: object,
+    updates: ITasks,
     user: CustomUser
   ): Promise<Task> {
     if (!user.isMentor) {
