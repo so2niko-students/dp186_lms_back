@@ -2,6 +2,7 @@ import express = require('express');
 import * as bodyParser from 'body-parser';
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
+import { router as teachersRoutes } from './modules/teachers/teachers.routes';
 import { errorHandler } from './common/middlewares/errors.middleware';
 import { authJwt } from './common/middlewares/auth.middleware';
 import passport = require ('passport');
@@ -17,6 +18,7 @@ app.use(bodyParser.urlencoded({limit: '100mb', extended: true}));
 
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
+app.use('/teachers', teachersRoutes);
 
 // authorization
 passport.use(strategy);
@@ -26,5 +28,5 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running in http://localhost:${PORT}`);
+    console.log(`Server is running in http://localhost:${PORT}`);
 });

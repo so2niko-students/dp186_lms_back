@@ -60,7 +60,7 @@ class StudentsService {
     return student;
   }
 
-  public async findOneById(id: number) {
+  public async findOneByIdOrThrow(id: number) {
     const student = await Students.findOne({
       where: { id },
       include: [{
@@ -70,15 +70,14 @@ class StudentsService {
           exclude: ['password'],
       },
     });
-
+    if (!student) {
+      throw new BadRequest(`User with id ${id} not found`);
+    }
     return student;
   }
   public async updateOneOrThrow(data: IStudentsData, user: CustomUser) {
     const { id } = user;
-    const student = await this.findOneById(id);
-    if (!student) {
-        throw new BadRequest(`User with id ${id} not found`);
-    }
+    const student = await this.findOneByIdOrThrow(id);
     const { avatar } = data;
     if (avatar) {
         const { img, format} = avatar;
@@ -86,7 +85,7 @@ class StudentsService {
     }
     Object.keys(data).forEach((k) => student[k] = data[k]);
     await student.save();
-    return await this.findOneById(id);
+    return await this.findOneByIdOrThrow(id);
   }
 }
 
