@@ -4,7 +4,7 @@ import { CustomUser } from '../../common/types/types';
 import { sequelize } from '../../database';
 import { hashFunc } from '../auth/password.hash';
 
-interface TeacherData {
+interface ITeachersData {
   firstName: string;
   lastName: string;
   email: string;
@@ -14,7 +14,7 @@ interface TeacherData {
 
 class TeachersService {
 
-  public async createOneTeacher(teacherData: TeacherData, user: CustomUser): Promise<Teachers> {
+  public async createOneTeacher(teacherData: ITeachersData, user: CustomUser): Promise<Teachers> {
 
     // superAdmin validation
     if (!user.isAdmin) {
@@ -75,7 +75,7 @@ class TeachersService {
     return teachers;
   }
 
-  public async findOneByEmail(email: string){ // : Promise<Teachers> ????
+  public async findOneByEmail(email: string) {
     const teacher = await Teachers.findOne({
       where: { email },
     });
@@ -86,6 +86,17 @@ class TeachersService {
   public async findOneById(id: number) {
     return await Teachers.findOne( { where: {id} } );
   }
+
+  public async updateOne(id: number, data: Partial<ITeachersData>, user: Teachers) {
+    if (id !== user.id && !user.isAdmin) {
+      throw new Unauthorized('You cannot change another profile');
+    }
+
+    await Teachers.update(data, {where: {id}});
+
+    return id;
+  }
+
 }
 
 export const teachersService = new TeachersService();

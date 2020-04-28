@@ -1,5 +1,5 @@
 import express = require('express');
-import { default as healthRoutes } from './modules/health/health.routes';
+import * as bodyParser from 'body-parser';
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
 import { router as teachersRoutes } from './modules/teachers/teachers.routes';
@@ -9,7 +9,7 @@ import passport = require ('passport');
 import { strategy } from './common/passport/auth.strategy';
 import { AuthRoute } from './modules/auth/auth.routes';
 import * as dotenv from 'dotenv';
-import * as bodyParser from 'body-parser';
+
 dotenv.config();
 import './database';
 
@@ -17,9 +17,9 @@ const app: express.Express = express();
 app.use(express.json());
 app.use(bodyParser.json());
 
-app.use('/api/v1/health', healthRoutes);
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
+app.use('/teachers', authJwt, teachersRoutes);
 
 // Krivobok
 app.use("/teachers", teachersRoutes);
