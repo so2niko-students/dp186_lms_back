@@ -3,7 +3,6 @@ import {groupsService} from '../groups/groups.service';
 import {teachersService} from '../teachers/teachers.service';
 import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import * as bcrypt from 'bcrypt';
-import { PartialUpdate } from '../../common/types/types';
 import { sequelize } from '../../database';
 
 interface IStudentsData {
@@ -59,7 +58,7 @@ class StudentsService {
     return student;
   }
 
-  public async updateOne(id: number, data: PartialUpdate<IStudentsData>, user: Students) {
+  public async updateOne(id: number, data: Partial<IStudentsData>, user: Students) {
     if (id !== user.id) {
       throw new Unauthorized('You cannot change another profile');
     }
