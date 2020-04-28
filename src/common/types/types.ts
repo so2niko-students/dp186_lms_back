@@ -7,6 +7,6 @@ export type AuthRequest = Request & {user: CustomUser};
 
 export type UpdateRequest<T>= Request & {user: T};
 
-export type PartialUpdateStudent<T> = {
+export type PartialUpdate<T> = {
     [P in keyof T]?: T[P]
 };
