@@ -1,6 +1,6 @@
 import { Tasks as Task } from './tasks.model';
 import { CustomUser } from '../../common/types/types';
-import { NotFound, BadRequest, Forbidden} from '../../common/exeptions/';
+import { NotFound, Forbidden} from '../../common/exeptions/';
 import { sequelize } from '../../database';
 
 interface TasksInterface {
@@ -12,13 +12,29 @@ interface TasksInterface {
 class TasksService {
   public async findByGroup(user: CustomUser): Promise<Task[]> {
     if (!user.isMentor) {
-      return await Task.findAll({ where: { groupId: user.groupId } });
+      const tasks: Task[] = await Task.findAll({ where: { groupId: user.groupId } });
+      if (!tasks.length) {
+        throw new NotFound(`There is no tasks for group with groupId ${user.groupId}`)
+      }
+      return tasks;
     }
     return await Task.findAll();
   }
 
-  public async findOneById(id: number): Promise<Task[]> {
-    return await Task.findAll({ where: { id } });
+  public async findOneById(id: number, user: CustomUser) {
+    const task: Task = await Task.findOne({ where: { id }});
+    if (!task) {
+      throw new NotFound(`Can't find task with id ${id}`);
+    }
+
+    if (!user.isMentor) {
+      if (task.groupId === user.groupId) {
+        return task
+      } else {
+        throw new Forbidden('You do not have permission for this');
+      }
+    } 
+    return task;
   }
 
   public async createOne(
@@ -41,9 +57,9 @@ class TasksService {
     }
 
     return await sequelize.transaction(async (transaction) => {
-      const isExist = await Task.findOne({ where: { id }, transaction });
-      if (!isExist) {
-        throw new NotFound(`Can't find row with id ${id}`);
+      const task: Task = await Task.findOne({ where: { id }, transaction });
+      if (!task) {
+        throw new NotFound(`Can't find task with id ${id}`);
       }
 
       const [updatedRow, [updatedTask]] = await Task.update(updates, {
@@ -54,19 +70,19 @@ class TasksService {
     });
   }
 
-  public async deleteOne(id: number, user: CustomUser): Promise<number> {
+  public async deleteOne(id: number, user: CustomUser): Promise<object> {
     if (!user.isMentor) {
       throw new Forbidden('You do not have permission for this');
     }
 
     return await sequelize.transaction(async (transaction) => {
-      const isExist = await Task.findOne({ where: { id }, transaction });
-      if (!isExist) {
-        throw new NotFound(`Can't find row with id ${id}`);
+      const task: Task = await Task.findOne({ where: { id }, transaction });
+      if (!task) {
+        throw new NotFound(`Can't find task with id ${id}`);
       }
 
       await Task.destroy({ where: { id }, transaction });
-      return id;
+      return { id };
     });
   }
 }

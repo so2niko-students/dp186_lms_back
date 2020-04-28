@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../../common/types/types';
 import { tasksService } from './tasks.service';
+import { validateIdOrThrow } from '../../common/validators';
 
 import { Tasks as Task } from './tasks.model';
-import { CustomUser } from '../../common/types/types';
 
 class TasksController {
   public async findByGroup(
@@ -12,8 +12,7 @@ class TasksController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const user = req.user;
-      const tasks: Task[] = await tasksService.findByGroup(user);
+      const tasks: Task[] = await tasksService.findByGroup(req.user);
       res.json(tasks);
     } catch (e) {
       next(e);
@@ -27,7 +26,8 @@ class TasksController {
   ): Promise<void> {
     try {
       const idNumb: number = parseInt(req.params.id);
-      const task: Task[] = await tasksService.findOneById(idNumb);
+      validateIdOrThrow(idNumb);
+      const task: Task = await tasksService.findOneById(idNumb, req.user);
 
       res.json(task);
     } catch (e) {
@@ -41,10 +41,7 @@ class TasksController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const taskData = req.body;
-      const user: CustomUser = req.user;
-
-      const createdTask: Task = await tasksService.createOne(taskData, user);
+      const createdTask: Task = await tasksService.createOne(req.body, req.user);
       res.json(createdTask);
     } catch (e) {
       next(e);
@@ -58,14 +55,9 @@ class TasksController {
   ): Promise<void> {
     try {
       const idNumb: number = parseInt(req.params.id);
-      const updates: object = req.body;
-      const user: CustomUser = req.user;
+      validateIdOrThrow(idNumb);
 
-      const updatedTask: Task = await tasksService.updateOne(
-        idNumb,
-        updates,
-        user
-      );
+      const updatedTask: Task = await tasksService.updateOne(idNumb, req.body, req.user);
       res.json(updatedTask);
     } catch (e) {
       console.log(e);
@@ -80,9 +72,9 @@ class TasksController {
   ): Promise<void> {
     try {
       const idNumb: number = parseInt(req.params.id);
-      const user: CustomUser = req.user;
+      validateIdOrThrow(idNumb);
 
-      const removedTaskId: number = await tasksService.deleteOne(idNumb, user);
+      const removedTaskId: object= await tasksService.deleteOne(idNumb, req.user);
       res.json(removedTaskId);
     } catch (e) {
       next(e);
