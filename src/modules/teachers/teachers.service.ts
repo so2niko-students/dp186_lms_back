@@ -14,7 +14,7 @@ interface TeacherData {
 
 class TeachersService {
 
-  async createOneTeacher(teacherData: TeacherData, user: CustomUser): Promise<Teachers> {
+  public async createOneTeacher(teacherData: TeacherData, user: CustomUser): Promise<Teachers> {
 
     // superAdmin validation
     if (!user.isAdmin) {
@@ -45,7 +45,7 @@ class TeachersService {
     return await Teachers.create(teacherData); // or myData if no mutation option
   }
 
-  async deleteOneById(id: number, user: CustomUser): Promise<number> {
+  public async deleteOneById(id: number, user: CustomUser): Promise<number> {
 
     // superAdmin validation
     if (!user.isAdmin) {
@@ -68,13 +68,14 @@ class TeachersService {
     });
   }
 
-  async findAllTeachers() : Promise<Teachers[]>{
-    const teachers = await Teachers.findAll();
+  public async findAllTeachers(offset: number, limit: number) : Promise<Teachers[]>{
+
+    const teachers = await Teachers.findAll({offset, limit});
 
     return teachers;
   }
 
-  async findOneByEmail(email: string){ // : Promise<Teachers> ????
+  public async findOneByEmail(email: string){ // : Promise<Teachers> ????
     const teacher = await Teachers.findOne({
       where: { email },
     });
@@ -82,7 +83,7 @@ class TeachersService {
     return teacher;
   }
 
-  async findOneById(id: number) {
+  public async findOneById(id: number) {
     return await Teachers.findOne( { where: {id} } );
   }
 }

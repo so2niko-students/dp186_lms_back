@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AuthRequest } from '../../common/types/types';
 import { teachersService } from './teachers.service'
 // import { Teachers } from './teachers.model';
@@ -7,7 +7,7 @@ import { CustomUser } from '../../common/types/types';
 
 class TeachersController {
 
-  async createOneTeacher(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  public async createOneTeacher(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const body = req.body;
       const user: CustomUser = req.user;
@@ -20,9 +20,9 @@ class TeachersController {
     }
   }
 
-  async deleteOneById(req: AuthRequest, res: Response, next: NextFunction) {
+  public async deleteOneById(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const id = +req.params.id;
+      const id: number = +req.params.id;
       const user: CustomUser = req.user;
 
       const removedTeacherId = await teachersService.deleteOneById(id, user);
@@ -33,9 +33,12 @@ class TeachersController {
     }
   }
 
-  async findAllTeachers(req: AuthRequest, res: Response, next: NextFunction) {
+  public async findAllTeachers(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const teachers = await teachersService.findAllTeachers();
+      const offset: number = +req.query.offset || 2;
+      const limit: number = +req.query.limit || 2;
+    
+      const teachers = await teachersService.findAllTeachers(offset, limit);
       res.json(teachers);
     }
     catch (e) {
@@ -43,9 +46,10 @@ class TeachersController {
     }
   }
 
-  async findTeacherById(req: AuthRequest, res: Response, next: NextFunction) {
+  public async findTeacherById(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const id = +req.params.id;
+      const id: number = +req.params.id;
+
       const teacher = await teachersService.findOneById(id);
       res.json(teacher);
     }

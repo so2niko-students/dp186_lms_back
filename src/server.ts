@@ -22,7 +22,7 @@ app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
 
 // Krivobok
-app.use("/teachers", authJwt, teachersRoutes);
+app.use("/teachers", teachersRoutes);
 
 //authorization
 passport.use(strategy);
