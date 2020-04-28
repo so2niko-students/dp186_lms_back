@@ -7,8 +7,8 @@ import { validateIdOrThrow } from '../../common/validators/';
 class TeachersController {
     public async updateOne(req: UpdateRequest<Teachers>, res: Response,
                            next: NextFunction): Promise<void> {
-        validateIdOrThrow(+req.params.id);
         try {
+            validateIdOrThrow(+req.params.id);
             const teacher =
                 await teachersService.updateOne(+req.params.id, req.body, req.user);
             res.json(teacher);
