@@ -5,7 +5,7 @@ import { createTaskDto, updateTaskDto } from './tasks.dtos';
 
 export const router: Router = Router();
 
-router.get('/', tasksController.findByGroup);
+router.get('/', tasksController.findAll);
 router.get('/:id', tasksController.findOneById);
 
 router.post('/', createValidator(createTaskDto), tasksController.createOne);

@@ -6,13 +6,13 @@ import { validateIdOrThrow } from '../../common/validators';
 import { Tasks as Task } from './tasks.model';
 
 class TasksController {
-  public async findByGroup(
+  public async findAll(
     req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const tasks: Task[] = await tasksService.findByGroup(req.user);
+      const tasks: Task[] = await tasksService.findAll(req.user);
       res.json(tasks);
     } catch (e) {
       next(e);
