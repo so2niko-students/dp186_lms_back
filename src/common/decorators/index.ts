@@ -1,3 +1,3 @@
-import Catcher from './try-catch';
+import handleRequest from './try-catch';
 
-export {Catcher};
+export {handleRequest};

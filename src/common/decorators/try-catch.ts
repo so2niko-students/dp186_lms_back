@@ -1,11 +1,11 @@
-function Catcher(f) {
+function handleRequest(f) {
     return (req, res, next) => {
         try {
             f.apply(this, [req, res, next]);
         } catch (e) {
-            next();
+            next(e);
         }
     };
 }
 
-export default Catcher;
+export default handleRequest;
