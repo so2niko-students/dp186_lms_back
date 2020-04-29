@@ -3,6 +3,8 @@ import { Unauthorized, BadRequest, NotFound } from '../../common/exeptions';
 import { CustomUser } from '../../common/types/types';
 import { sequelize } from '../../database';
 import { hashFunc } from '../auth/password.hash';
+import * as bcrypt from 'bcrypt';
+import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 
 interface ITeachersData {
   firstName: string;
@@ -13,6 +15,7 @@ interface ITeachersData {
 }
 
 const UNAUTHORIZED_MSG = 'You do not have permission for this';
+
 
 class TeachersService {
 
@@ -87,7 +90,11 @@ class TeachersService {
   }
 
   public async findOneById(id: number) {
-    return await Teachers.findOne( { where: {id} } );
+    const teacher = await Teachers.findOne({
+      where: { id },
+    });
+
+    return teacher;
   }
 
   public async updateOne(id: number, data: Partial<ITeachersData>, user: Teachers) {
@@ -100,6 +107,31 @@ class TeachersService {
     return id;
   }
 
+  public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
+                              user: Teachers) {
+    const userForUpdate: Teachers = await this.findOneById(user.id);
+
+    if (!bcrypt.compareSync(oldPassword, user.password)) {
+        throw new Unauthorized('Wrong password');
+    }
+
+    userForUpdate.password = hashFunc(newPassword);
+
+    return userForUpdate.save();
+  }
+
+  public async updatePasswordBySuperAdmin(id: number,
+                                          { newPassword }: IUpdatePassword, user: Teachers) {
+    const userForUpdate: Teachers = await this.findOneById(id);
+
+    if (!user.isAdmin) {
+        throw new Unauthorized('You cannot change password for another teacher');
+    }
+
+    userForUpdate.password = hashFunc(newPassword);
+
+    return userForUpdate.save();
+  }
 }
 
 export const teachersService = new TeachersService();

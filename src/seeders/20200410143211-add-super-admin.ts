@@ -12,8 +12,8 @@ export async function up(query: QueryInterface, sequelize: Sequelize) {
         isAdmin: true,
         createdAt: new Date(),
         updatedAt: new Date(),
-      }
-    ])
+      },
+    ]);
   }
 
 export async function down(query: QueryInterface, sequelize: Sequelize) {

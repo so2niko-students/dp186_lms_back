@@ -9,7 +9,6 @@ import passport = require ('passport');
 import { strategy } from './common/passport/auth.strategy';
 import { AuthRoute } from './modules/auth/auth.routes';
 import * as dotenv from 'dotenv';
-
 dotenv.config();
 import './database';
 

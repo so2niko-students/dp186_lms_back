@@ -1,10 +1,14 @@
 import { Students } from './students.model';
 import {groupsService} from '../groups/groups.service';
 import {teachersService} from '../teachers/teachers.service';
-import { BadRequest, NotFound } from '../../common/exeptions';
+import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import { hashFunc } from '../auth/password.hash';
+import { Unauthorized } from '../../common/exeptions/index';
+import * as bcrypt from 'bcrypt';
+import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 
-interface IstudentsData {
+
+interface IStudentsData {
   email: string;
   password: string;
   passwordConfirmation: string;
@@ -18,7 +22,7 @@ interface IstudentsData {
 }
 
 class StudentsService {
-  public async createOne(studentsData: IstudentsData) {
+  public async createOne(studentsData: IStudentsData) {
     const { email, groupToken } = studentsData;
 
     if (await teachersService.findOneByEmail(email)) {
@@ -55,6 +59,31 @@ class StudentsService {
     const student = await Students.findOne({ where: { id } });
 
     return student;
+  }
+
+
+  public async updateOne(id: number, data: Partial<IStudentsData>, user: Students) {
+    if (id !== user.id) {
+      throw new Unauthorized('You cannot change another profile');
+    }
+
+    await Students.update(data, {where: {id}});
+    
+    return id;
+      
+
+   public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
+                              { email, password }: Students) {
+    const userForUpdate: Students = await this.findOneByEmail(email);
+
+    if (!bcrypt.compareSync(oldPassword, password)) {
+        throw new Unauthorized('Wrong password');
+    }
+
+    userForUpdate.password = hashFunc(newPassword);
+
+    return userForUpdate.save();
+
   }
 }
 

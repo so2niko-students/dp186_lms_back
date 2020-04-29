@@ -4,24 +4,12 @@ import { auth } from './auth.config';
 import { Unauthorized } from '../../common/exeptions/index';
 import { studentsService } from '../../modules/students/students.service';
 import { teachersService } from '../../modules/teachers/teachers.service';
-import { hashFunc } from './password.hash';
 import { Students } from '../students/students.model';
 import { Teachers } from '../teachers/teachers.model';
-import { CustomUser } from '../../common/types/types';
-
-interface ILogin {
-    email: string;
-    password: string;
-}
-
-interface IUpdatePassport {
-    oldPassword: string;
-    newPassword: string;
-}
+import { ILogin, IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 
 class AuthService {
-    public async login(data: ILogin) {
-        const { email, password } = data;
+    public async login({ email, password }: ILogin) {
         const user: Students | Teachers = await studentsService.findOneByEmail(email) ||
             await teachersService.findOneByEmail(email);
 
@@ -35,22 +23,20 @@ class AuthService {
             token,
             expires: auth.expiresIn,
         };
+
     }
 
-    public async updatePassword(data: IUpdatePassport, user: CustomUser) {
-        const { oldPassword, newPassword } = data;
-        const { email, password } = user;
+    public async updateStudentPassword(data: IUpdatePassword, user: Students ) {
+        return studentsService.updatePassword(data, user);
+    }
 
-        const userForUpdate: Students | Teachers = await studentsService.findOneByEmail(email) ||
-            await teachersService.findOneByEmail(email);
+    public async updateTeacherPassword(data: IUpdatePassword, user: Teachers ) {
+        return teachersService.updatePassword(data, user);
+    }
 
-        if (!bcrypt.compareSync(oldPassword, password)) {
-            throw new Unauthorized('Wrong password');
-        }
-
-        userForUpdate.password = hashFunc(newPassword);
-
-        return userForUpdate.save();
+    public async updateTeacherPasswordBySuperAdmin(id: number,
+                                                   data: IUpdatePassword, user: Teachers ) {
+        return teachersService.updatePasswordBySuperAdmin(id, data, user);
     }
 
 }
