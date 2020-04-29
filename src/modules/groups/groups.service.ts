@@ -43,7 +43,8 @@ class GroupsService {
         }
         return group;
     }
-    public async updateOne(id: number, data: Groups, user: CustomUser) {
+
+  public async updateOne(id: number, data: Groups, user: CustomUser) {
         const mentor = await this.mentorVerification(user);
         const group = await this.findOneOrThrow(id, user);
         if (group.teacherId !== mentor.id && !mentor.isAdmin) {

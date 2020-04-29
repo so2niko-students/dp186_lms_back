@@ -2,8 +2,11 @@ import { Students } from './students.model';
 import {groupsService} from '../groups/groups.service';
 import {teachersService} from '../teachers/teachers.service';
 import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
+import { hashFunc } from '../auth/password.hash';
+import { Unauthorized } from '../../common/exeptions/index';
 import * as bcrypt from 'bcrypt';
-import { sequelize } from '../../database';
+import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
+
 
 interface IStudentsData {
   email: string;
@@ -39,7 +42,7 @@ class StudentsService {
     studentsData.groupId = group.id;
 
     const students = new Students(studentsData);
-    students.password = await bcrypt.hash(students.password, 10);
+    students.password = hashFunc(students.password);
 
     return await students.save();
   }
@@ -58,6 +61,7 @@ class StudentsService {
     return student;
   }
 
+
   public async updateOne(id: number, data: Partial<IStudentsData>, user: Students) {
     if (id !== user.id) {
       throw new Unauthorized('You cannot change another profile');
@@ -66,6 +70,20 @@ class StudentsService {
     await Students.update(data, {where: {id}});
     
     return id;
+      
+
+   public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
+                              { email, password }: Students) {
+    const userForUpdate: Students = await this.findOneByEmail(email);
+
+    if (!bcrypt.compareSync(oldPassword, password)) {
+        throw new Unauthorized('Wrong password');
+    }
+
+    userForUpdate.password = hashFunc(newPassword);
+
+    return userForUpdate.save();
+
   }
 }
 
