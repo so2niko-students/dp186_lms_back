@@ -49,6 +49,16 @@ class GroupsController {
             next(e);
         }
     }
+    public async findAllByMenthorId(req: AuthRequest, res: Response,
+                                    next: NextFunction): Promise<void> {
+        try {
+            validateIdOrThrow(+req.params.mentorId);
+            const groups: Group[] = await groupsService.findAllByMentorId(+req.params.mentorId, req.user);
+            res.send(groups);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 const groupsController = new GroupsController();
