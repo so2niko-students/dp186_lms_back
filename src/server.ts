@@ -19,7 +19,10 @@ app.use(bodyParser.json());
 
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
-app.use("/teachers", teachersRoutes);
+// app.use('/teachers', authJwt, teachersRoutes);
+
+// Krivobok
+app.use('/teachers', teachersRoutes);
 
 //authorization
 passport.use(strategy);

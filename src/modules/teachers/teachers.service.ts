@@ -31,6 +31,7 @@ class TeachersService {
     const { password } = teacherData;
 
     teacherData.password = hashFunc(password);
+    teacherData.isAdmin = false;
     
     return await Teachers.create(teacherData); // or myData if no mutation option
   }
@@ -58,8 +59,22 @@ class TeachersService {
     });
   }
 
-  public async findAllTeachers(offset: number, limit: number) : Promise<Teachers[]>{
+  public async findAllTeachers(page: number = 1, limit: number) : Promise<Teachers[]>{
 
+    const amount = await Teachers.count();
+
+    // prishel object page 2 limit 10
+
+    let offset = (page - 1) * limit // 10
+
+    if(amount <= offset) offset = 0;
+    
+
+    // if no offset
+    // if(!page) offset = 0;
+    // if(!limit) limit = amount;
+    // console.log(amount);
+    // if (offset > total
     const teachers = await Teachers.findAll({offset, limit});
 
     return teachers;

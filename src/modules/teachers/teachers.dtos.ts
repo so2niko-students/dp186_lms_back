@@ -5,7 +5,6 @@ export const createTeachersDto = Joi.object().keys({
   lastName: Joi.string().min(1).required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
-  isAdmin: Joi.boolean(),
 });
 
 export const updateTeachersDto = Joi.object().keys({
