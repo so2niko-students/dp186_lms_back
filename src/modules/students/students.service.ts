@@ -1,11 +1,12 @@
 import { Students } from './students.model';
 import {groupsService} from '../groups/groups.service';
 import {teachersService} from '../teachers/teachers.service';
-import { BadRequest, NotFound } from '../../common/exeptions';
+import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import { hashFunc } from '../auth/password.hash';
 import { Unauthorized } from '../../common/exeptions/index';
 import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
+
 
 interface IStudentsData {
   email: string;
@@ -60,7 +61,18 @@ class StudentsService {
     return student;
   }
 
-  public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
+
+  public async updateOne(id: number, data: Partial<IStudentsData>, user: Students) {
+    if (id !== user.id) {
+      throw new Unauthorized('You cannot change another profile');
+    }
+
+    await Students.update(data, {where: {id}});
+    
+    return id;
+      
+
+   public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
                               { email, password }: Students) {
     const userForUpdate: Students = await this.findOneByEmail(email);
 
@@ -71,6 +83,7 @@ class StudentsService {
     userForUpdate.password = hashFunc(newPassword);
 
     return userForUpdate.save();
+
   }
 }
 
