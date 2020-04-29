@@ -59,25 +59,23 @@ class TeachersService {
     });
   }
 
-  public async findAllTeachers(page: number = 1, limit: number) : Promise<Teachers[]>{
+  public async findAllTeachers(page: number = 1, limit: number) : Promise<object>{
 
-    const amount = await Teachers.count();
+    const amount = await Teachers.count(); // actual teachers count in db
 
-    // prishel object page 2 limit 10
+    let offset = (page - 1) * limit // default offset by pages number
 
-    let offset = (page - 1) * limit // 10
+    if(amount <= offset) { // when you click 'next' and it should return page №1
+      offset = 0;
+      page = 1; 
+    } else if(page === 0) {
+      page = Math.ceil(amount / limit);
+      offset = (page - 1) * limit; // when you click 'prev' and it should return the last page
+    }
 
-    if(amount <= offset) offset = 0;
-    
-
-    // if no offset
-    // if(!page) offset = 0;
-    // if(!limit) limit = amount;
-    // console.log(amount);
-    // if (offset > total
     const teachers = await Teachers.findAll({offset, limit});
 
-    return teachers;
+    return {teachers, page};
   }
 
   public async findOneByEmail(email: string) {

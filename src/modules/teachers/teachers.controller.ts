@@ -40,10 +40,10 @@ class TeachersController {
 
   public async findAllTeachers(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const offset: number = +req.query.offset;
+      const page: number = +req.query.page;
       const limit: number = +req.query.limit;
     
-      const teachers = await teachersService.findAllTeachers(offset, limit);
+      const teachers = await teachersService.findAllTeachers(page, limit);
       res.json(teachers);
     }
     catch (e) {
