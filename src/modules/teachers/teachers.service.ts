@@ -12,13 +12,15 @@ interface ITeachersData {
   isAdmin: boolean;
 }
 
+const UNAUTHORIZED_MSG = 'You do not have permission for this';
+
 class TeachersService {
 
   public async createOneTeacher(teacherData: ITeachersData, user: CustomUser): Promise<Teachers> {
 
     // superAdmin validation
     if (!user.isAdmin) {
-      throw new Unauthorized('You do not have permission for this');
+      throw new Unauthorized(UNAUTHORIZED_MSG);
     }
 
     // duplicate validation
@@ -26,18 +28,6 @@ class TeachersService {
       throw new BadRequest('User with provided email already exists');
     }
 
-    // no mutation of teacherData
-    // const { email, password, firstName, lastName, isAdmin } = teacherData;
-
-    // const myData: TeacherData = {
-    //   email,
-    //   password: hashFunc(password),
-    //   firstName,
-    //   lastName,
-    //   isAdmin
-    // }
-
-    // with mutation of teacherData
     const { password } = teacherData;
 
     teacherData.password = hashFunc(password);
@@ -49,7 +39,7 @@ class TeachersService {
 
     // superAdmin validation
     if (!user.isAdmin) {
-      throw new Unauthorized('You do not have permission for this');
+      throw new Unauthorized(UNAUTHORIZED_MSG);
     }
 
     // exists in db validation
@@ -57,7 +47,7 @@ class TeachersService {
       throw new BadRequest('User with provided id do not exist in the db');
     }
 
-    return await sequelize.transaction(async (transaction) => {
+    return await sequelize.transaction(async (transaction) => {  // important! PLS COMMEND IF TRANSACTION NEEDED IN THIS CASE
       const isExist = await Teachers.findOne({ where: { id }, transaction });
       if (!isExist) {
         throw new NotFound(`Can't find row the teacher with id ${id}`);
