@@ -1,3 +1,3 @@
-import TryCatch from './try-catch';
+import Catcher from './try-catch';
 
-export {TryCatch};
+export {Catcher};

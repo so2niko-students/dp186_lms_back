@@ -1,13 +1,11 @@
-function TryCatch(target: any, propName: string, descriptor: PropertyDescriptor) {
-    const fn = descriptor.value;
-    descriptor.value = async (...args) => {
+function Catcher(f) {
+    return (req, res, next) => {
         try {
-            await fn.apply(this, args);
+            f.apply(this, [req, res, next]);
         } catch (e) {
-            const [, , next] = args;
-            next(e);
+            next();
         }
     };
 }
 
-export default TryCatch;
+export default Catcher;
