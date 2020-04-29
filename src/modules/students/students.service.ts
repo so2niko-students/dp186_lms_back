@@ -6,7 +6,6 @@ import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { Avatars } from '../avatars/avatars.model';
-import { CustomUser } from '../../common/types/types';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 
 interface IStudentsData {
@@ -84,21 +83,18 @@ class StudentsService {
       if (id !== user.id) {
           throw new Unauthorized('You cannot change another profile');
       }
-
       const student = await this.findOneByIdOrThrow(id);
       const { avatar } = data;
       if (avatar) {
           const { img, format} = avatar;
           await avatarService.setAvatarToUserOrThrow(img, format, student);
       }
-
       await Students.update(data, {where: {id}});
-
       return await this.findOneByIdOrThrow(id);
   }
 
    public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
-                              { email, password }: Students) {
+                               { email, password }: Students) {
     const userForUpdate: Students = await this.findOneByEmail(email);
 
     if (!bcrypt.compareSync(oldPassword, password)) {

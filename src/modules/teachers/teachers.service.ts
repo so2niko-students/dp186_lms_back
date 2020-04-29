@@ -2,9 +2,9 @@ import { Teachers } from './teachers.model';
 import { NotFound, Unauthorized } from '../../common/exeptions/';
 import { Avatars } from '../avatars/avatars.model';
 import { Transaction } from 'sequelize';
-import { CustomUser } from '../../common/types/types';
-import { avatarService} from '../avatars/avatars.service';
+import { avatarService } from '../avatars/avatars.service';
 import { hashFunc } from '../auth/password.hash';
+import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 
 interface ITeachersData {
@@ -21,7 +21,7 @@ interface ITeachersData {
 class TeachersService {
     public async findOneByEmail(email: string) {
         const teacher = await Teachers.findOne({
-            where: { email },
+            where: {email},
             include: [{
                 model: Avatars, as: 'avatar', attributes: ['avatarLink'],
             }],
@@ -32,7 +32,7 @@ class TeachersService {
 
     public async findOneById(id) {
         const teacher = await Teachers.findOne({
-            where: { id },
+            where: {id},
             include: [{
                 model: Avatars, as: 'avatar', attributes: ['avatarLink'],
             }],
@@ -40,6 +40,7 @@ class TeachersService {
 
         return teacher;
     }
+
     public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Teachers> {
         const teacher = await Teachers.findOne({
             where: {id},
@@ -54,46 +55,46 @@ class TeachersService {
         }
         return teacher;
     }
-    public async updateOneOrThrow(data: ITeachersData, user: CustomUser) {
-        const { id } = user;
+
+    public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers) {
+        if (id !== user.id && !user.isAdmin) {
+            throw new Unauthorized('You cannot change another profile');
+        }
         const teacher = await this.findOneByIdOrThrow(id);
-        const { avatar } = data;
+        const {avatar} = data;
         if (avatar) {
-            const { img, format} = avatar;
+            const {img, format} = avatar;
             await avatarService.setAvatarToUserOrThrow(img, format, teacher);
         }
-        Object.keys(data).forEach((k) => teacher[k] = data[k]);
-        await teacher.save();
+        await Teachers.update(data, {where: {id}});
         return await this.findOneByIdOrThrow(id);
     }
-    return teacher;
-  }
 
-  public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
-                              user: Teachers) {
-    const userForUpdate: Teachers = await this.findOneById(user.id);
+    public async updatePassword({oldPassword, newPassword}: IUpdatePassword,
+                                user: Teachers) {
+        const userForUpdate: Teachers = await this.findOneById(user.id);
 
-    if (!bcrypt.compareSync(oldPassword, user.password)) {
-        throw new Unauthorized('Wrong password');
+        if (!bcrypt.compareSync(oldPassword, user.password)) {
+            throw new Unauthorized('Wrong password');
+        }
+
+        userForUpdate.password = hashFunc(newPassword);
+
+        return userForUpdate.save();
     }
 
-    userForUpdate.password = hashFunc(newPassword);
+    public async updatePasswordBySuperAdmin(id: number,
+                                            {newPassword}: IUpdatePassword, user: Teachers) {
+        const userForUpdate: Teachers = await this.findOneById(id);
 
-    return userForUpdate.save();
-  }
+        if (!user.isAdmin) {
+            throw new Unauthorized('You cannot change password for another teacher');
+        }
 
-  public async updatePasswordBySuperAdmin(id: number,
-                                          { newPassword }: IUpdatePassword, user: Teachers) {
-    const userForUpdate: Teachers = await this.findOneById(id);
+        userForUpdate.password = hashFunc(newPassword);
 
-    if (!user.isAdmin) {
-        throw new Unauthorized('You cannot change password for another teacher');
+        return userForUpdate.save();
     }
-
-    userForUpdate.password = hashFunc(newPassword);
-
-    return userForUpdate.save();
-  }
 }
 
 export const teachersService = new TeachersService();

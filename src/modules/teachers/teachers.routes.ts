@@ -5,4 +5,4 @@ import { updateTeachersDto } from './teachers.dtos';
 
 export const router: Router = Router();
 
-router.put('/', createValidator(updateTeachersDto), teachersController.updateOne);
+router.put('/:id', createValidator(updateTeachersDto), teachersController.updateOne);
