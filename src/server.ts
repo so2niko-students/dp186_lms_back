@@ -1,4 +1,5 @@
 import express = require('express');
+import cors = require('cors');
 import * as bodyParser from 'body-parser';
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
@@ -12,6 +13,8 @@ dotenv.config();
 import './database';
 
 const app: express.Express = express();
+app.use(cors());
+
 app.use(express.json());
 app.use(bodyParser.json());
 
