@@ -9,7 +9,7 @@ export const sequelize: Sequelize = new Sequelize(process.env.DB_NAME,
     port: +process.env.DB_PORT,
     // @ts-ignore
     dialect: process.env.DB_DIALECT,
-    dialectOptions:{
+    dialectOptions: {
         supportBigNumbers: true,
     },
 });

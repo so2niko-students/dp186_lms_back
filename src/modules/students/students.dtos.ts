@@ -19,7 +19,6 @@ export const updateStudentsDto = Joi.object().keys({
   lastNameEng: Joi.string().min(1),
   email: Joi.string().email(),
   phoneNumber: Joi.number().integer(),
-  groupId: Joi.number().integer(),
   avatar: Joi.object().keys({
     img: Joi.string().base64({paddingRequired: true}).required(),
     format: Joi.string().required(),

@@ -1,5 +1,5 @@
 import { QueryInterface, Sequelize } from 'sequelize';
-import {hashSync} from 'bcrypt';
+import { hashFunc } from '../modules/auth/password.hash';
 
 export async function up(query: QueryInterface, sequelize: Sequelize) {
     return query.bulkInsert('teachers', [
@@ -7,7 +7,7 @@ export async function up(query: QueryInterface, sequelize: Sequelize) {
         firstName: 'Alan',
         lastName: 'Morgan',
         email: 'alanmorgan@gmail.com',
-        password: hashSync('admin', 10),
+        password: hashFunc('superAdmin'),
         isAdmin: true,
         createdAt: new Date(),
         updatedAt: new Date(),

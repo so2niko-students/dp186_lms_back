@@ -4,7 +4,6 @@ import { groupsService } from './groups.service';
 import {AuthRequest} from '../../common/types/types';
 import {validateIdOrThrow} from '../../common/validators/';
 
-
 class GroupsController {
     public async createOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {

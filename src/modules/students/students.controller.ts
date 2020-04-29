@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { studentsService } from './students.service';
-import { AuthRequest } from '../../common/types/types'
+import { Students } from './students.model';
+import { UpdateRequest } from '../../common/types/types';
+import { validateIdOrThrow } from '../../common/validators/';
 
 class StudentsController {
   public async createOne(req: Request, res: Response, next: NextFunction) {
@@ -11,9 +13,12 @@ class StudentsController {
       next(e);
     }
   }
-  public async updateOne(req: AuthRequest, res: Response, next: NextFunction) {
+
+  public async updateOne(req: UpdateRequest<Students>,
+                         res: Response, next: NextFunction): Promise<void> {
     try {
-      const student = await studentsService.updateOneOrThrow(req.body, req.user);
+      validateIdOrThrow(+req.params.id);
+      const student = await studentsService.updateOneOrThrow(+req.params.id, req.body, req.user);
       res.json(student);
     } catch (e) {
       next(e);

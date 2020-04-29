@@ -1,9 +1,11 @@
 import { Teachers } from './teachers.model';
-import { NotFound } from '../../common/exeptions/';
-import {Avatars} from '../avatars/avatars.model';
-import {Transaction} from 'sequelize';
-import {CustomUser} from '../../common/types/types';
-import {avatarService} from '../avatars/avatars.service';
+import { NotFound, Unauthorized } from '../../common/exeptions/';
+import { Avatars } from '../avatars/avatars.model';
+import { Transaction } from 'sequelize';
+import { CustomUser } from '../../common/types/types';
+import { avatarService} from '../avatars/avatars.service';
+import { hashFunc } from '../auth/password.hash';
+import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 
 interface ITeachersData {
     firstName?: string;
@@ -15,6 +17,7 @@ interface ITeachersData {
         format: string;
     };
 }
+
 class TeachersService {
     public async findOneByEmail(email: string) {
         const teacher = await Teachers.findOne({
@@ -63,6 +66,34 @@ class TeachersService {
         await teacher.save();
         return await this.findOneByIdOrThrow(id);
     }
+    return teacher;
+  }
+
+  public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
+                              user: Teachers) {
+    const userForUpdate: Teachers = await this.findOneById(user.id);
+
+    if (!bcrypt.compareSync(oldPassword, user.password)) {
+        throw new Unauthorized('Wrong password');
+    }
+
+    userForUpdate.password = hashFunc(newPassword);
+
+    return userForUpdate.save();
+  }
+
+  public async updatePasswordBySuperAdmin(id: number,
+                                          { newPassword }: IUpdatePassword, user: Teachers) {
+    const userForUpdate: Teachers = await this.findOneById(id);
+
+    if (!user.isAdmin) {
+        throw new Unauthorized('You cannot change password for another teacher');
+    }
+
+    userForUpdate.password = hashFunc(newPassword);
+
+    return userForUpdate.save();
+  }
 }
 
 export const teachersService = new TeachersService();
