@@ -71,8 +71,8 @@ class TasksController {
     try {
       const idNumb: number = validateIdOrThrow(req.params.id);
 
-      const removedTaskId: object= await tasksService.deleteOne(idNumb, req.user);
-      res.json(removedTaskId);
+      const removedTaskId: number = await tasksService.deleteOne(idNumb, req.user);
+      res.json({ id: removedTaskId });
     } catch (e) {
       next(e);
     }

@@ -1,5 +1,5 @@
 import { Tasks as Task } from './tasks.model';
-import { Groups as Group } from '../groups/groups.model';
+import { groupsService } from '../groups/groups.service';
 import { CustomUser } from '../../common/types/types';
 import { NotFound, Forbidden } from '../../common/exeptions/';
 import { sequelize } from '../../database';
@@ -44,10 +44,7 @@ class TasksService {
     }
 
     return sequelize.transaction(async (transaction) => {
-      const group: Group = await Group.findOne({
-        where: { id: task.groupId },
-        transaction,
-      });
+      const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
       if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
         throw new Forbidden(NO_RIGHTS);
       }
@@ -55,7 +52,7 @@ class TasksService {
       return await Task.create(task, { transaction });
     });
   }
-
+  
   public async updateOne(
     id: number,
     updates: ITasks,
@@ -71,10 +68,7 @@ class TasksService {
         throw new NotFound(`Can't find task with id ${id}`);
       }
 
-      const group: Group = await Group.findOne({
-        where: { id: task.groupId },
-        transaction,
-      });
+      const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
       if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
         throw new Forbidden(NO_RIGHTS);
       }
@@ -88,7 +82,7 @@ class TasksService {
     });
   }
 
-  public async deleteOne(id: number, user: CustomUser): Promise<object> {
+  public async deleteOne(id: number, user: CustomUser): Promise<number> {
     if (!user.isMentor) {
       throw new Forbidden(NO_RIGHTS);
     }
@@ -99,16 +93,13 @@ class TasksService {
         throw new NotFound(`Can't find task with id ${id}`);
       }
 
-      const group: Group = await Group.findOne({
-        where: { id: task.groupId },
-        transaction,
-      });
+      const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
       if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
         throw new Forbidden(NO_RIGHTS);
       }
 
       await Task.destroy({ where: { id }, transaction });
-      return { id };
+      return id;
     });
   }
 }
