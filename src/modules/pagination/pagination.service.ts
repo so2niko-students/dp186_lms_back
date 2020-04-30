@@ -1,5 +1,3 @@
-import { Teachers } from '../teachers/teachers.model';
-
 interface IPaginationData{
   offset: number;
   actualPage: number;
