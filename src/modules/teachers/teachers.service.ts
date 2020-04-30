@@ -6,6 +6,7 @@ import { avatarService } from '../avatars/avatars.service';
 import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
+import {sequelize} from '../../database';
 
 interface ITeachersData {
     firstName?: string;
@@ -57,17 +58,20 @@ class TeachersService {
     }
 
     public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers) {
-        if (id !== user.id && !user.isAdmin) {
-            throw new Unauthorized('You cannot change another profile');
-        }
-        const teacher = await this.findOneByIdOrThrow(id);
-        const {avatar} = data;
-        if (avatar) {
-            const {img, format} = avatar;
-            await avatarService.setAvatarToUserOrThrow(img, format, teacher);
-        }
-        await Teachers.update(data, {where: {id}});
-        return await this.findOneByIdOrThrow(id);
+        return sequelize.transaction(async (transaction: Transaction) => {
+            if (id !== user.id && !user.isAdmin) {
+                throw new Unauthorized('You cannot change another profile');
+            }
+            const teacher = await this.findOneByIdOrThrow(id, transaction);
+            const {avatar} = data;
+            if (avatar) {
+                const {img, format} = avatar;
+                await avatarService.setAvatarToUserOrThrow(img, format, teacher, transaction);
+            }
+            Object.keys(data).forEach((k) => teacher[k] = data[k]);
+            await teacher.save({transaction});
+            return this.findOneByIdOrThrow(id, transaction);
+        });
     }
 
     public async updatePassword({oldPassword, newPassword}: IUpdatePassword,
@@ -85,11 +89,11 @@ class TeachersService {
 
     public async updatePasswordBySuperAdmin(id: number,
                                             {newPassword}: IUpdatePassword, user: Teachers) {
-        const userForUpdate: Teachers = await this.findOneById(id);
-
         if (!user.isAdmin) {
             throw new Unauthorized('You cannot change password for another teacher');
         }
+
+        const userForUpdate: Teachers = await this.findOneById(id);
 
         userForUpdate.password = hashFunc(newPassword);
 

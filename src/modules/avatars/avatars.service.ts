@@ -9,39 +9,37 @@ import { Teachers } from '../teachers/teachers.model';
 import { Transaction } from 'sequelize';
 
 class AvatarsService {
-    public async createOne(avatarLink: string, publicId: string, transaction: Transaction) {
-        return await Avatars.create({
+    public async createOne(avatarLink: string, removeId: string, transaction: Transaction) {
+        return Avatars.create({
             avatarLink,
-            publicId,
+            removeId,
         }, {transaction});
     }
     public async findOneById(id: number, transaction?: Transaction) {
-        return await Avatars.findOne({where: {id}, transaction });
+        return Avatars.findOne({where: {id}, transaction });
     }
-    public async setAvatarToGroupOrThrow(base64: string, type: string, group: Groups) {
-        return sequelize.transaction(async (transaction) => {
-            const {avatarId: oldAvatarId} = group;
-            if (oldAvatarId) {
-                await this.deleteImgFromDBaseAndCloudianry(oldAvatarId, transaction);
-            }
-            const { url, public_id } = await this.uploadImgOrThrow(base64, type);
-            const avatar: Avatars = await this.createOne(url, public_id, transaction);
-            group.avatarId = avatar.id;
-            await group.save({transaction});
-            return group;
-        });
+    public async setAvatarToGroupOrThrow(base64: string, type: string, group: Groups,
+                                         transaction: Transaction) {
+        const {avatarId: oldAvatarId} = group;
+        if (oldAvatarId) {
+            await this.deleteImgFromDBaseAndCloudianry(oldAvatarId, transaction);
+        }
+        const { url, public_id: removeId } = await this.uploadImgOrThrow(base64, type);
+        const avatar: Avatars = await this.createOne(url, removeId, transaction);
+        group.avatarId = avatar.id;
+        await group.save({transaction});
+        return group;
     }
-    public async setAvatarToUserOrThrow(base64: string, type: string, user: Teachers | Students) {
-        return sequelize.transaction(async (transaction) => {
-            const { avatarId: oldAvatarId } = user;
-            if (oldAvatarId) {
-                await this.deleteImgFromDBaseAndCloudianry(oldAvatarId, transaction);
-            }
-            const { url, public_id } = await this.uploadImgOrThrow(base64, type);
-            const avatar: Avatars = await this.createOne(url, public_id, transaction);
-            user.avatarId = avatar.id;
-            return await user.save({transaction});
-        });
+    public async setAvatarToUserOrThrow(base64: string, type: string, user: Teachers | Students,
+                                        transaction: Transaction) {
+        const { avatarId: oldAvatarId } = user;
+        if (oldAvatarId) {
+            await this.deleteImgFromDBaseAndCloudianry(oldAvatarId, transaction);
+        }
+        const { url, public_id: removeId } = await this.uploadImgOrThrow(base64, type);
+        const avatar: Avatars = await this.createOne(url, removeId, transaction);
+        user.avatarId = avatar.id;
+        return user.save({transaction});
     }
     private async uploadImgOrThrow(base64: string, type: string) {
         const img = `data:${type};base64,${base64}`;
@@ -69,11 +67,9 @@ class AvatarsService {
     }
     private async deleteImgFromDBaseAndCloudianry(delAvatarId: number, transaction: Transaction) {
         const oldAvatar = await this.findOneById(delAvatarId, transaction);
-        // result variable is needed for future logging
-        const { result } = await this.deleteImgOrThrow(oldAvatar.publicId);
+        await this.deleteImgOrThrow(oldAvatar.removeId);
         return await oldAvatar.destroy({transaction});
     }
 }
 
-const avatarService = new AvatarsService();
-export {avatarService};
+export const avatarService = new AvatarsService();

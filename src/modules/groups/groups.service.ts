@@ -1,15 +1,15 @@
 import { Groups } from './groups.model';
 import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
-import {CustomUser} from '../../common/types/types';
+import {CustomUser, Partial} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
 import {avatarService} from '../avatars/avatars.service';
 import {Avatars} from '../avatars/avatars.model';
 import {Transaction} from 'sequelize';
-import * as Joi from 'joi';
+import {sequelize} from '../../database';
 
 const NO_RIGHTS = 'You do not have rights to do this.';
-interface IUpdateGroup {
+interface ICreateGroup {
     groupName?: string;
     groupToken?: string;
     teacherId?: number;
@@ -63,23 +63,25 @@ class GroupsService {
         }
         return group;
     }
-    public async updateOneOrThrow(id: number, data: IUpdateGroup, user: CustomUser) {
-        const mentor = await this.mentorVerification(user);
-        const group = await this.findOneOrThrow(id, user);
-        if (group.teacherId !== mentor.id && !mentor.isAdmin) {
-            throw new Forbidden(NO_RIGHTS);
-        }
-        if (data.teacherId && !mentor.isAdmin) {
-            throw new Forbidden(NO_RIGHTS);
-        }
-        const { avatar } = data;
-        if (avatar) {
-            const { img, format } = avatar;
-            await avatarService.setAvatarToGroupOrThrow(img, format, group);
-        }
-        Object.keys(data).forEach((k) => group[k] = data[k]);
-        await group.save();
-        return await this.findOneOrThrow(id, user);
+    public async updateOneOrThrow(id: number, data: Partial<ICreateGroup>, user: CustomUser) {
+        return sequelize.transaction(async (transaction: Transaction) => {
+            const mentor = await this.mentorVerification(user);
+            const group = await this.findOneOrThrow(id, user, transaction);
+            if (group.teacherId !== mentor.id && !mentor.isAdmin) {
+                throw new Forbidden(NO_RIGHTS);
+            }
+            if (data.teacherId && !mentor.isAdmin) {
+                throw new Forbidden(NO_RIGHTS);
+            }
+            const { avatar } = data;
+            if (avatar) {
+                const { img, format } = avatar;
+                await avatarService.setAvatarToGroupOrThrow(img, format, group, transaction);
+            }
+            Object.keys(data).forEach((k) => group[k] = data[k]);
+            await group.save({transaction});
+            return this.findOneOrThrow(id, user, transaction);
+        });
     }
     public async deleteOne(id: number, user: CustomUser) {
         const mentor = await this.mentorVerification(user);

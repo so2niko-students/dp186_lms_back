@@ -7,6 +7,8 @@ import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { Avatars } from '../avatars/avatars.model';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
+import {sequelize} from '../../database';
+import { Transaction } from 'sequelize';
 
 interface IStudentsData {
   email: string;
@@ -62,7 +64,7 @@ class StudentsService {
     return student;
   }
 
-  public async findOneByIdOrThrow(id: number) {
+  public async findOneByIdOrThrow(id: number, transaction: Transaction) {
     const student = await Students.findOne({
       where: { id },
       include: [{
@@ -71,6 +73,7 @@ class StudentsService {
       attributes: {
           exclude: ['password'],
       },
+      transaction,
     });
     if (!student) {
       throw new BadRequest(`User with id ${id} not found`);
@@ -80,17 +83,20 @@ class StudentsService {
 
 
   public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students) {
-      if (id !== user.id) {
-          throw new Unauthorized('You cannot change another profile');
-      }
-      const student = await this.findOneByIdOrThrow(id);
-      const { avatar } = data;
-      if (avatar) {
-          const { img, format} = avatar;
-          await avatarService.setAvatarToUserOrThrow(img, format, student);
-      }
-      await Students.update(data, {where: {id}});
-      return await this.findOneByIdOrThrow(id);
+      return sequelize.transaction(async (transaction) => {
+          if (id !== user.id) {
+              throw new Unauthorized('You cannot change another profile');
+          }
+          const student = await this.findOneByIdOrThrow(id, transaction);
+          const { avatar } = data;
+          if (avatar) {
+              const { img, format} = avatar;
+              await avatarService.setAvatarToUserOrThrow(img, format, student, transaction);
+          }
+          Object.keys(data).forEach((k) => student[k] = data[k]);
+          await student.save({transaction});
+          return this.findOneByIdOrThrow(id, transaction);
+      });
   }
 
    public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,

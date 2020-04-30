@@ -11,7 +11,7 @@ export class Avatars extends Model {
   public avatarLink: string;
   public createdAt: Date;
   public updatedAt: Date;
-  public publicId: string;
+  public removeId: string;
 
   public static prepareInit(sequelize: Sequelize) {
     this.init(
@@ -28,7 +28,7 @@ export class Avatars extends Model {
           allowNull: false,
           comment: 'Link to the avatar image',
         },
-        publicId: {
+        removeId: {
           type: DataTypes.STRING(100),
           allowNull: false,
           comment: 'Cloudinary id',
@@ -47,7 +47,7 @@ Avatars.prepareInit(sequelize);
 Avatars.hasOne(Groups, {
   sourceKey: 'id',
   foreignKey: 'avatarId',
-  as: 'groups'
+  as: 'groups',
 });
 
 Groups.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId', as: 'avatar'});
@@ -55,7 +55,7 @@ Groups.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId', as: 'avatar'
 Avatars.hasOne(Teachers, {
   sourceKey: 'id',
   foreignKey: 'avatarId',
-  as: 'teachers'
+  as: 'teachers',
 });
 
 Teachers.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId', as: 'avatar'});
@@ -63,7 +63,7 @@ Teachers.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId', as: 'avata
 Avatars.hasOne(Students, {
   sourceKey: 'id',
   foreignKey: 'avatarId',
-  as: 'studets'
+  as: 'studets',
 });
 
 Students.belongsTo(Avatars, {targetKey: 'id', foreignKey: 'avatarId', as: 'avatar'});

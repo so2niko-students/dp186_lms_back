@@ -6,3 +6,7 @@ export type CustomUser = (Teachers  | Students) & {isMentor: boolean; groupId?: 
 export type AuthRequest = Request & {user: CustomUser};
 
 export type UpdateRequest<T>= Request & {user: T};
+
+export type Partial<T> = {
+    readonly [P in keyof T]: T[P];
+};
