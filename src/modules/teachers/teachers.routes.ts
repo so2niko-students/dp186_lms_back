@@ -6,11 +6,11 @@ import { authJwt } from '../../common/middlewares/auth.middleware';
 
 export const router: Router = Router();
 
-router.get('/', teachersController.findAllTeachers ); 
+router.get('/', teachersController.getPage ); 
 
-router.get('/:id', teachersController.findTeacherById ); 
+router.get('/:id', teachersController.findById ); 
 
-router.post('/', authJwt, createValidator(createTeachersDto), teachersController.createOneTeacher ); 
+router.post('/', authJwt, createValidator(createTeachersDto), teachersController.createOne ); 
 
 router.delete('/:id', authJwt, teachersController.deleteOneById );
 

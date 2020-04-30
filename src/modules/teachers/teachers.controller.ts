@@ -10,12 +10,12 @@ import { CustomUser } from '../../common/types/types';
 
 class TeachersController {
 
-  public async createOneTeacher(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  public async createOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const body = req.body;
       const user: CustomUser = req.user;
 
-      const teachers = await teachersService.createOneTeacher(body, user);
+      const teachers = await teachersService.createOne(body, user);
       res.json(teachers);
     }
     catch (e) {
@@ -38,12 +38,12 @@ class TeachersController {
     }
   }
 
-  public async findAllTeachers(req: AuthRequest, res: Response, next: NextFunction) {
+  public async getPage(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const page: number = +req.query.page;
       const limit: number = +req.query.limit;
     
-      const teachers = await teachersService.findAllTeachers(page, limit);
+      const teachers = await teachersService.getPage(page, limit);
       res.json(teachers);
     }
     catch (e) {
@@ -51,7 +51,7 @@ class TeachersController {
     }
   }
 
-  public async findTeacherById(req: AuthRequest, res: Response, next: NextFunction) {
+  public async findById(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       validateIdOrThrow(+req.params.id);
 

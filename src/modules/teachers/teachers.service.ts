@@ -14,16 +14,16 @@ interface ITeachersData {
   isAdmin: boolean;
 }
 
-const UNAUTHORIZED_MSG = 'You do not have permission for this';
+const NO_PERMISSION_MSG = 'You do not have permission for this';
 
 
 class TeachersService {
 
-  public async createOneTeacher(teacherData: ITeachersData, user: CustomUser): Promise<Teachers> {
+  public async createOne(teacherData: ITeachersData, user: CustomUser): Promise<Teachers> {
 
     // superAdmin validation
     if (!user.isAdmin) {
-      throw new Unauthorized(UNAUTHORIZED_MSG);
+      throw new Unauthorized(NO_PERMISSION_MSG);
     }
 
     // duplicate validation
@@ -43,17 +43,12 @@ class TeachersService {
 
     // superAdmin validation
     if (!user.isAdmin) {
-      throw new Unauthorized(UNAUTHORIZED_MSG);
+      throw new Unauthorized(NO_PERMISSION_MSG);
     }
 
-    // exists in db validation
-    if (!(await this.findOneById(id))) {
-      throw new BadRequest('User with provided id do not exist in the db');
-    }
-
-    return await sequelize.transaction(async (transaction) => {  // important! PLS COMMEND IF TRANSACTION NEEDED IN THIS CASE
-      const isExist = await Teachers.findOne({ where: { id }, transaction });
-      if (!isExist) {
+    return sequelize.transaction(async (transaction) => {
+      const teacher = await Teachers.findOne({ where: { id }, transaction });
+      if (!teacher) {
         throw new NotFound(`Can't find row the teacher with id ${id}`);
       }
 
@@ -62,7 +57,7 @@ class TeachersService {
     });
   }
 
-  public async findAllTeachers(page: number = 1, limit: number) : Promise<object>{
+  public async getPage(page: number = 1, limit: number) : Promise<object>{
 
     const amount = await Teachers.count(); // actual teachers count in db
 
