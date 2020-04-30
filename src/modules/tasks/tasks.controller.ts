@@ -25,8 +25,7 @@ class TasksController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const idNumb: number = parseInt(req.params.id);
-      validateIdOrThrow(idNumb);
+      const idNumb: number = validateIdOrThrow(req.params.id);
       const task: Task = await tasksService.findOneById(idNumb, req.user);
 
       res.json(task);
@@ -54,8 +53,7 @@ class TasksController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const idNumb: number = parseInt(req.params.id);
-      validateIdOrThrow(idNumb);
+      const idNumb: number = validateIdOrThrow(req.params.id);
 
       const updatedTask: Task = await tasksService.updateOne(idNumb, req.body, req.user);
       res.json(updatedTask);
@@ -71,8 +69,7 @@ class TasksController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const idNumb: number = parseInt(req.params.id);
-      validateIdOrThrow(idNumb);
+      const idNumb: number = validateIdOrThrow(req.params.id);
 
       const removedTaskId: object= await tasksService.deleteOne(idNumb, req.user);
       res.json(removedTaskId);
