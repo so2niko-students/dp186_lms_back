@@ -85,7 +85,7 @@ class GroupsService {
             where: { teacherId: mentorId },
             attributes: ['id'],
         });
-        return groups;
+        return {groups, count: groups.length};
     }
     private async createGroupToken(name: string): Promise<string> {
         const salt = genSaltSync(5, 'b');
