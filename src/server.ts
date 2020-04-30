@@ -1,4 +1,5 @@
 import express = require('express');
+import cors = require('cors');
 import * as bodyParser from 'body-parser';
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
@@ -14,6 +15,7 @@ import './database';
 
 const app: express.Express = express();
 app.use(bodyParser.json({limit: '100mb'}));
+app.use(cors());
 
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
