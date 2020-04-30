@@ -49,7 +49,7 @@ class TeachersService {
     return sequelize.transaction(async (transaction) => {
       const teacher = await Teachers.findOne({ where: { id }, transaction });
       if (!teacher) {
-        throw new NotFound(`Can't find row the teacher with id ${id}`);
+        throw new NotFound(`Can't find the teacher with id ${id}`);
       }
 
       await Teachers.destroy({ where: { id }, transaction });
@@ -97,9 +97,16 @@ class TeachersService {
       throw new Unauthorized('You cannot change another profile');
     }
 
-    await Teachers.update(data, {where: {id}});
+    return sequelize.transaction(async (transaction) => {
+      const teacher = await Teachers.findOne({ where: { id }, transaction });
 
-    return id;
+      if (!teacher) {
+        throw new NotFound(`Can't find the teacher with id ${id}`);
+      }
+
+      await Teachers.update(data, { where: { id }, transaction });
+      return id;
+    });
   }
 
   public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
