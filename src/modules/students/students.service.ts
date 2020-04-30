@@ -1,9 +1,8 @@
 import { Students } from './students.model';
 import {groupsService} from '../groups/groups.service';
 import {teachersService} from '../teachers/teachers.service';
-import { BadRequest, NotFound } from '../../common/exeptions';
+import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import { hashFunc } from '../auth/password.hash';
-import { Unauthorized } from '../../common/exeptions/index';
 import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 
