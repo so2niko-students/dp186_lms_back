@@ -9,7 +9,6 @@ export class Teachers extends Model {
   public lastName: string;
   public email: string;
   public password: string;
-  public passwordConfirmation: string;
   public isAdmin: boolean;
   public createdAt: Date;
   public updatedAt: Date;
@@ -27,7 +26,6 @@ export class Teachers extends Model {
         lastName: DataTypes.STRING(255),
         email: DataTypes.STRING(255),
         password: DataTypes.STRING(100),
-        passwordConfirmation: DataTypes.STRING(100),
         isAdmin: DataTypes.BOOLEAN,
       },
       {

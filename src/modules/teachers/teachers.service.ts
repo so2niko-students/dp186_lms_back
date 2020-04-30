@@ -5,12 +5,14 @@ import { sequelize } from '../../database';
 import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
+import { Transaction } from 'sequelize/types';
+import { paginationService } from '../pagination/pagination.service'
 
 interface ITeachersData {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
+  password?: string;
   isAdmin: boolean;
 }
 
@@ -36,7 +38,11 @@ class TeachersService {
     teacherData.password = hashFunc(password);
     teacherData.isAdmin = false;
     
-    return await Teachers.create(teacherData); // or myData if no mutation option
+    const result: Teachers = await Teachers.create(teacherData); // what should i return ?
+
+    delete result.password
+
+    return result
   }
 
   public async deleteOneById(id: number, user: CustomUser): Promise<number> {
@@ -57,28 +63,19 @@ class TeachersService {
     });
   }
 
-  public async getPage(page: number = 1, limit: number) : Promise<object>{
+  public async getPage(supposedPage: number = 1, limit: number = 10) : Promise<object>{
 
-    const amount = await Teachers.count(); // actual teachers count in db
+    const total: number = await Teachers.count(); // actual teachers count in db
+    const {offset, actualPage} = await paginationService.getPaginationOffset(supposedPage, limit, total);
+    const teachers: Teachers[] = await Teachers.findAll({offset, limit});
 
-    let offset = (page - 1) * limit // default offset by pages number
-
-    if(amount <= offset) { // when you click 'next' and it should return page №1
-      offset = 0;
-      page = 1; 
-    } else if(page === 0) {
-      page = Math.ceil(amount / limit);
-      offset = (page - 1) * limit; // when you click 'prev' and it should return the last page
-    }
-
-    const teachers = await Teachers.findAll({offset, limit});
-
-    return {teachers, page};
+    return {teachers, actualPage, total};
   }
 
   public async findOneByEmail(email: string) {
     const teacher = await Teachers.findOne({
       where: { email },
+      // attributes: {exclude: ['password']},
     });
 
     return teacher;
@@ -87,6 +84,7 @@ class TeachersService {
   public async findOneById(id: number) {
     const teacher = await Teachers.findOne({
       where: { id },
+      // attributes: {exclude: ['password']},
     });
 
     return teacher;
