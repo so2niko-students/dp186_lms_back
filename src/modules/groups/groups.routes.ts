@@ -7,7 +7,6 @@ export const router: Router = Router();
 
 router.get('/', groupsController.findMany);
 router.get('/:id', groupsController.findOne);
-router.get('/all/:mentorId', groupsController.findAllByMenthorId);
 
 router.post('/', createValidator(createGroupDto), groupsController.createOne);
 router.post('/:id', createValidator(updateGroupDto), groupsController.updateOne);

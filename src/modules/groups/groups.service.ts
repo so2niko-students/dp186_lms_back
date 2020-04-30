@@ -67,21 +67,23 @@ class GroupsService {
         group.destroy();
         return group;
     }
-    public async findMany(user: CustomUser) {
+    public async findMany(mentorId: number, user: CustomUser) {
         if (!user.isMentor) {
             return Groups.findAll({ where: {id: user.groupId} });
         }
+        if (mentorId) {
+            return Groups.findAll({ where: {teacherId: mentorId} });
+        }
         return Groups.findAll();
     }
+    // method to count groups in UI
     public async findAllByMentorId(mentorId: number, user: CustomUser) {
         if (!user.isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
         const groups = await Groups.findAll({
             where: { teacherId: mentorId },
-            include: [{
-                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-            }],
+            attributes: ['id'],
         });
         return groups;
     }
