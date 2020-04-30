@@ -66,7 +66,7 @@ class TeachersService {
   public async getPage(supposedPage: number = 1, limit: number = 10) : Promise<object>{
 
     const total: number = await Teachers.count(); // actual teachers count in db
-    const {offset, actualPage} = await paginationService.getPaginationOffset(supposedPage, limit, total);
+    const {offset, actualPage} = await paginationService.getOffset(supposedPage, limit, total);
     const teachers: Teachers[] = await Teachers.findAll({offset, limit});
 
     return {teachers, actualPage, total};
