@@ -21,10 +21,13 @@ class TeachersService {
   }
 
   public async findOneById(id: number, transaction: Transaction) {
-    const teacher = await Teachers.findOne({ where: { id } });
+    const teacher = await Teachers.findOne({
+      where: { id },
+    });
 
     return teacher;
   }
+
 
   public async updateOne(id: number, data: Partial<ITeachersData>, user: Teachers) {
     if (id !== user.id && !user.isAdmin) {
@@ -38,11 +41,7 @@ class TeachersService {
         throw new NotFound(`There is no teacher with id ${id}`);
       }
 
-      await Teachers.update(data, {where: {id}, transaction});
 
-      return this.findOneById(id, transaction);
-    });
-
-  }
+}
 
 export const teachersService = new TeachersService();
