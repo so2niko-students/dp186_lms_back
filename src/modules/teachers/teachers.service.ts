@@ -41,7 +41,10 @@ class TeachersService {
         throw new NotFound(`There is no teacher with id ${id}`);
       }
 
-
+      await Teachers.update(data, { where: { id }, transaction });
+      return this.findOneById(id, transaction);
+    });
+  }
 }
 
 export const teachersService = new TeachersService();
