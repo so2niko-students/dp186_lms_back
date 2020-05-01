@@ -1,6 +1,7 @@
 import { Teachers } from './teachers.model';
-import { Unauthorized } from '../../common/exeptions';
+import { Unauthorized, NotFound } from '../../common/exeptions';
 import { sequelize } from '../../database';
+import { Transaction } from 'sequelize/types';
 
 interface ITeachersData {
   firstName: string;
@@ -19,7 +20,7 @@ class TeachersService {
     return teacher;
   }
 
-  public async findOneById(id: number) {
+  public async findOneById(id: number, transaction: Transaction) {
     const teacher = await Teachers.findOne({ where: { id } });
 
     return teacher;
@@ -30,11 +31,18 @@ class TeachersService {
       throw new Unauthorized('You cannot change another profile');
     }
 
-    await Teachers.update(data, {where: {id}});
+    return sequelize.transaction(async (transaction) => {
+      const teacher: Teachers = await this.findOneById(id, transaction);
 
-    return id;
+      if (user.isAdmin && !teacher) {
+        throw new NotFound(`There is no teacher with id ${id}`);
+      }
+
+      await Teachers.update(data, {where: {id}, transaction});
+
+      return this.findOneById(id, transaction);
+    });
+
   }
-
-}
 
 export const teachersService = new TeachersService();
