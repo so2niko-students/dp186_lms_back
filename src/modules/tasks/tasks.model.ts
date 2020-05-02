@@ -18,9 +18,8 @@ export class Tasks extends Model {
         id: {
           type: DataTypes.INTEGER,
           primaryKey: true,
-          allowNull: false,
           autoIncrement: true,
-          defaultValue: DataTypes.INTEGER,
+          allowNull: false,
           comment: 'Id of the instance',
         },
         groupId: DataTypes.INTEGER,
@@ -44,6 +43,6 @@ Groups.hasMany(Tasks, {
 });
 
 Tasks.belongsTo(Groups, {
-  targetKey: 'id',
-  foreignKey: 'groupId'
+  foreignKey: 'groupId',
+  as: 'tasks'
 });

@@ -11,3 +11,12 @@ export const CreateStudentsDto = Joi.object().keys({
   phoneNumber: Joi.number().integer().required(),
   groupToken: Joi.string().min(1).required(),
 });
+
+export const updateStudentsDto = Joi.object().keys({
+  firstNameUkr: Joi.string().min(1),
+  lastNameUkr: Joi.string().min(1),
+  firstNameEng: Joi.string().min(1),
+  lastNameEng: Joi.string().min(1),
+  email: Joi.string().email(),
+  phoneNumber: Joi.number().integer()
+});

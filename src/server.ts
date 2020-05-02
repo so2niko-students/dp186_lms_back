@@ -1,9 +1,11 @@
 import express = require('express');
+//import cors = require('cors');
 import * as bodyParser from 'body-parser';
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
 import { router as solutionsRoutes } from './modules/solutions/solutions.routes';
 import { router as commentsRoutes } from './modules/comments/comments.routes';
+import { router as tasksRoutes} from './modules/tasks/tasks.routes';
 import { errorHandler } from './common/middlewares/errors.middleware';
 import { authJwt } from './common/middlewares/auth.middleware';
 import passport = require ('passport');
@@ -14,6 +16,8 @@ dotenv.config();
 import './database';
 
 const app: express.Express = express();
+//app.use(cors());
+
 app.use(express.json());
 app.use(bodyParser.json());
 
@@ -21,6 +25,7 @@ app.use('/groups', authJwt, groupsRoutes);
 app.use('/solutions', authJwt, solutionsRoutes);
 app.use('/comments', authJwt, commentsRoutes);
 app.use('/students', studentsRoutes);
+app.use('/tasks', authJwt, tasksRoutes);
 
 //authorization
 passport.use(strategy);
