@@ -3,6 +3,7 @@ import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
 import {CustomUser} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
+import {Transaction} from 'sequelize';
 
 const NO_RIGHTS = 'You do not have rights to do this.';
 
@@ -26,7 +27,7 @@ class GroupsService {
         }
         return Groups.create({groupName,  groupToken, teacherId: user.id});
     }
-    public async findOneOrThrow(id: number, user: CustomUser) {
+    public async findOneOrThrow(id: number, user: CustomUser, transaction?: Transaction) {
         if (user.groupId !== id && !user.isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
