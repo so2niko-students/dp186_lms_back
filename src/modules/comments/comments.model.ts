@@ -8,7 +8,7 @@ import {Solution} from '../solutions/solutions.model';
 export class Comment extends Model {
     public static readonly tableName: string = 'comments';
 
-    public id!: number;
+    public id: number;
     public solutionId: number;
     public studentId: number;
     public teacherId: number;
@@ -71,8 +71,8 @@ Students.hasMany(Comment, {
 });
 
 Comment.belongsTo(Teachers, {
-    foreignKey: 'teacherId',
-    as: 'teacher',
+    // foreignKey: 'teacherId',
+    // as: 'teacher',
 });
 
 Teachers.hasMany(Comment, {
