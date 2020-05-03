@@ -57,6 +57,7 @@ Solution.belongsTo(Tasks, {
 
 Tasks.hasMany(Solution, {
     foreignKey: 'taskId',
+    onDelete: 'cascade'
 });
 
 Solution.belongsTo(Students, {
@@ -66,5 +67,6 @@ Solution.belongsTo(Students, {
 
 Students.hasOne(Solution, {
     foreignKey: 'studentId',
+    onDelete: 'cascade',
     as: 'student'
 });

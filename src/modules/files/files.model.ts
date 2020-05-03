@@ -63,6 +63,7 @@ File.belongsTo(Comment, {
 
 Comment.hasMany(File, {
     foreignKey: 'commentId',
+    onDelete: 'cascade'
 });
 
 File.belongsTo(Tasks, {
@@ -72,4 +73,5 @@ File.belongsTo(Tasks, {
 
 Tasks.hasMany(File, {
     foreignKey: 'taskId',
+    onDelete: 'cascade'
 });

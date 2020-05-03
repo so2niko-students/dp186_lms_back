@@ -59,6 +59,7 @@ Comment.belongsTo(Solution, {
 
 Solution.hasMany(Comment, {
     foreignKey: 'solutionId',
+    onDelete: 'cascade'
 });
 
 Comment.belongsTo(Students, {
@@ -68,13 +69,15 @@ Comment.belongsTo(Students, {
 
 Students.hasMany(Comment, {
     foreignKey: 'studentId',
+    onDelete: 'cascade'
 });
 
 Comment.belongsTo(Teachers, {
-    // foreignKey: 'teacherId',
-    // as: 'teacher',
+    foreignKey: 'teacherId',
+    as: 'teacher',
 });
 
 Teachers.hasMany(Comment, {
     foreignKey: 'teacherId',
+    onDelete: 'cascade'
 });

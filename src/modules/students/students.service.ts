@@ -5,6 +5,7 @@ import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
+import {Transaction} from 'sequelize';
 
 
 interface IStudentsData {
@@ -85,7 +86,7 @@ class StudentsService {
 
   }
 
-    public async findAllByGroupId(id: number): Promise<Students[]> {
+    public async findAllByGroupId(id: number, transaction?:Transaction): Promise<Students[]> {
         const students = await Students.findAll({ where: { groupId:id } });
 
         return students;

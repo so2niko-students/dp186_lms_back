@@ -1,17 +1,12 @@
 import { Comment } from '../comments/comments.model';
-import { Request } from 'express';
-import { NotFound, BadRequest, Unauthorized, Forbidden } from '../../common/exeptions/';
-import { hashSync, genSaltSync } from 'bcrypt';
-import { CustomUser, AuthRequest } from '../../common/types/types';
-import {Tasks} from '../tasks/tasks.model';
-import {Groups} from '../groups/groups.model';
-import {groupsService} from '../groups/groups.service';
-import { solutionsService } from '../solutions/solutions.service';
+import { Forbidden } from '../../common/exeptions/';
+import { CustomUser } from '../../common/types/types';
 import { sequelize } from '../../database';
-import {File} from '../files/files.model';
-import {filesService} from '../files/files.service';
-import {string} from 'joi';
-import {Transaction} from 'sequelize';
+import { File } from '../files/files.model';
+import { filesService } from '../files/files.service';
+import { tasksService } from '../tasks/tasks.service';
+import { solutionsService } from '../solutions/solutions.service';
+import { groupsService } from '../groups/groups.service';
 
 interface ICommentCreate {
     solutionId: number;
@@ -24,12 +19,9 @@ interface ICommentCreate {
 
 class CommentsService {
 
-    // public async createOne(commentData: ICommentCreate, user:CustomUser, files): Promise<Comment> {
     public async createOne(commentData: ICommentCreate, user:CustomUser): Promise<Comment> {
 
-        //Create transaction
         const transaction = await sequelize.transaction();
-
         const { isMentor } = user;
         const { solutionId, fileLink, fileNameExtension } = commentData;
 
@@ -37,9 +29,7 @@ class CommentsService {
         const solution = await solutionsService.findOneOrThrow(solutionId, transaction)
 
         //нахожу по id - таску
-        const task = await Tasks.findOne({
-            where: { id: solution.taskId }, transaction
-        })
+        const task = await tasksService.findOneById(solution.taskId, user, transaction)
 
         // нахожу по id группу
         const group = await groupsService.findOneOrThrow(task.groupId, user, transaction);
@@ -60,9 +50,9 @@ class CommentsService {
             const fileData = {fileLink, fileNameExtension, commentId:comment.id, taskId:task.id};
             const file: File = await filesService.createOne(fileData, transaction);
         }
-        //await transaction.commit();
+        await transaction.commit();
+
         return comment;
     }
 }
 export const commentsService = new CommentsService();
-

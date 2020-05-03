@@ -1,6 +1,6 @@
 import express = require('express');
-//import cors = require('cors');
-import * as bodyParser from 'body-parser';
+import cors = require('cors');
+import bodyParser = require('body-parser');
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
 import { router as solutionsRoutes } from './modules/solutions/solutions.routes';
@@ -16,10 +16,11 @@ dotenv.config();
 import './database';
 
 const app: express.Express = express();
-//app.use(cors());
+app.use(cors());
 
-app.use(express.json());
-app.use(bodyParser.json());
+//app.use(express.json());
+app.use(bodyParser.json({limit: '60mb'}));
+app.use(bodyParser.urlencoded({limit: '60mb', extended: true}))
 
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/solutions', authJwt, solutionsRoutes);

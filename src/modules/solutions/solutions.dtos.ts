@@ -1,12 +1,6 @@
 import * as Joi from 'joi';
 
-export const createSolutionsDto = Joi.object().keys({
-    studentId: Joi.number(),
-    taskId: Joi.number(),
-    grade: Joi.number(),
-});
-
 export const updateSolutionsDto = Joi.object().keys({
-    isCompleted: Joi.number(),
+    isCompleted: Joi.number().integer().min(0).max(1),
     grade: Joi.number(),
 });
