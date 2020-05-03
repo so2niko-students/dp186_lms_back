@@ -22,7 +22,7 @@ class TeachersService {
 
   public async findOneById(id: number, transaction: Transaction) {
     const teacher = await Teachers.findOne({
-      where: { id },
+      where: { id }, transaction,
     });
 
     return teacher;
