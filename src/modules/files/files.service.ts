@@ -4,7 +4,7 @@ import { File } from './files.model';
 import {Transaction} from 'sequelize';
 
 interface IFileCreate {
-    fileLink: string;
+    fileContent: string;
     commentId: number;
     taskId: number;
     fileNameExtension: string;
@@ -13,17 +13,21 @@ interface IFileCreate {
 class FilesService {
 
     public async createOne(fileData:IFileCreate, transaction: Transaction): Promise<File> {
-        let {fileLink, fileNameExtension, commentId, taskId} = fileData
+        console.log('fileData = ', fileData);
+        let {fileContent, fileNameExtension, commentId, taskId} = fileData
         try {
-            const file = await cd.uploader.upload(fileLink, { resource_type: "raw" }, (err, res) => {
+            const file = await cd.uploader.upload(fileContent, { resource_type: "raw" }, (err, res) => {
+                console.log('err = ', err);
                 return err ? err : res;
             });
+            console.log('file = ', file);
             const fileDataForCreate: IFileCreate = {
-                fileLink: file.url,
+                fileContent: file.url,
                 fileNameExtension,
                 commentId,
                 taskId,
             };
+            console.log('fileDataForCreate = ', fileDataForCreate);
             return File.create(fileDataForCreate, {transaction});
         } catch (e) {
             throw new PayloadToLarge('File size is to large');

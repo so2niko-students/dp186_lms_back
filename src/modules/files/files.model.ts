@@ -4,7 +4,8 @@ import { Tasks } from '../tasks/tasks.model';
 import { Comment } from '../comments/comments.model';
 //Подключение cloudinary
 var cloudinary = require("cloudinary").v2;
-cloudinary.config({cloud_name: "dumh8jxl6",
+cloudinary.config({
+    cloud_name: "dumh8jxl6",
     api_key: "184624831118258",
     api_secret: "p06ZSpuMItwjKhmPoFVPTxcK1S4"
 });
@@ -15,7 +16,7 @@ export class File extends Model {
     public id: number;
     public commentId: number;
     public taskId: number;
-    public fileLink: string;
+    public fileContent: string;
     public fileNameExtension: string;
     public createdAt: Date;
     public updatedAt: Date;
@@ -37,7 +38,7 @@ export class File extends Model {
                     type: DataTypes.INTEGER(),
                     allowNull: false,
                 },
-                fileLink: {
+                fileContent: {
                     type: DataTypes.STRING(),
                     allowNull: false,
                 },
