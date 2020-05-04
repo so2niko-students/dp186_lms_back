@@ -1,7 +1,7 @@
 import { Groups } from './groups.model';
 import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
-import {CustomUser, Partial} from '../../common/types/types';
+import {CustomUser} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
 import {avatarService} from '../avatars/avatars.service';
 import {Avatars} from '../avatars/avatars.model';
@@ -22,8 +22,8 @@ interface ICreateGroup {
 
 class GroupsService {
     public async createOne({ groupName, teacherId }, user: CustomUser) {
-        const mentor = await this.mentorVerification(user);
-        if (teacherId && !mentor.isAdmin) {
+        this.checkIsMentorOrThrow(user);
+        if (teacherId && !user.isAdmin) {
             throw new Forbidden(NO_RIGHTS);
         }
         const group = await Groups.findOne( { where: {groupName}} );
@@ -65,12 +65,12 @@ class GroupsService {
     }
     public async updateOneOrThrow(id: number, data: Partial<ICreateGroup>, user: CustomUser) {
         return sequelize.transaction(async (transaction: Transaction) => {
-            const mentor = await this.mentorVerification(user);
+            this.checkIsMentorOrThrow(user);
             const group = await this.findOneOrThrow(id, user, transaction);
-            if (group.teacherId !== mentor.id && !mentor.isAdmin) {
+            if (group.teacherId !== user.id && !user.isAdmin) {
                 throw new Forbidden(NO_RIGHTS);
             }
-            if (data.teacherId && !mentor.isAdmin) {
+            if (data.teacherId && !user.isAdmin) {
                 throw new Forbidden(NO_RIGHTS);
             }
             const { avatar } = data;
@@ -84,9 +84,9 @@ class GroupsService {
         });
     }
     public async deleteOne(id: number, user: CustomUser) {
-        const mentor = await this.mentorVerification(user);
+        this.checkIsMentorOrThrow(user);
         const group = await this.findOneOrThrow(id, user);
-        if (group.teacherId !== mentor.id && !mentor.isAdmin) {
+        if (group.teacherId !== user.id && !user.isAdmin) {
             throw new Forbidden(NO_RIGHTS);
         }
         group.destroy();
@@ -107,12 +107,11 @@ class GroupsService {
         const hash = hashSync(name, salt);
         return hash.replace(/\//g, 'slash');
     }
-    private async mentorVerification(user: CustomUser) {
+    private checkIsMentorOrThrow(user: CustomUser): void {
         const { isMentor } = user;
         if (!isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
-        return user;
     }
 }
 
