@@ -92,15 +92,34 @@ class GroupsService {
         group.destroy();
         return group;
     }
-    public async findMany(user: CustomUser) {
+    public async findMany(mentorId: number, user: CustomUser) {
         if (!user.isMentor) {
             return Groups.findAll({ where: {id: user.groupId} });
+        }
+        if (mentorId) {
+            return Groups.findAll({ 
+              where: {teacherId: mentorId}, 
+              include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+              }],
+            });
         }
         return Groups.findAll({
             include: [{
                 model: Avatars, as: 'avatar', attributes: ['avatarLink'],
             }],
         });
+    }
+    // method to count groups in UI
+    public async findAllByMentorId(mentorId: number, user: CustomUser) {
+        if (!user.isMentor) {
+            throw new Forbidden(NO_RIGHTS);
+        }
+        const groups = await Groups.findAll({
+            where: { teacherId: mentorId },
+            attributes: ['id'],
+        });
+        return {groups, count: groups.length};
     }
     private async createGroupToken(name: string): Promise<string> {
         const salt = genSaltSync(5, 'b');
