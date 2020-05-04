@@ -6,7 +6,7 @@ import { authJwt } from '../../common/middlewares/auth.middleware';
 
 export const router: Router = Router();
 
-router.get('/', teachersController.getPage ); 
+router.get('/', teachersController.findAll ); 
 
 router.get('/:id', teachersController.findById ); 
 
