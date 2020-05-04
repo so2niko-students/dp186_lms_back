@@ -3,7 +3,6 @@ import {groupsService} from '../groups/groups.service';
 import {teachersService} from '../teachers/teachers.service';
 import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import { hashFunc } from '../auth/password.hash';
-import { Unauthorized } from '../../common/exeptions/index';
 import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 
@@ -68,9 +67,9 @@ class StudentsService {
     }
 
     await Students.update(data, {where: {id}});
-    
+
     return id;
-      
+  }
 
    public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
                               { email, password }: Students) {
