@@ -38,12 +38,12 @@ class TeachersController {
     }
   }
 
-  public async getPage(req: AuthRequest, res: Response, next: NextFunction) {
+  public async findAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const page: number = +req.query.page;
       const limit: number = +req.query.limit;
     
-      const teachers = await teachersService.getPage(page, limit);
+      const teachers = await teachersService.findAll(page, limit);
       res.json(teachers);
     }
     catch (e) {

@@ -12,7 +12,7 @@ interface ITeachersData {
   firstName: string;
   lastName: string;
   email: string;
-  password?: string;
+  password: string;
   isAdmin: boolean;
 }
 
@@ -63,7 +63,7 @@ class TeachersService {
     });
   }
 
-  public async getPage(supposedPage: number = 1, limit: number = 10) : Promise<object>{
+  public async findAll(supposedPage: number = 1, limit: number = 10) : Promise<object>{
 
     const total: number = await Teachers.count(); // actual teachers count in db
     const {offset, actualPage} = await paginationService.getOffset(supposedPage, limit, total);
