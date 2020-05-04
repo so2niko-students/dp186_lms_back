@@ -3,6 +3,7 @@ import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
 import {CustomUser} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
+import {Avatars} from '../avatars/avatars.model';
 
 const NO_RIGHTS = 'You do not have rights to do this.';
 
@@ -66,11 +67,25 @@ class GroupsService {
         group.destroy();
         return group;
     }
-    public async findMany(user: CustomUser) {
+    public async findMany(mentorId: number, user: CustomUser) {
         if (!user.isMentor) {
             return Groups.findAll({ where: {id: user.groupId} });
         }
+        if (mentorId) {
+            return Groups.findAll({ where: {teacherId: mentorId} });
+        }
         return Groups.findAll();
+    }
+    // method to count groups in UI
+    public async findAllByMentorId(mentorId: number, user: CustomUser) {
+        if (!user.isMentor) {
+            throw new Forbidden(NO_RIGHTS);
+        }
+        const groups = await Groups.findAll({
+            where: { teacherId: mentorId },
+            attributes: ['id'],
+        });
+        return {groups, count: groups.length};
     }
     private async createGroupToken(name: string): Promise<string> {
         const salt = genSaltSync(5, 'b');

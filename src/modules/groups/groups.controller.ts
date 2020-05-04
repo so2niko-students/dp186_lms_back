@@ -43,7 +43,9 @@ class GroupsController {
     }
     public async findMany(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
-            const groups: Group[] = await groupsService.findMany(req.user);
+            const { mentorId } = req.query;
+            validateIdOrThrow(+mentorId);
+            const groups: Group[] = await groupsService.findMany(+mentorId, req.user);
             res.send(groups);
         } catch (e) {
             next(e);
