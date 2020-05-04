@@ -12,6 +12,7 @@ export class Teachers extends Model {
   public isAdmin: boolean;
   public createdAt: Date;
   public updatedAt: Date;
+  public avatarId: number;
 
   public static prepareInit(sequelize: Sequelize) {
     this.init(
@@ -27,6 +28,10 @@ export class Teachers extends Model {
         email: DataTypes.STRING(255),
         password: DataTypes.STRING(100),
         isAdmin: DataTypes.BOOLEAN,
+        avatarId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
       },
       {
         sequelize,

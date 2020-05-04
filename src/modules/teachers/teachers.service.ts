@@ -1,19 +1,25 @@
 import { Teachers } from './teachers.model';
-import { Unauthorized, BadRequest, NotFound } from '../../common/exeptions';
+import { BadRequest } from '../../common/exeptions';
 import { CustomUser } from '../../common/types/types';
+import { NotFound, Unauthorized } from '../../common/exeptions/';
+import { Avatars } from '../avatars/avatars.model';
+import { avatarService } from '../avatars/avatars.service';
+import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 import { sequelize } from '../../database';
 import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
-import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 import { Transaction } from 'sequelize/types';
 import { paginationService } from '../pagination/pagination.service'
 
 interface ITeachersData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  isAdmin: boolean;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    isAdmin?: boolean;
+    avatar?: {
+        img: string;
+        format: string;
+    };
 }
 
 const NO_PERMISSION_MSG = 'You do not have permission for this';
@@ -74,64 +80,86 @@ class TeachersService {
 
   public async findOneByEmail(email: string) {
     const teacher = await Teachers.findOne({
-      where: { email },
-      // attributes: {exclude: ['password']},
+        where: {email},
+        include: [{
+            model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+        }],
     });
 
     return teacher;
   }
 
-  public async findOneById(id: number) {
+  public async findOneById(id: number, transaction?: Transaction) {
     const teacher = await Teachers.findOne({
       where: { id },
-      // attributes: {exclude: ['password']},
+      include: [{
+          model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+      }],
+      transaction,
     });
 
     return teacher;
   }
 
-  public async updateOne(id: number, data: Partial<ITeachersData>, user: Teachers) {
-    if (id !== user.id && !user.isAdmin) {
-      throw new Unauthorized('You cannot change another profile');
-    }
-
-    return sequelize.transaction(async (transaction) => {
-      const teacher = await Teachers.findOne({ where: { id }, transaction });
-
+  public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Teachers> {
+      const teacher = await Teachers.findOne({
+          where: {id},
+          include: [{
+              model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+          }],
+          attributes: {exclude: ['password']},
+          transaction,
+      });
       if (!teacher) {
-        throw new NotFound(`Can't find the teacher with id ${id}`);
+          throw new NotFound(`Teacher with ${id} not found`);
       }
-
-      await Teachers.update(data, { where: { id }, transaction });
-      return id;
-    });
+      return teacher;
   }
 
-  public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
-                              user: Teachers) {
-    const userForUpdate: Teachers = await this.findOneById(user.id);
-
-    if (!bcrypt.compareSync(oldPassword, user.password)) {
-        throw new Unauthorized('Wrong password');
+    public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers) {
+        return sequelize.transaction(async (transaction: Transaction) => {
+            if (id !== user.id && !user.isAdmin) {
+                throw new Unauthorized('You cannot change another profile');
+            }
+            const teacher: Teachers = await this.findOneByIdOrThrow(id, transaction);
+            if (user.isAdmin && !teacher) {
+                throw new NotFound(`There is no teacher with id ${id}`);
+            }
+            const { avatar } = data;
+            if (avatar) {
+                const {img, format} = avatar;
+                await avatarService.setAvatarToUserOrThrow(img, format, teacher, transaction);
+            }
+            await Teachers.update(data, { where: { id }, transaction });
+            return this.findOneByIdOrThrow(id, transaction);
+        });
     }
 
-    userForUpdate.password = hashFunc(newPassword);
+    public async updatePassword({oldPassword, newPassword}: IUpdatePassword,
+                                user: Teachers) {
+        const userForUpdate: Teachers = await this.findOneById(user.id);
 
-    return userForUpdate.save();
-  }
+        if (!bcrypt.compareSync(oldPassword, user.password)) {
+            throw new Unauthorized('Wrong password');
+        }
 
-  public async updatePasswordBySuperAdmin(id: number,
-                                          { newPassword }: IUpdatePassword, user: Teachers) {
-    const userForUpdate: Teachers = await this.findOneById(id);
+        userForUpdate.password = hashFunc(newPassword);
 
-    if (!user.isAdmin) {
-        throw new Unauthorized('You cannot change password for another teacher');
+        return userForUpdate.save();
     }
 
-    userForUpdate.password = hashFunc(newPassword);
+    public async updatePasswordBySuperAdmin(id: number,
+                                            {newPassword}: IUpdatePassword, user: Teachers) {
+        if (!user.isAdmin) {
+            throw new Unauthorized('You cannot change password for another teacher');
+        }
 
-    return userForUpdate.save();
-  }
+        const userForUpdate: Teachers = await this.findOneById(id);
+
+        userForUpdate.password = hashFunc(newPassword);
+
+        return userForUpdate.save();
+    }
 }
 
 export const teachersService = new TeachersService();

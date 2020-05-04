@@ -15,7 +15,7 @@ export async function up(query: QueryInterface) {
             key: 'id',
           },
           onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+          onDelete: 'SET NULL',
         }, { transaction: t }),
         query.addColumn(Groups.tableName, 'avatarId', {
           type: DataTypes.INTEGER,
@@ -25,7 +25,7 @@ export async function up(query: QueryInterface) {
             key: 'id',
           },
           onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+          onDelete: 'SET NULL',
         }, { transaction: t }),
         query.addColumn(Students.tableName, 'avatarId', {
           type: DataTypes.INTEGER,
@@ -35,7 +35,7 @@ export async function up(query: QueryInterface) {
             key: 'id',
           },
           onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+          onDelete: 'SET NULL',
         }, { transaction: t })
       ]);
     });

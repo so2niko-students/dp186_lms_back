@@ -65,16 +65,17 @@ class TeachersController {
     }
   }
 
-  public async updateOne(req: UpdateRequest<Teachers>, res: Response, next: NextFunction): Promise<void> {
-    try {
-      validateIdOrThrow(+req.params.id);
-      const teacher =
-      await teachersService.updateOne(+req.params.id, req.body, req.user);
-      res.json(teacher);
-    } catch (e) {
-      next(e);
+  public async updateOne(req: UpdateRequest<Teachers>, res: Response,
+                         next: NextFunction): Promise<void> {
+        try {
+            validateIdOrThrow(+req.params.id);
+            const teacher =
+                await teachersService.updateOneOrThrow(+req.params.id, req.body, req.user);
+            res.json(teacher);
+        } catch (e) {
+            next(e);
+        }
     }
-  }
 }
 
 export const teachersController = new TeachersController();
