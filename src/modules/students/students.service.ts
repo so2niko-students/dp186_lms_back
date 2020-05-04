@@ -64,7 +64,7 @@ class StudentsService {
     return student;
   }
 
-  public async findOneByIdOrThrow(id: number, transaction: Transaction) {
+  public async findOneByIdOrThrow(id: number, transaction?: Transaction) {
     const student = await Students.findOne({
       where: { id },
       include: [{
