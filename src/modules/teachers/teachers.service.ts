@@ -6,7 +6,7 @@ import { avatarService } from '../avatars/avatars.service';
 import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
-import {sequelize} from '../../database';
+import { sequelize } from '../../database';
 
 interface ITeachersData {
     firstName?: string;
@@ -31,15 +31,16 @@ class TeachersService {
         return teacher;
     }
 
-    public async findOneById(id) {
-        const teacher = await Teachers.findOne({
-            where: {id},
-            include: [{
-                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-            }],
-        });
+  public async findOneById(id: number, transaction?: Transaction) {
+    const teacher = await Teachers.findOne({
+      where: { id },
+      include: [{
+          model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+      }],
+      transaction,
+    });
 
-        return teacher;
+    return teacher;
     }
 
     public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Teachers> {
@@ -62,14 +63,16 @@ class TeachersService {
             if (id !== user.id && !user.isAdmin) {
                 throw new Unauthorized('You cannot change another profile');
             }
-            const teacher = await this.findOneByIdOrThrow(id, transaction);
-            const {avatar} = data;
+            const teacher: Teachers = await this.findOneByIdOrThrow(id, transaction);
+            if (user.isAdmin && !teacher) {
+                throw new NotFound(`There is no teacher with id ${id}`);
+            }
+            const { avatar } = data;
             if (avatar) {
                 const {img, format} = avatar;
                 await avatarService.setAvatarToUserOrThrow(img, format, teacher, transaction);
             }
-            Object.keys(data).forEach((k) => teacher[k] = data[k]);
-            await teacher.save({transaction});
+            await Teachers.update(data, { where: { id }, transaction });
             return this.findOneByIdOrThrow(id, transaction);
         });
     }

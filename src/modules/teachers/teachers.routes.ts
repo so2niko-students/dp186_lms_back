@@ -1,7 +1,7 @@
 import { Router } from 'express';
+import { updateTeachersDto } from './teachers.dtos';
 import { createValidator } from '../../common/middlewares/create-validator';
 import { teachersController } from './teachers.controller';
-import { updateTeachersDto } from './teachers.dtos';
 
 export const router: Router = Router();
 
