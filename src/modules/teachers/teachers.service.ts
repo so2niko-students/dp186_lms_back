@@ -3,22 +3,26 @@ import { hashFunc } from '../auth/password.hash';
 import { Unauthorized } from '../../common/exeptions/index';
 import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
+import TokenFactory, {IToken} from "../../common/crypto/TokenFactory";
 
 class TeachersService {
-  public async findOneByEmail(email: string) {
-    const teacher = await Teachers.findOne({
-      where: { email },
-    });
+  async findOneByEmail(email: string) {
+    return Teachers.findOne({
+      where: {email},
+    });}
 
-    return teacher;
+  async findOneById(id) {
+    return Teachers.findOne({where: {id}});
   }
 
-  public async findOneById(id: number) {
-    const teacher = await Teachers.findOne({
-      where: { id },
-    });
-
-    return teacher;
+  public async setForgotPasswordToken(email): Promise<string> {
+    //Generate and hash password token
+    const teacher = await this.findOneByEmail(email);
+    const token: IToken = TokenFactory.generateResetToken();
+    teacher.resetPasswordExpire = Date.now() + (60 * 1000 * 360);
+    teacher.resetPasswordToken = token.hashed;
+    await teacher.save();
+    return token.regular;
   }
 
   public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,

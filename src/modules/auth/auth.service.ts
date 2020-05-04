@@ -39,6 +39,11 @@ class AuthService {
         return teachersService.updatePasswordBySuperAdmin(id, data, user);
     }
 
+  public async setResetToken(email){
+    const user: Students = await studentsService.findOneByEmail(email);
+
+    return user ? await studentsService.setForgotPasswordToken(email) : await teachersService.setForgotPasswordToken(email);
+  }
 }
 
 export const authService = new AuthService();

@@ -1,8 +1,8 @@
-import { loginDto, updatePasswordDto } from './auth.dtos';
-import { Router } from 'express';
-import { AuthController } from './auth.controller';
-import { createValidator } from '../../common/middlewares/create-validator';
-import { authJwt } from '../../common/middlewares/auth.middleware';
+import {loginDto, updatePasswordDto} from './auth.dtos';
+import {Router} from 'express';
+import {AuthController} from './auth.controller';
+import {createValidator} from '../../common/middlewares/create-validator';
+import {authJwt} from '../../common/middlewares/auth.middleware';
 
 export class AuthRoute {
 
@@ -22,5 +22,6 @@ export class AuthRoute {
             this.authController.updateTeacherPassword);
         this.router.put('/change-password/teacher/:id', authJwt, createValidator(updatePasswordDto),
             this.authController.updateTeacherPasswordBySuperAdmin);
+        this.router.post('/forgotPassword', this.authController.forgotPassword);
     }
 }
