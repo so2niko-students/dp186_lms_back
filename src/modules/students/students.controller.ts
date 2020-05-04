@@ -18,7 +18,7 @@ class StudentsController {
                          res: Response, next: NextFunction): Promise<void> {
     try {
       validateIdOrThrow(+req.params.id);
-      const student = await studentsService.updateOne(+req.params.id, req.body, req.user);
+      const student = await studentsService.updateOneOrThrow(+req.params.id, req.body, req.user);
       res.json(student);
     } catch (e) {
       next(e);

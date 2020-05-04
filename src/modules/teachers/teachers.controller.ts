@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { teachersService } from './teachers.service';
 import { Teachers } from './teachers.model';
 import { UpdateRequest } from '../../common/types/types';
@@ -10,7 +10,7 @@ class TeachersController {
         try {
             validateIdOrThrow(+req.params.id);
             const teacher =
-                await teachersService.updateOne(+req.params.id, req.body, req.user);
+                await teachersService.updateOneOrThrow(+req.params.id, req.body, req.user);
             res.json(teacher);
         } catch (e) {
             next(e);

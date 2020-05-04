@@ -6,4 +6,3 @@ import { teachersController } from './teachers.controller';
 export const router: Router = Router();
 
 router.put('/:id', createValidator(updateTeachersDto), teachersController.updateOne);
-

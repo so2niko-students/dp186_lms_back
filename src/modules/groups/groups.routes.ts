@@ -9,6 +9,6 @@ router.get('/', groupsController.findMany);
 router.get('/:id', groupsController.findOne);
 
 router.post('/', createValidator(createGroupDto), groupsController.createOne);
-router.post('/:id', createValidator(updateGroupDto), groupsController.updateOne);
+router.put('/:id', createValidator(updateGroupDto), groupsController.updateOne);
 
 router.delete('/:id', groupsController.deleteOne);

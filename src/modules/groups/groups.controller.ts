@@ -26,7 +26,7 @@ class GroupsController {
     public async updateOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             validateIdOrThrow(+req.params.id);
-            const group: Group = await groupsService.updateOne(+req.params.id, req.body, req.user);
+            const group: Group = await groupsService.updateOneOrThrow(+req.params.id, req.body, req.user);
             res.send(group);
         } catch (e) {
             next(e);
