@@ -9,6 +9,8 @@ import {Transaction} from 'sequelize';
 import {sequelize} from '../../database';
 
 const NO_RIGHTS = 'You do not have rights to do this.';
+const NO_TIGHTS_TO_UPDATE = 'Only teacher or super admin can update group.';
+
 interface ICreateGroup {
     groupName?: string;
     groupToken?: string;
@@ -68,10 +70,10 @@ class GroupsService {
             this.checkIsMentorOrThrow(user);
             const group = await this.findOneOrThrow(id, user, transaction);
             if (group.teacherId !== user.id && !user.isAdmin) {
-                throw new Forbidden(NO_RIGHTS);
+                throw new Forbidden(NO_TIGHTS_TO_UPDATE);
             }
             if (data.teacherId && !user.isAdmin) {
-                throw new Forbidden(NO_RIGHTS);
+                throw new Forbidden(NO_TIGHTS_TO_UPDATE);
             }
             const { avatar } = data;
             if (avatar) {
@@ -84,21 +86,23 @@ class GroupsService {
         });
     }
     public async deleteOne(id: number, user: CustomUser) {
-        this.checkIsMentorOrThrow(user);
-        const group = await this.findOneOrThrow(id, user);
-        if (group.teacherId !== user.id && !user.isAdmin) {
-            throw new Forbidden(NO_RIGHTS);
-        }
-        group.destroy();
-        return group;
+        return sequelize.transaction(async (transaction: Transaction) => {
+            this.checkIsMentorOrThrow(user);
+            const group = await this.findOneOrThrow(id, user, transaction);
+            if (group.teacherId !== user.id && !user.isAdmin) {
+                throw new Forbidden(NO_RIGHTS);
+            }
+            group.destroy({transaction});
+            return group;
+        });
     }
     public async findMany(mentorId: number, user: CustomUser) {
         if (!user.isMentor) {
             return Groups.findAll({ where: {id: user.groupId} });
         }
         if (mentorId) {
-            return Groups.findAll({ 
-              where: {teacherId: mentorId}, 
+            return Groups.findAll({
+              where: {teacherId: mentorId},
               include: [{
                 model: Avatars, as: 'avatar', attributes: ['avatarLink'],
               }],
