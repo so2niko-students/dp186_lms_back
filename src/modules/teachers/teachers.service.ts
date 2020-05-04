@@ -1,8 +1,15 @@
 import { Teachers } from './teachers.model';
-import { hashFunc } from '../auth/password.hash';
-import { Unauthorized } from '../../common/exeptions/index';
-import * as bcrypt from 'bcrypt';
-import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
+import { Unauthorized, NotFound } from '../../common/exeptions';
+import { sequelize } from '../../database';
+import { Transaction } from 'sequelize/types';
+
+interface ITeachersData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  isAdmin: boolean;
+}
 
 class TeachersService {
   public async findOneByEmail(email: string) {
@@ -13,38 +20,30 @@ class TeachersService {
     return teacher;
   }
 
-  public async findOneById(id: number) {
+  public async findOneById(id: number, transaction: Transaction) {
     const teacher = await Teachers.findOne({
-      where: { id },
+      where: { id }, transaction,
     });
 
     return teacher;
   }
 
-  public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
-                              user: Teachers) {
-    const userForUpdate: Teachers = await this.findOneById(user.id);
 
-    if (!bcrypt.compareSync(oldPassword, user.password)) {
-        throw new Unauthorized('Wrong password');
+  public async updateOne(id: number, data: Partial<ITeachersData>, user: Teachers) {
+    if (id !== user.id && !user.isAdmin) {
+      throw new Unauthorized('You cannot change another profile');
     }
 
-    userForUpdate.password = hashFunc(newPassword);
+    return sequelize.transaction(async (transaction) => {
+      const teacher: Teachers = await this.findOneById(id, transaction);
 
-    return userForUpdate.save();
-  }
+      if (user.isAdmin && !teacher) {
+        throw new NotFound(`There is no teacher with id ${id}`);
+      }
 
-  public async updatePasswordBySuperAdmin(id: number,
-                                          { newPassword }: IUpdatePassword, user: Teachers) {
-    const userForUpdate: Teachers = await this.findOneById(id);
-
-    if (!user.isAdmin) {
-        throw new Unauthorized('You cannot change password for another teacher');
-    }
-
-    userForUpdate.password = hashFunc(newPassword);
-
-    return userForUpdate.save();
+      await Teachers.update(data, { where: { id }, transaction });
+      return this.findOneById(id, transaction);
+    });
   }
 }
 
