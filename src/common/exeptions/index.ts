@@ -5,4 +5,4 @@ import PayloadToLarge from './payload-to-large';
 import UnsupportedMediaType from './unsupported-media-type';
 import Forbidden from './forbidden';
 
-export { NotFound, BadRequest, Unauthorized, Forbidden, PayloadToLarge, UnsupportedMediaType };
+export { NotFound, BadRequest, Unauthorized, PayloadToLarge, UnsupportedMediaType, Forbidden };

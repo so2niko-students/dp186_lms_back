@@ -12,7 +12,7 @@ export async function up(query: QueryInterface) {
             key: 'id',
           },
           onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+          onDelete: 'SET NULL',
         }, { transaction: t }),
         query.addColumn('groups', 'avatarId', {
           type: DataTypes.INTEGER,
@@ -22,7 +22,7 @@ export async function up(query: QueryInterface) {
             key: 'id',
           },
           onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+          onDelete: 'SET NULL',
         }, { transaction: t }),
         query.addColumn('students', 'avatarId', {
           type: DataTypes.INTEGER,
@@ -32,7 +32,7 @@ export async function up(query: QueryInterface) {
             key: 'id',
           },
           onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+          onDelete: 'SET NULL',
         }, { transaction: t })
       ]);
     });

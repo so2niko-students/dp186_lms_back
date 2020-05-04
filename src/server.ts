@@ -1,8 +1,9 @@
 import express = require('express');
 import cors = require('cors');
-import bodyParser = require('body-parser');
+import * as bodyParser from 'body-parser';
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
+import { router as teachersRoutes } from './modules/teachers/teachers.routes';
 import { router as solutionsRoutes } from './modules/solutions/solutions.routes';
 import { router as commentsRoutes } from './modules/comments/comments.routes';
 import { router as tasksRoutes} from './modules/tasks/tasks.routes';
@@ -16,26 +17,25 @@ dotenv.config();
 import './database';
 
 const app: express.Express = express();
-app.use(cors());
+app.use(bodyParser.json({limit: '100mb'}));
+//app.use(bodyParser.urlencoded({limit: '60mb', extended: true}))
 
-//app.use(express.json());
-app.use(bodyParser.json({limit: '60mb'}));
-app.use(bodyParser.urlencoded({limit: '60mb', extended: true}))
+app.use(cors());
 
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/solutions', authJwt, solutionsRoutes);
 app.use('/comments', authJwt, commentsRoutes);
 app.use('/students', studentsRoutes);
+app.use('/teachers', authJwt, teachersRoutes);
 app.use('/tasks', authJwt, tasksRoutes);
 
-//authorization
+// authorization
 passport.use(strategy);
 app.use(passport.initialize());
 app.use('/auth', new AuthRoute().router);
-
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server is running in http://localhost:${PORT}`)
+    console.log(`Server is running in http://localhost:${PORT}`);
 });
