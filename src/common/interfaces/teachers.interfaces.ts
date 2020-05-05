@@ -11,10 +11,3 @@ export interface ITeachersData {
   };
   password?: string;
 };
-
-export interface IPaginationData {
-teachers: Teachers[];
-actualPage: number;
-total: number;
-limit: number;
-};
