@@ -1,5 +1,3 @@
-import { Teachers } from '../../modules/teachers/teachers.model'
-
 export interface ITeachersData {
   firstName?: string;
   lastName?: string;
