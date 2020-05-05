@@ -60,7 +60,7 @@ class TeachersService {
     });
   }
 
-  public async findAll(supposedPage: number = 1, limit: number = 10) : Promise<IPaginationData<Teachers>{
+  public async findAll(supposedPage: number = 1, limit: number = 10) : Promise<IPaginationData<Teachers>>{
 
     const total: number = await Teachers.count(); // actual teachers count in db
     const {offset, actualPage} = await paginationService.getOffset(supposedPage, limit, total);
