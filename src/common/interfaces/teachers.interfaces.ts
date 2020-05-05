@@ -10,9 +10,9 @@ export interface ITeachersData {
       format: string;
   };
   password?: string;
-}
+};
 
-export interface ITeachersPaginationData {
+export interface IPaginationData {
 teachers: Teachers[];
 actualPage: number;
 total: number;
