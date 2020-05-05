@@ -5,7 +5,7 @@ interface IPaginationData{
   
 class PaginationService {
 
-  public async getOffset(supposedPage: number = 1, limit: number = 10, total: number): Promise<IPaginationData> {
+  public async getOffset(supposedPage: number = 1, limit: number = 10, total: number): Promise<IPaginationData> { // supposedPage -> 5
 
     let offset: number = (supposedPage - 1) * limit // default offset by pages number
     let actualPage = supposedPage;
