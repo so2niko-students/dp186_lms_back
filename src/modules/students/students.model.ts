@@ -1,9 +1,10 @@
-import {DataTypes, Model, Sequelize} from 'sequelize';
-import {sequelize} from '../../database';
-import {Groups} from '../groups/groups.model';
+import { DataTypes, Model, Sequelize } from 'sequelize';
+import { sequelize } from '../../database';
+import { Groups } from '../groups/groups.model';
 
 export class Students extends Model {
     public static readonly tableName: string = 'students';
+
 
     public id: number;
     public firstNameUkr: string;
@@ -18,6 +19,8 @@ export class Students extends Model {
     public resetPasswordExpire: number;
     public createdAt: Date;
     public updatedAt: Date;
+    public avatarId: number;
+
 
     public static prepareInit(sequelize: Sequelize) {
         this.init(
@@ -38,7 +41,12 @@ export class Students extends Model {
                 resetPasswordToken: DataTypes.STRING(),
                 resetPasswordExpire: DataTypes.DATE(),
                 groupId: DataTypes.INTEGER(),
+                avatarId: {
+                    type: DataTypes.INTEGER,
+                    allowNull: true,
+                },
             },
+
             {
                 sequelize,
                 tableName: this.tableName,
@@ -58,3 +66,4 @@ Groups.hasMany(Students, {
     foreignKey: 'groupId',
     as: 'group',
 });
+
