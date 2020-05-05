@@ -6,11 +6,8 @@ import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { Avatars } from '../avatars/avatars.model';
-import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 import {sequelize} from '../../database';
 import { Transaction } from 'sequelize';
-import {hashFunc} from "../auth/password.hash";
-import Unauthorized from "../../common/exeptions/unauthorized";
 import TokenFactory, {IToken} from "../../common/crypto/TokenFactory";
 import {IUpdatePassword} from "../../common/interfaces/auth.interfaces";
 
