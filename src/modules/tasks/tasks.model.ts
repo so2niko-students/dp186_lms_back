@@ -9,6 +9,7 @@ export class Tasks extends Model {
   public groupId: number;
   public taskName: string;
   public fileURL: string;
+  public description: string;
   public createdAt: Date;
   public updatedAt: Date;
 
@@ -25,6 +26,7 @@ export class Tasks extends Model {
         groupId: DataTypes.INTEGER,
         taskName: DataTypes.STRING(255),
         fileURL: DataTypes.STRING(255),
+        description: DataTypes.TEXT,
       },
       {
         sequelize,

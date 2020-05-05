@@ -8,6 +8,7 @@ interface ITasks {
   groupId: number;
   taskName: string;
   fileURL: string;
+  description: string;
 }
 
 const NO_RIGHTS = 'You do not have rights to do this.';
