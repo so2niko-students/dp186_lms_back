@@ -7,6 +7,8 @@ import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 import { sequelize } from '../../database';
+import { TokenService, IToken } from "../../common/crypto/TokenService";
+
 
 interface ITeachersData {
     firstName?: string;
@@ -18,7 +20,6 @@ interface ITeachersData {
         format: string;
     };
 }
-import TokenFactory, {IToken} from "../../common/crypto/TokenFactory";
 
 class TeachersService {
     public async findOneByEmail(email: string) {
@@ -32,27 +33,42 @@ class TeachersService {
         return teacher;
     }
 
-  public async findOneById(id: number, transaction?: Transaction) {
-    const teacher = await Teachers.findOne({
-      where: { id },
-      include: [{
-          model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-      }],
-      transaction,
-    });
+    public findTeacherByToken(token:string):Promise<Teachers>{
+        const hashedToken = TokenService.getInstance().getHashedToken(token);
+        return Teachers.findOne({
+            where: {resetPasswordToken: hashedToken},
+        });
+    }
+    public async resetPassword(password:string, token: string): Promise<void> {
+        const user = await this.findTeacherByToken(token);
+        if(!user){throw new NotFound('User for your token does not exist')}
+        user.password = password;
+        user.resetPasswordToken = null;
+        user.resetPasswordExpire = Date.now();
 
-    return teacher;
+        await user.save();
     }
 
-  public async setForgotPasswordToken(email): Promise<string> {
-    //Generate and hash password token
-    const teacher = await this.findOneByEmail(email);
-    const token: IToken = TokenFactory.generateResetToken();
-    teacher.resetPasswordExpire = Date.now() + (60 * 1000 * 360);
-    teacher.resetPasswordToken = token.hashed;
-    await teacher.save();
-    return token.regular;
-  }
+    public async findOneById(id: number, transaction?: Transaction) {
+        const teacher = await Teachers.findOne({
+            where: {id},
+            include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+            transaction,
+        });
+
+        return teacher;
+    }
+
+    public async setForgotPasswordToken(email: string): Promise<string> {
+        const teacher = await this.findOneByEmail(email);
+        const token: IToken = TokenService.getInstance().generateResetToken();
+        teacher.resetPasswordExpire = Date.now() + (60 * 1000 * 360);
+        teacher.resetPasswordToken = token.hashed;
+        await teacher.save();
+        return token.regular;
+    }
 
     public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Teachers> {
         const teacher = await Teachers.findOne({
@@ -78,12 +94,12 @@ class TeachersService {
             if (user.isAdmin && !teacher) {
                 throw new NotFound(`There is no teacher with id ${id}`);
             }
-            const { avatar } = data;
+            const {avatar} = data;
             if (avatar) {
                 const {img, format} = avatar;
                 await avatarService.setAvatarToUserOrThrow(img, format, teacher, transaction);
             }
-            await Teachers.update(data, { where: { id }, transaction });
+            await Teachers.update(data, {where: {id}, transaction});
             return this.findOneByIdOrThrow(id, transaction);
         });
     }

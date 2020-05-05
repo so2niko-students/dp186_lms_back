@@ -20,8 +20,9 @@ export class AuthRoute {
             this.authController.updateStudentPassword);
         this.router.put('/change-password/teacher', authJwt, createValidator(updatePasswordDto),
             this.authController.updateTeacherPassword);
-        this.router.put('/change-password/teacher/:id', authJwt, createValidator(updatePasswordDto),
+        this.router.put('/change-password/teacher/:id/', authJwt, createValidator(updatePasswordDto),
             this.authController.updateTeacherPasswordBySuperAdmin);
         this.router.post('/forgotPassword', this.authController.forgotPassword);
+        this.router.put('/resetPassword/:token', this.authController.resetPassword);
     }
 }

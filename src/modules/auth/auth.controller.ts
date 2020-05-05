@@ -4,8 +4,8 @@ import { Students } from '../students/students.model';
 import { Teachers } from '../teachers/teachers.model';
 import { UpdateRequest } from '../../common/types/types';
 import * as HttpStatus from 'http-status-codes';
-import asyncHandler from "../../common/async.handler";
-import MailGun from "../../common/mailgun/MailGun";
+import asyncHandler from '../../common/async.handler';
+import MailGun from '../../common/mailgun/MailGun';
 
 interface IResult {
     token: string;
@@ -13,12 +13,6 @@ interface IResult {
 }
 
 export class AuthController {
-
-    /*
-   * @desc     Login
-   * @route    POST api/v1/auth/login
-   * @access   Public
-   * */
     public async login(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const result: IResult = await authService.login(req.body);
@@ -28,11 +22,6 @@ export class AuthController {
         }
     }
 
-    /*
-    * @desc     Forgot password
-    * @route    POST api/v1/auth/forgotPassword
-    * @access   Public
-    * */
     public forgotPassword = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         const token: string = await authService.setResetToken(req.body.email);
         const resetLink = `https://localhost:5000/resetPassword/${token}`;
@@ -42,8 +31,16 @@ export class AuthController {
 
         res.status(HttpStatus.OK).json({
             status: 'success',
-            token,
             msg: `User password change request is made. Check your mail for further instructions`
+        });
+    });
+
+    public resetPassword = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+        await authService.resetUserPassword(req.body.password, req.params.token);
+
+        res.status(HttpStatus.OK).json({
+            status: 'success',
+            msg: `User password has been changed!`
         });
     });
 
