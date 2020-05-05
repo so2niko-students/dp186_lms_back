@@ -2,13 +2,6 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 import { sequelize } from '../../database';
 import { Tasks } from '../tasks/tasks.model';
 import { Comment } from '../comments/comments.model';
-//Подключение cloudinary
-var cloudinary = require("cloudinary").v2;
-cloudinary.config({
-    cloud_name: "dumh8jxl6",
-    api_key: "184624831118258",
-    api_secret: "p06ZSpuMItwjKhmPoFVPTxcK1S4"
-});
 
 export class File extends Model {
     public static readonly tableName: string = 'files';

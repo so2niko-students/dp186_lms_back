@@ -11,7 +11,7 @@ import {sequelize} from '../../database';
 const NO_RIGHTS = 'You do not have rights to do this.';
 const NO_TIGHTS_TO_UPDATE = 'Only teacher or super admin can update group.';
 
-interface ICreateGroup {
+export interface ICreateGroup {
     groupName?: string;
     groupToken?: string;
     teacherId?: number;
@@ -20,7 +20,6 @@ interface ICreateGroup {
         format: string;
     };
 }
-
 
 class GroupsService {
     public async createOne({ groupName, teacherId }, user: CustomUser) {

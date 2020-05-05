@@ -4,9 +4,6 @@ export const createTaskDto = Joi.object().keys({
   groupId: Joi.number().required(),
   taskName: Joi.string().min(2).required(),
   fileURL: Joi.string().uri(),
-  studentId: Joi.number(),
-  taskId: Joi.number(),
-  grade: Joi.number()
 });
 
 export const updateTaskDto = Joi.object().keys({

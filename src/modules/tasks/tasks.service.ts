@@ -7,7 +7,7 @@ import {Solution} from '../solutions/solutions.model';
 import {solutionsService} from '../solutions/solutions.service';
 import {Transaction} from 'sequelize';
 
-interface ITasks {
+export interface ITasks {
     groupId: number;
     taskName: string;
     fileURL: string;
@@ -19,17 +19,15 @@ class TasksService {
     public async findAll(user: CustomUser): Promise<Task[]> {
         if (!user.isMentor) {
             const tasks: Task[] = await Task.findAll({ where: {groupId: user.groupId} });
-            if (!tasks.length) {
-                throw new NotFound(`There is no tasks for group with groupId ${user.groupId}`);
-            }
+
             return tasks;
         }
 
-        return await Task.findAll();
+        return Task.findAll();
     }
 
     public async findOneById(id: number, user: CustomUser, transaction?: Transaction) {
-        const task: Task = await Task.findOne({ where: { id } });
+        const task: Task = await Task.findOne({ where: { id }, transaction });
         if (!task) {
             throw new NotFound(`Can't find task with id ${id}`);
         }
@@ -51,9 +49,9 @@ class TasksService {
             if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
                 throw new Forbidden(NO_RIGHTS);
             }
-            const taskCreate:Task = await Task.create(task, {transaction});
-            const solutionsCreate:Solution[] = await solutionsService.createSolutions(taskCreate, user, transaction);
-            return taskCreate;
+            const createdTask:Task = await Task.create(task, {transaction});
+            const solutionsCreate:Solution[] = await solutionsService.createSolutions(createdTask, user, transaction);
+            return createdTask;
         });
     }
 

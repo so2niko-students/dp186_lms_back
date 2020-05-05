@@ -114,7 +114,7 @@ class StudentsService {
   }
 
     public async findAllByGroupId(id: number, transaction?:Transaction): Promise<Students[]> {
-        const students = await Students.findAll({ where: { groupId:id } });
+        const students = await Students.findAll({ where: { groupId:id }, transaction });
 
         return students;
     }

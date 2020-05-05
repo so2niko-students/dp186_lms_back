@@ -1,7 +1,7 @@
 import { cd } from '../../config/cloudinary.config';
-import { PayloadToLarge } from '../../common/exeptions';
+import { BadRequest } from '../../common/exeptions';
 import { File } from './files.model';
-import {Transaction} from 'sequelize';
+import { Transaction } from 'sequelize';
 
 interface IFileCreate {
     fileContent: string;
@@ -10,27 +10,31 @@ interface IFileCreate {
     fileNameExtension: string;
 }
 
+const extensions: string[] = ['application/zip', 'text/plain', 'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/pdf', 'application/rtf', 'application/vnd.oasis.opendocument.text'];
+
 class FilesService {
 
-    public async createOne(fileData:IFileCreate, transaction: Transaction): Promise<File> {
-        console.log('fileData = ', fileData);
-        let {fileContent, fileNameExtension, commentId, taskId} = fileData
+    public async createOne({fileContent, fileNameExtension, commentId, taskId}:IFileCreate, transaction: Transaction): Promise<File> {
         try {
-            const file = await cd.uploader.upload(fileContent, { resource_type: "raw" }, (err, res) => {
-                console.log('err = ', err);
-                return err ? err : res;
+            if (!extensions.includes(fileNameExtension)) {
+                throw new BadRequest(`Extension of upload file is not correct`);
+            }
+            const fileString = `data:${fileNameExtension};base64,${fileContent}`;
+            const file = await cd.uploader.upload(fileString, { use_filename:true, resource_type: 'raw'}, (err, res) => {
+                return err ? Object.keys(err) : res;
             });
-            console.log('file = ', file);
+
             const fileDataForCreate: IFileCreate = {
                 fileContent: file.url,
                 fileNameExtension,
                 commentId,
                 taskId,
             };
-            console.log('fileDataForCreate = ', fileDataForCreate);
             return File.create(fileDataForCreate, {transaction});
         } catch (e) {
-            throw new PayloadToLarge('File size is to large');
+            throw new BadRequest(e);
         }
     }
 }

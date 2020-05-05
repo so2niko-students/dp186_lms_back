@@ -17,18 +17,17 @@ export interface ISolutionCreate {
 
 class SolutionsService {
 
-    public async createSolutions(datatask: Tasks, user: CustomUser, transaction:Transaction): Promise<Solution[]> {
-        const {groupId} = datatask;
-        const solutiondata =[];
+    public async createSolutions(task: Tasks, user: CustomUser, transaction:Transaction): Promise<Solution[]> {
+        const {groupId} = task;
+        const solutionsList =[];
         const { id } = user;
-        const taskId = datatask.id;
+        const taskId = task.id;
 
         if (!user.isMentor) {
             throw new Unauthorized('You do not have permission for this');
         }
         // нахожу по id группу
         const group = await groupsService.findOneOrThrow(groupId, user, transaction);
-        console.log('from createSolution   group = ', group);
 
         // проверяю, совпадает ли поль-ль с ментором группы
         if (group.teacherId !== id) {
@@ -37,20 +36,14 @@ class SolutionsService {
         const studentsInGroup = await studentsService.findAllByGroupId(groupId, transaction);
 
         await Promise.all(studentsInGroup.map(async(el) => {
-            const solutions = await this.checkMultiSolutions(el.id, taskId, transaction);
-
-            if (solutions && solutions.length) {
-                throw new BadRequest(`Solution of task number = ${taskId} for student 
-                number ${el.id} is already exists`);
-            }
-            solutiondata.push ({
-                "studentId": el.id,
-                "taskId": taskId,
-                "isCompleted": 0,
-                "grade": 0
+            solutionsList.push ({
+                'studentId': el.id,
+                'taskId': taskId,
+                'isCompleted': 0,
+                'grade': 0
             })
         }))
-        return await Solution.bulkCreate(solutiondata, {transaction});
+        return await Solution.bulkCreate(solutionsList, {transaction});
     }
 
     public async updateOneOrThrow(id: number, data: Partial<ISolutionCreate>, user: CustomUser):Promise<Solution> {
@@ -58,7 +51,7 @@ class SolutionsService {
 
         return sequelize.transaction(async (transaction: Transaction) => {
             // нахожу по id решение, проверяю можно ли его обновлять
-            const solution = await this.checkIsCompleted(id);
+            const solution = await this.checkIsCompletedOrThrow(id);
 
             //нахожу по id - таску
             const task = await tasksService.findOneById(solution.taskId, user, transaction);
@@ -68,7 +61,7 @@ class SolutionsService {
 
             // проверяю, совпадает ли поль-ль с ментором группы
             if (group.teacherId !== user.id) {
-                throw new Forbidden('You do not have rights to do this');
+                throw new Forbidden('The only teacher can update solution');
             }
 
             // мержим объект
@@ -84,27 +77,23 @@ class SolutionsService {
         })
     }
 
-    private async checkIsCompleted(id): Promise<Solution> {
+    private async checkIsCompletedOrThrow(id): Promise<Solution> {
 
         const solution = await this.findOneOrThrow(id);
 
         // проверяю, если решение подтвержено его нельзя изменять
-        if (solution.isCompleted === 1) {
+        if (solution.isCompleted) {
             throw new BadRequest(`Solution number = ${id} has been completed. You can not update it.`);
         }
         return solution;
     }
 
     public async findOneOrThrow (id:number, transaction?: Transaction): Promise<Solution> {
-        const solution = Solution.findOne({ where: { id } })
+        const solution = Solution.findOne({ where: { id }, transaction })
         if(!solution) {
             throw new NotFound('Solution number = ${id} does not exist in DB.');
         }
         return solution;
-    }
-
-    public async checkMultiSolutions (studentId:number, taskId:number, transaction?: Transaction) {
-        return await Solution.findAll({ where: { studentId, taskId } })
     }
 }
 

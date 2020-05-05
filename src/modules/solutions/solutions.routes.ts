@@ -5,5 +5,5 @@ import { createValidator } from '../../common/middlewares/create-validator';
 
 export const router: Router = Router();
 
-router.post('/:id', createValidator(updateSolutionsDto), solutionsController.updateOne);
+router.put('/:id', createValidator(updateSolutionsDto), solutionsController.updateOne);
 
