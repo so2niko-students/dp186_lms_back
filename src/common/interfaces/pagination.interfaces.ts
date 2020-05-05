@@ -1,5 +1,5 @@
 export interface IPaginationData<T> {
-  teachers: T[];
+  data: T[];
   actualPage: number;
   total: number;
   limit: number;
