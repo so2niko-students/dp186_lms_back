@@ -1,7 +1,15 @@
 import * as crypto from 'crypto';
 
-export default class TokenFactory {
-    public static generateResetToken() {
+export class TokenService {
+    private static instance: TokenService;
+
+    public static getInstance(): TokenService {
+        if (!TokenService.instance) {
+            TokenService.instance = new TokenService();
+        }
+        return TokenService.instance;
+    }
+    public generateResetToken() {
         //Generate token
         const regular = crypto.randomBytes(20).toString('hex');
 
@@ -10,7 +18,7 @@ export default class TokenFactory {
         return <IToken>{regular, hashed}
     }
 
-    public static getHashedToken(token){
+    public getHashedToken(token){
         return crypto.createHash('sha256').update(token).digest('hex');
     }
 }
