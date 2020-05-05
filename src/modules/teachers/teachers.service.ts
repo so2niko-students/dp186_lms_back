@@ -9,18 +9,8 @@ import { sequelize } from '../../database';
 import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { Transaction } from 'sequelize/types';
-import { paginationService } from '../pagination/pagination.service'
-
-interface ITeachersData {
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    isAdmin?: boolean;
-    avatar?: {
-        img: string;
-        format: string;
-    };
-}
+import { paginationService } from '../pagination/pagination.service';
+import { ITeachersData, ITeachersPaginationData } from '../../common/interfaces/teachers.interfaces';
 
 const NO_PERMISSION_MSG = 'You do not have permission for this';
 
@@ -69,13 +59,13 @@ class TeachersService {
     });
   }
 
-  public async findAll(supposedPage: number = 1, limit: number = 10) : Promise<object>{
+  public async findAll(supposedPage: number = 1, limit: number = 10) : Promise<ITeachersPaginationData>{
 
     const total: number = await Teachers.count(); // actual teachers count in db
     const {offset, actualPage} = await paginationService.getOffset(supposedPage, limit, total);
     const teachers: Teachers[] = await Teachers.findAll({offset, limit});
 
-    return {teachers, actualPage, total};
+    return {teachers, actualPage, total, limit};
   }
 
   public async findOneByEmail(email: string) {

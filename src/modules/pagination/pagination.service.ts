@@ -2,6 +2,7 @@ interface IPaginationData{
   offset: number;
   actualPage: number;
 }
+  
 class PaginationService {
 
   public async getOffset(supposedPage: number = 1, limit: number = 10, total: number): Promise<IPaginationData> {
