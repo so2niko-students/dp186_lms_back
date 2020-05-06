@@ -13,8 +13,8 @@ export class Teachers extends Model {
   public createdAt: Date;
   public updatedAt: Date;
   public avatarId: number;
-  public groupsCount?: any;
-  public studentsCount?: any;
+  public groupsCount?: number;
+  public studentsCount?: number;
 
   public static prepareInit(sequelize: Sequelize) {
     this.init(
