@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { Transaction } from 'sequelize/types';
 import { paginationService } from '../pagination/pagination.service';
 import { ITeachersData } from '../../common/interfaces/teachers.interfaces';
-import { IPaginationData } from '../../common/interfaces/pagination.interfaces';
+import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces';
 
 const NO_PERMISSION_MSG = 'You do not have permission for this';
 
@@ -60,7 +60,7 @@ class TeachersService {
     });
   }
 
-  public async findAll(supposedPage: number = 1, limit: number = 10) : Promise<IPaginationData<Teachers>>{
+  public async findAll(supposedPage: number = 1, limit: number = 10) : Promise<IPaginationOuterData<Teachers>>{
 
     const total: number = await Teachers.count(); // actual teachers count in db
     const {offset, actualPage} = await paginationService.getOffset(supposedPage, limit, total);
