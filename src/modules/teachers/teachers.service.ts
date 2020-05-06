@@ -1,4 +1,6 @@
 import { Teachers } from './teachers.model';
+import { Students } from '../students/students.model';
+import { Groups } from '../groups/groups.model';
 import { BadRequest } from '../../common/exeptions';
 import { CustomUser } from '../../common/types/types';
 import { NotFound, Unauthorized } from '../../common/exeptions/';
@@ -66,7 +68,45 @@ class TeachersService {
     const {offset, actualPage} = await paginationService.getOffset(supposedPage, limit, total);
     const data: Teachers[] = await Teachers.findAll({offset, limit});
 
-    
+    // take necessary groups info out from db
+    const groupsData: Groups[] = await Groups.findAll({
+      attributes: ['id', 'teacherId'],
+    });
+
+    // take necessary students info out from db
+    const studentsData: Students[] = await Students.findAll({
+      attributes: ['id', 'groupId'],
+    }); 
+
+    // add in the data groupsCount field with the value
+    data.forEach(item => {
+      let groupsSet: Set<number> = new Set([]); // Set collection of unique group IDs
+
+      // fulfill Set collection of unique group IDs
+      groupsData.forEach(el => {
+        if (item.id === el.teacherId) {
+          groupsSet.add(el.id);
+        }
+      });
+
+      const groupsCount: number = groupsSet.size; // groups count
+
+      let studentsCount: number = 0; // define students counter
+
+      // iterate students counter if the id of group === student.groupId
+      groupsSet.forEach(groupId => {
+        studentsData.forEach(student => {
+          if (groupId === student.groupId) {
+            studentsCount++;
+          }
+        });
+      });
+
+      item.studentsCount = studentsCount;
+      item.groupsCount = groupsCount;
+
+      return
+    });
 
     return { data, actualPage, total, limit };
   }
@@ -126,7 +166,7 @@ class TeachersService {
             await Teachers.update(data, { where: { id }, transaction });
             return this.findOneByIdOrThrow(id, transaction);
         });
-    }
+      }
 
     public async updatePassword({oldPassword, newPassword}: IUpdatePassword,
                                 user: Teachers) {
