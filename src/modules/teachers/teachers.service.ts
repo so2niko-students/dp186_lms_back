@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { Transaction } from 'sequelize/types';
 import { paginationService } from '../pagination/pagination.service';
 import { ITeachersData } from '../../common/interfaces/teachers.interfaces';
-import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces';
+import { IPaginationOuterData, IPaginationInnerData } from '../../common/interfaces/pagination.interfaces';
 
 const NO_PERMISSION_MSG = 'You do not have permission for this';
 
