@@ -102,6 +102,7 @@ class TeachersService {
         });
       });
 
+      // give a teacher object props for goups and students quantity
       item.studentsCount = studentsCount;
       item.groupsCount = groupsCount;
 
