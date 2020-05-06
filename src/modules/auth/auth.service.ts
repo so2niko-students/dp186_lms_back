@@ -22,8 +22,8 @@ class AuthService {
         return {
             token,
             expires: auth.expiresIn,
-            user: await studentsService.findOneByIdOrThrow(user.id) ||
-                  await teachersService.findOneByIdOrThrow(user.id),
+            user: await studentsService.findOneById(user.id) ||
+            await teachersService.findOneById(user.id),
         };
 
     }
