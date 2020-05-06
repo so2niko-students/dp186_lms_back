@@ -1,25 +1,25 @@
 [
   {
-    "studentId": "1",
-    "taskId": "1",
-    "grade": "10",
-    "isCompleted": "1"
+    "studentId": 1,
+    "taskId": 1,
+    "grade": 10,
+    "isCompleted": 1
   },
   {
-    "studentId": "2",
-    "taskId": "1",
-    "grade": "8",
-    "isCompleted": "1"
+    "studentId": 2,
+    "taskId": 1,
+    "grade": 8,
+    "isCompleted": 1
   },
   {
-    "studentId": "3",
-    "taskId": "1",
+    "studentId": 3,
+    "taskId": 1,
     "grade": null,
     "isCompleted": 0 
   },
   {
-    "studentId": "10",
-    "taskId": "1",
+    "studentId": 10,
+    "taskId": 1,
     "grade": null,
     "isCompleted": 0 
   }
