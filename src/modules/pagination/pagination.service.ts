@@ -2,7 +2,7 @@ import { IPaginationInnerData } from '../../common/interfaces/pagination.interfa
   
 class PaginationService {
 
-  public async getOffset(supposedPage: number = 1, limit: number = 10, total: number): Promise<IPaginationInnerData> { // supposedPage -> 5
+  public async getOffset(supposedPage: number = 1, limit: number = 10, total: number): Promise<IPaginationInnerData> {
 
     let offset: number = (supposedPage - 1) * limit // default offset by pages number
     let actualPage = supposedPage;

@@ -20,7 +20,7 @@ app.use(cors());
 
 app.use('/groups', authJwt, groupsRoutes);
 app.use('/students', studentsRoutes);
-app.use('/teachers', authJwt, teachersRoutes);
+app.use('/teachers', teachersRoutes);
 app.use('/tasks', authJwt, tasksRoutes);
 
 // authorization

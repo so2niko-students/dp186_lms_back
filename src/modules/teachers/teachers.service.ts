@@ -20,26 +20,24 @@ class TeachersService {
 
   public async createOne(teacherData: ITeachersData, user: CustomUser): Promise<Teachers> {
 
-    // superAdmin validation
+    return sequelize.transaction(async (transaction) => {
+      // superAdmin validation
     if (!user.isAdmin) {
       throw new Unauthorized(NO_PERMISSION_MSG);
     }
 
     // duplicate validation
-    if (await this.findOneByEmail(teacherData.email)) {
+    if (await this.findOneByEmail(teacherData.email, transaction)) {
       throw new BadRequest('User with provided email already exists');
     }
-
-    const { password } = teacherData;
-
-    teacherData.password = hashFunc(password);
-    teacherData.isAdmin = false;
     
-    const result: Teachers = await Teachers.create(teacherData); // what should i return ?
+    const result: Teachers = await Teachers.create(teacherData, { transaction: transaction });
 
     delete result.password
 
     return result
+    });
+    
   }
 
   public async deleteOneById(id: number, user: CustomUser): Promise<number> {
@@ -66,20 +64,17 @@ class TeachersService {
     const {offset, actualPage} = await paginationService.getOffset(supposedPage, limit, total);
     const data: Teachers[] = await Teachers.findAll({offset, limit});
 
-    
-
     return { data, actualPage, total, limit };
   }
 
-  public async findOneByEmail(email: string) {
-    const teacher = await Teachers.findOne({
+  public async findOneByEmail(email: string, transaction?: Transaction) {
+    return await Teachers.findOne({
         where: { email },
         include: [{
             model: Avatars, as: 'avatar', attributes: ['avatarLink'],
         }],
+        transaction,
     });
-
-    return teacher;
   }
 
   public async findOneById(id: number, transaction?: Transaction) {
@@ -95,14 +90,7 @@ class TeachersService {
   }
 
   public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Teachers> {
-      const teacher = await Teachers.findOne({
-          where: {id},
-          include: [{
-              model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-          }],
-          attributes: {exclude: ['password']},
-          transaction,
-      });
+      const teacher = await this.findOneById(id, transaction);
       if (!teacher) {
           throw new NotFound(`Teacher with ${id} not found`);
       }
