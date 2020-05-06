@@ -78,15 +78,13 @@ class TeachersService {
   }
 
   public async findOneById(id: number, transaction?: Transaction) {
-    const teacher = await Teachers.findOne({
+    return await Teachers.findOne({
       where: { id },
       include: [{
           model: Avatars, as: 'avatar', attributes: ['avatarLink'],
       }],
       transaction,
     });
-
-    return teacher;
   }
 
   public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Teachers> {
