@@ -10,19 +10,30 @@ interface IFileCreate {
     fileNameExtension: string;
 }
 
-const extensions: string[] = ['application/zip', 'text/plain', 'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/pdf', 'application/rtf', 'application/vnd.oasis.opendocument.text'];
+const extensions = [
+        {'application/zip': 'zip'},
+        {'text/plain': 'txt'},
+        {'application/msword': 'doc'},
+        {'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx'},
+        {'application/pdf': 'pdf'},
+        {'application/rtf': 'rtf'},
+        {'application/vnd.oasis.opendocument.text': 'odt'}
+    ];
 
 class FilesService {
 
     public async createOne({fileContent, fileNameExtension, commentId, taskId}:IFileCreate, transaction: Transaction): Promise<File> {
         try {
-            if (!extensions.includes(fileNameExtension)) {
+
+            const ext: {}|undefined = extensions.find(obj => Object.keys(obj).includes(fileNameExtension));
+
+            if (!ext) {
                 throw new BadRequest(`Extension of upload file is not correct`);
             }
+
             const fileString = `data:${fileNameExtension};base64,${fileContent}`;
-            const file = await cd.uploader.upload(fileString, { use_filename:true, resource_type: 'raw'}, (err, res) => {
+            
+            const file = await cd.uploader.upload(fileString, {resource_type: 'raw', format:`${ext[fileNameExtension]}`}, (err, res) => {
                 return err ? Object.keys(err) : res;
             });
 
