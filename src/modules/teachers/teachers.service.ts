@@ -7,7 +7,7 @@ import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 import { sequelize } from '../../database';
-import { TokenService, IToken } from "../../common/crypto/TokenService";
+import { TokenService } from "../../common/crypto/TokenService";
 
 
 interface ITeachersData {
@@ -34,14 +34,15 @@ class TeachersService {
     }
 
     public findTeacherByToken(token:string):Promise<Teachers>{
-        const hashedToken = TokenService.getInstance().getHashedToken(token);
         return Teachers.findOne({
-            where: {resetPasswordToken: hashedToken},
+            where: {resetPasswordToken: token},
         });
     }
     public async resetPassword(password:string, token: string): Promise<void> {
         const user = await this.findTeacherByToken(token);
-        if(!user){throw new NotFound('User for your token does not exist')}
+        if(!user){
+            throw new NotFound('User for your token does not exist')
+        }
         user.password = password;
         user.resetPasswordToken = null;
         user.resetPasswordExpire = Date.now();
@@ -50,24 +51,22 @@ class TeachersService {
     }
 
     public async findOneById(id: number, transaction?: Transaction) {
-        const teacher = await Teachers.findOne({
+        return Teachers.findOne({
             where: {id},
             include: [{
                 model: Avatars, as: 'avatar', attributes: ['avatarLink'],
             }],
             transaction,
         });
-
-        return teacher;
     }
 
     public async setForgotPasswordToken(email: string): Promise<string> {
         const teacher = await this.findOneByEmail(email);
-        const token: IToken = TokenService.getInstance().generateResetToken();
+        const token: string = new TokenService().generateResetToken();
         teacher.resetPasswordExpire = Date.now() + (60 * 1000 * 360);
-        teacher.resetPasswordToken = token.hashed;
+        teacher.resetPasswordToken = token;
         await teacher.save();
-        return token.regular;
+        return token;
     }
 
     public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Teachers> {

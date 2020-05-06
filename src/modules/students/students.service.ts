@@ -8,7 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { Avatars } from '../avatars/avatars.model';
 import { sequelize } from '../../database';
 import { Transaction } from 'sequelize';
-import { TokenService, IToken } from "../../common/crypto/TokenService";
+import { TokenService } from "../../common/crypto/TokenService";
 import { IUpdatePassword } from "../../common/interfaces/auth.interfaces";
 import { Teachers } from "../teachers/teachers.model";
 
@@ -53,7 +53,7 @@ class StudentsService {
         const students = new Students(studentsData);
         students.password = hashFunc(students.password);
 
-        return await students.save();
+        return students.save();
     }
 
     public async findOneByEmail(email: string) {
@@ -105,11 +105,11 @@ class StudentsService {
     public async setForgotPasswordToken(email: string): Promise<string> {
         //Generate and hash password token
         const student = await this.findOneByEmail(email);
-        const token: IToken = TokenService.getInstance().generateResetToken();
+        const token: string = new TokenService().generateResetToken();
         student.resetPasswordExpire = Date.now() + (60 * 1000 * 360);
-        student.resetPasswordToken = token.hashed;
+        student.resetPasswordToken = token;
         await student.save();
-        return token.regular;
+        return token;
     }
 
     public async updatePassword({oldPassword, newPassword}: IUpdatePassword,
@@ -128,9 +128,8 @@ class StudentsService {
     }
 
     public async findStudentByToken(token: string): Promise<Students> {
-        const hashedToken = TokenService.getInstance().getHashedToken(token);
         return Students.findOne({
-            where: {resetPasswordToken: hashedToken},
+            where: {resetPasswordToken: token},
         });
     }
 

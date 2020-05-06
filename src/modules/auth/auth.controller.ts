@@ -22,7 +22,7 @@ export class AuthController {
         }
     }
 
-    public forgotPassword = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    public forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
         const token: string = await authService.setResetToken(req.body.email);
         const resetLink = `https://localhost:5000/resetPassword/${token}`;
         const resetMessage = `You receive this email as you or someone else requested password change
@@ -33,16 +33,16 @@ export class AuthController {
             status: 'success',
             msg: `User password change request is made. Check your mail for further instructions`
         });
-    });
+    };
 
-    public resetPassword = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    public resetPassword = async (req: Request, res: Response, next: NextFunction) => {
         await authService.resetUserPassword(req.body.password, req.params.token);
 
         res.status(HttpStatus.OK).json({
             status: 'success',
             msg: `User password has been changed!`
         });
-    });
+    };
 
     public async updateStudentPassword(req: UpdateRequest<Students>,
                                        res: Response, next: NextFunction)
