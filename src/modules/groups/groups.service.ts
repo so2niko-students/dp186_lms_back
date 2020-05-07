@@ -1,12 +1,14 @@
 import { Groups } from './groups.model';
 import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
-import {CustomUser} from '../../common/types/types';
+import {CustomGroup, CustomUser} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
 import {avatarService} from '../avatars/avatars.service';
 import {Avatars} from '../avatars/avatars.model';
 import {Transaction} from 'sequelize';
 import {sequelize} from '../../database';
+import {Teachers} from '../teachers/teachers.model';
+import {studentsService} from '../students/students.service';
 
 const NO_RIGHTS = 'You do not have rights to do this.';
 const NO_TIGHTS_TO_UPDATE = 'Only teacher or super admin can update group.';
@@ -46,16 +48,24 @@ class GroupsService {
         if (user.groupId !== id && !user.isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
-        const group = Groups.findOne({
-            include: [{
-               model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-            }],
+        const group: CustomGroup = await Groups.findOne({
+            include: [
+                {
+                    model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+                },
+                {
+                    model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                    include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                },
+            ],
             where: {id},
             transaction,
         });
         if (!group) {
             throw new NotFound(`Group with ${id} not found.`);
         }
+        const students = await studentsService.findAllByGroupId(id);
+        group.setDataValue('students', students)
         return group;
     }
     public async findByTokenOrThrow(groupToken: string) {
@@ -98,20 +108,43 @@ class GroupsService {
     }
     public async findMany(mentorId: number, user: CustomUser) {
         if (!user.isMentor) {
-            return Groups.findAll({ where: {id: user.groupId} });
+            return Groups.findAll({
+                where: {id: user.groupId},
+                include: [
+                    {
+                        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+                    },
+                    {
+                        model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
+                ],
+            });
         }
         if (mentorId) {
             return Groups.findAll({
               where: {teacherId: mentorId},
-              include: [{
-                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-              }],
+                include: [
+                    {
+                        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+                    },
+                    {
+                        model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
+                ],
             });
         }
         return Groups.findAll({
-            include: [{
-                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-            }],
+            include: [
+                {
+                    model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+                },
+                {
+                    model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                    include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                },
+            ],
         });
     }
     // method to count groups in UI

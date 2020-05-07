@@ -42,7 +42,7 @@ export class Groups extends Model {
       {
         sequelize,
         tableName: this.tableName,
-      }
+      },
     );
   }
 }
@@ -51,10 +51,10 @@ Groups.prepareInit(sequelize);
 
 Groups.belongsTo(Teachers, {
   foreignKey: 'teacherId',
-  as: 'teachers',
+  as: 'teacher',
 });
 
 Teachers.hasMany(Groups, {
   foreignKey: 'teacherId',
-  as: 'teachers',
+  as: 'teacher',
 });
