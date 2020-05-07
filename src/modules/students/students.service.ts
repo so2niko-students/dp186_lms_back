@@ -136,7 +136,7 @@ class StudentsService {
     public async resetPassword(password: string, token: string): Promise<void> {
         const user: Students = await this.findStudentByToken(token);
         if(!user){throw new NotFound('User for your token does not exist')}
-        user.password = password;
+        user.password = hashFunc(password);
         user.resetPasswordToken = null;
         user.resetPasswordExpire = Date.now();
 

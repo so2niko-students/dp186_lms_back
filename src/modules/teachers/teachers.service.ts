@@ -43,7 +43,7 @@ class TeachersService {
         if(!user){
             throw new NotFound('User for your token does not exist')
         }
-        user.password = password;
+        user.password = hashFunc(password);
         user.resetPasswordToken = null;
         user.resetPasswordExpire = Date.now();
 
