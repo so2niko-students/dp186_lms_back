@@ -2,13 +2,13 @@
   {
     "commentId": null,
     "taskId": 1,
-    "fileContent": "http://res.cloudinary.com/dumh8jxl6/raw/upload/v1588767643/mysheet.zip",
+    "fileLink": "http://res.cloudinary.com/dumh8jxl6/raw/upload/v1588767643/mysheet.zip",
     "fileNameExtension": "application/zip"
   },
   {
     "commentId": 1,
     "taskId": null,
-    "fileContent": "http://res.cloudinary.com/dumh8jxl6/raw/upload/v1588767643/mysheet.zip",
+    "fileLink": "http://res.cloudinary.com/dumh8jxl6/raw/upload/v1588767643/mysheet.zip",
     "fileNameExtension": "application/zip"
   }
 ]

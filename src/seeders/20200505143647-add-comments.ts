@@ -1,7 +1,7 @@
-import { Comment } from "../modules/comments/comments.model";
-import { QueryInterface } from "sequelize";
+import { Comment } from '../modules/comments/comments.model';
+import { QueryInterface } from 'sequelize';
 
-const commentData = require("../../data/comments");
+const commentData = require('../../data/comments');
 
 commentData.forEach((obj) => {
   obj.createdAt = new Date();
@@ -9,9 +9,9 @@ commentData.forEach((obj) => {
 });
 
 export async function up(query: QueryInterface) {
-    return query.bulkInsert(Comment.tableName, commentData);
+  return query.bulkInsert(Comment.tableName, commentData);
 }
 
 export async function down(query: QueryInterface) {
-    query.bulkDelete(Comment.tableName, null, {});
+  query.bulkDelete(Comment.tableName, null, {});
 }

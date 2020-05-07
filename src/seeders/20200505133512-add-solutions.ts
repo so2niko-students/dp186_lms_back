@@ -1,7 +1,7 @@
-import { Solution } from "../modules/solutions/solutions.model";
-import { QueryInterface } from "sequelize";
+import { Solution } from '../modules/solutions/solutions.model';
+import { QueryInterface } from 'sequelize';
 
-const solutionData = require("../../data/solutions");
+const solutionData = require('../../data/solutions');
 
 solutionData.forEach((obj) => {
   obj.createdAt = new Date();
@@ -9,9 +9,9 @@ solutionData.forEach((obj) => {
 });
 
 export async function up(query: QueryInterface) {
-    return query.bulkInsert(Solution.tableName, solutionData);
+  return query.bulkInsert(Solution.tableName, solutionData);
 }
 
 export async function down(query: QueryInterface) {
-    query.bulkDelete(Solution.tableName, null, {});
+  query.bulkDelete(Solution.tableName, null, {});
 }
