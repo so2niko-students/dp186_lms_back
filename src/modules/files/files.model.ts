@@ -9,7 +9,7 @@ export class File extends Model {
     public id: number;
     public commentId: number;
     public taskId: number;
-    public fileLink: string;
+    public fileContent: string;
     public fileNameExtension: string;
     public createdAt: Date;
     public updatedAt: Date;
@@ -31,13 +31,13 @@ export class File extends Model {
                     type: DataTypes.INTEGER(),
                     allowNull: false,
                 },
-                fileLink: {
+                fileContent: {
                     type: DataTypes.STRING(),
                     allowNull: false,
                 },
                 fileNameExtension: {
                     type: DataTypes.STRING(),
-                    allowNull: false,
+                    allowNull: true,
                 }
             },
             {
@@ -57,6 +57,7 @@ File.belongsTo(Comment, {
 
 Comment.hasMany(File, {
     foreignKey: 'commentId',
+    onDelete: 'cascade'
 });
 
 File.belongsTo(Tasks, {
@@ -66,4 +67,5 @@ File.belongsTo(Tasks, {
 
 Tasks.hasMany(File, {
     foreignKey: 'taskId',
+    onDelete: 'cascade'
 });

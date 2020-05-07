@@ -112,6 +112,12 @@ class StudentsService {
     return userForUpdate.save();
 
   }
+
+    public async findAllByGroupId(id: number, transaction?:Transaction): Promise<Students[]> {
+        const students = await Students.findAll({ where: { groupId:id }, transaction });
+
+        return students;
+    }
 }
 
 export const studentsService = new StudentsService();

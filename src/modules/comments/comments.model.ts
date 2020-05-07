@@ -8,7 +8,7 @@ import {Solution} from '../solutions/solutions.model';
 export class Comment extends Model {
     public static readonly tableName: string = 'comments';
 
-    public id!: number;
+    public id: number;
     public solutionId: number;
     public studentId: number;
     public teacherId: number;
@@ -59,6 +59,7 @@ Comment.belongsTo(Solution, {
 
 Solution.hasMany(Comment, {
     foreignKey: 'solutionId',
+    onDelete: 'cascade'
 });
 
 Comment.belongsTo(Students, {
@@ -68,6 +69,7 @@ Comment.belongsTo(Students, {
 
 Students.hasMany(Comment, {
     foreignKey: 'studentId',
+    onDelete: 'cascade'
 });
 
 Comment.belongsTo(Teachers, {
@@ -77,4 +79,5 @@ Comment.belongsTo(Teachers, {
 
 Teachers.hasMany(Comment, {
     foreignKey: 'teacherId',
+    onDelete: 'cascade'
 });
