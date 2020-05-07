@@ -8,8 +8,8 @@ export class File extends Model {
 
     public id: number;
     public commentId: number;
-    public taskId: number;
-    public fileContent: string;
+    public taskId?: number;
+    public fileLink: string;
     public fileNameExtension: string;
     public createdAt: Date;
     public updatedAt: Date;
@@ -29,9 +29,9 @@ export class File extends Model {
                 },
                 taskId: {
                     type: DataTypes.INTEGER(),
-                    allowNull: false,
+                    allowNull: true,
                 },
-                fileContent: {
+                fileLink: {
                     type: DataTypes.STRING(),
                     allowNull: false,
                 },

@@ -1,5 +1,5 @@
 import { Solution } from '../solutions/solutions.model';
-import { NotFound, BadRequest, Unauthorized, Forbidden } from '../../common/exeptions/';
+import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { CustomUser } from '../../common/types/types';
 import {tasksService} from '../tasks/tasks.service';
 import {groupsService} from '../groups/groups.service';
@@ -20,49 +20,40 @@ class SolutionsService {
     public async createSolutions(task: Tasks, user: CustomUser, transaction:Transaction): Promise<Solution[]> {
         const {groupId} = task;
         const solutionsList =[];
-        const { id } = user;
         const taskId = task.id;
 
-        if (!user.isMentor) {
-            throw new Unauthorized('You do not have permission for this');
-        }
-        // нахожу по id группу
-        const group = await groupsService.findOneOrThrow(groupId, user, transaction);
-
-        // проверяю, совпадает ли поль-ль с ментором группы
-        if (group.teacherId !== id) {
-            throw new Forbidden('You do not have rights to do this');
-        }
         const studentsInGroup = await studentsService.findAllByGroupId(groupId, transaction);
 
-        await Promise.all(studentsInGroup.map(async(el) => {
+        studentsInGroup.map((el) => {
             solutionsList.push ({
-                'studentId': el.id,
-                'taskId': taskId,
-                'isCompleted': 0,
-                'grade': 0
+                studentId: el.id,
+                taskId: taskId,
+                isCompleted: 0,
+                grade: 0
             })
-        }))
-        return await Solution.bulkCreate(solutionsList, {transaction});
+        });
+
+        return Solution.bulkCreate(solutionsList, {transaction});
     }
 
     public async updateOneOrThrow(id: number, data: Partial<ISolutionCreate>, user: CustomUser):Promise<Solution> {
         const { isCompleted, grade } = data;
 
+        // нахожу по id решение, проверяю можно ли его обновлять
+        const solution = await this.checkIsCompletedOrThrow(id);
+
+        //нахожу по id - таску
+        const task = await tasksService.findOneById(solution.taskId, user);
+
+        // нахожу по id группу
+        const group = await groupsService.findOneOrThrow(task.groupId, user);
+
+        // проверяю, совпадает ли поль-ль с ментором группы
+        if (group.teacherId !== user.id) {
+            throw new Forbidden('The only teacher can update solution');
+        }
+
         return sequelize.transaction(async (transaction: Transaction) => {
-            // нахожу по id решение, проверяю можно ли его обновлять
-            const solution = await this.checkIsCompletedOrThrow(id);
-
-            //нахожу по id - таску
-            const task = await tasksService.findOneById(solution.taskId, user, transaction);
-
-            // нахожу по id группу
-            const group = await groupsService.findOneOrThrow(task.groupId, user, transaction);
-
-            // проверяю, совпадает ли поль-ль с ментором группы
-            if (group.teacherId !== user.id) {
-                throw new Forbidden('The only teacher can update solution');
-            }
 
             // мержим объект
             Object.keys(data).forEach((k) => solution[k] = data[k]);
@@ -72,8 +63,7 @@ class SolutionsService {
             if (isCompleted) {
                 solution.isCompleted = isCompleted;
             }
-            await solution.save({transaction});
-            return solution;
+            return solution.save({transaction});
         })
     }
 
@@ -83,7 +73,7 @@ class SolutionsService {
 
         // проверяю, если решение подтвержено его нельзя изменять
         if (solution.isCompleted) {
-            throw new BadRequest(`Solution number = ${id} has been completed. You can not update it.`);
+            throw new BadRequest(`Solution with id = ${id} has been completed. You can not update it.`);
         }
         return solution;
     }
