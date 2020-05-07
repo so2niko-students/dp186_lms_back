@@ -105,22 +105,18 @@ class TeachersService {
       // give a teacher object props for goups and students quantity
       item.studentsCount = studentsCount;
       item.groupsCount = groupsCount;
-
-      return
     });
 
     return { data, actualPage, total, limit };
   }
 
   public async findOneByEmail(email: string) {
-    const teacher = await Teachers.findOne({
+    return await Teachers.findOne({
         where: { email },
         include: [{
             model: Avatars, as: 'avatar', attributes: ['avatarLink'],
         }],
-    });
-
-    return teacher;
+    }); 
   }
 
   public async findOneById(id: number, transaction?: Transaction) {
