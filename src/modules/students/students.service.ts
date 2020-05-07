@@ -6,9 +6,12 @@ import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
 import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { Avatars } from '../avatars/avatars.model';
-import { IUpdatePassword } from '../../common/interfaces/auth.interfaces';
 import { sequelize } from '../../database';
 import { Transaction } from 'sequelize';
+import { TokenService } from "../../common/crypto/TokenService";
+import { IUpdatePassword } from "../../common/interfaces/auth.interfaces";
+import { Teachers } from "../teachers/teachers.model";
+
 
 interface IStudentsData {
     email: string;
@@ -51,73 +54,103 @@ class StudentsService {
         const students = new Students(studentsData);
         students.password = hashFunc(students.password);
 
-        return await students.save();
+        return students.save();
     }
 
-  public async findOneByEmail(email: string): Promise<Students> {
-    const student = await Students.findOne({
-      where: { email },
-      include: [{
-        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-      }],
-  });
+    public async findOneByEmail(email: string): Promise<Students> {
+        const student = await Students.findOne({
+            where: {email},
+            include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+        });
+
         return student;
     }
 
-  public async findOneById(id: number, transaction?: Transaction): Promise<Students> {
-    const student = await Students.findOne({
-      where: { id },
-      include: [{
-          model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-      }],
-      attributes: {exclude: ['password']},
-      transaction,
-    });
+    public async findOneById(id: number, transaction?: Transaction): Promise<Students> {
+        const student = await Students.findOne({
+            where: {id},
+            include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+            attributes: {exclude: ['password']},
+            transaction,
+        });
 
-    return student;
+        return student;
     }
 
     public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Students> {
         const student = this.findOneById(id);
         if (!student) {
-          throw new BadRequest(`User with id ${id} not found`);
+            throw new BadRequest(`User with id ${id} not found`);
         }
         return student;
     }
 
-  public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
-      return sequelize.transaction(async (transaction) => {
-          if (id !== user.id) {
-              throw new Unauthorized('You cannot change another profile');
-          }
-          const student = await this.findOneByIdOrThrow(id, transaction);
-          const { avatar } = data;
-          if (avatar) {
-              const { img, format} = avatar;
-              await avatarService.setAvatarToUserOrThrow(img, format, student, transaction);
-          }
-          Object.keys(data).forEach((k) => student[k] = data[k]);
-          await student.save({transaction});
-          return this.findOneByIdOrThrow(id, transaction);
-      });
-  }
-
-   public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
-                               { email, password }: Students): Promise<Students> {
-    const userForUpdate: Students = await this.findOneByEmail(email);
-
-    if (!bcrypt.compareSync(oldPassword, password)) {
-        throw new Unauthorized('Wrong password');
+    public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
+        return sequelize.transaction(async (transaction) => {
+            if (id !== user.id) {
+                throw new Unauthorized('You cannot change another profile');
+            }
+            const student = await this.findOneByIdOrThrow(id, transaction);
+            const {avatar} = data;
+            if (avatar) {
+                const {img, format} = avatar;
+                await avatarService.setAvatarToUserOrThrow(img, format, student, transaction);
+            }
+            Object.keys(data).forEach((k) => student[k] = data[k]);
+            await student.save({transaction});
+            return this.findOneByIdOrThrow(id, transaction);
+        });
     }
 
-    userForUpdate.password = hashFunc(newPassword);
+    public async setForgotPasswordToken(email: string): Promise<string> {
+        //Generate and hash password token
+        const student = await this.findOneByEmail(email);
+        const token: string = new TokenService().generateResetToken();
+        student.resetPasswordExpire = Date.now() + (60 * 1000 * 360);
+        student.resetPasswordToken = token;
+        await student.save();
+        return token;
+    }
 
-    return userForUpdate.save();
-  }
+    public async updatePassword({oldPassword, newPassword}: IUpdatePassword,
+                                {email, password}: Students): Promise<Students> {
+        const userForUpdate: Students = await this.findOneByEmail(email);
 
+        if (!bcrypt.compareSync(oldPassword, password)) {
+            throw new Unauthorized('Wrong password');
+        }
+
+        userForUpdate.password = hashFunc(newPassword);
+        userForUpdate.resetPasswordExpire = Date.now();
+        userForUpdate.resetPasswordToken = null;
+
+        return userForUpdate.save();
+    }
+
+    public async findStudentByToken(token: string): Promise<Students> {
+        return Students.findOne({
+            where: {resetPasswordToken: token},
+        });
+    }
+
+    public async resetPassword(password: string, token: string): Promise<void> {
+        const user: Students = await this.findStudentByToken(token);
+        if (!user) {
+            throw new NotFound('User for your token does not exist')
+        }
+        user.password = hashFunc(password);
+        user.resetPasswordToken = null;
+        user.resetPasswordExpire = Date.now();
+
+        await user.save();
+    }
+  
     public async findAllByGroupId(groupId: number, transaction?:Transaction): Promise<Students[]> {
         return Students.findAll({ where: { groupId }, transaction });
-    }
 }
 
 export const studentsService = new StudentsService();
