@@ -6,6 +6,6 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-    return query.changeColumn(File.tableName, 'fileContent', 'fileLink');
+    return query.renameColumn(File.tableName, 'fileContent', 'fileLink');
 }
 

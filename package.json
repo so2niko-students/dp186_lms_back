@@ -17,8 +17,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/bluebird": "^3.5.30",
-    "@types/validator": "^13.0.0",
     "bcrypt": "latest",
     "body-parser": "^1.18.3",
     "cloudinary": "^1.21.0",
@@ -27,7 +25,6 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "is-base64": "^1.1.0",
-    "http-status-codes": "^1.4.0",
     "joi": "^14.3.1",
     "jsonwebtoken": "^8.5.1",
     "passport": "^0.4.1",
