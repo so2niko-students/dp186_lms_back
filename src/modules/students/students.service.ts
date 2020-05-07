@@ -28,7 +28,7 @@ interface IStudentsData {
 }
 
 class StudentsService {
-  public async createOne(studentsData: IStudentsData) {
+  public async createOne(studentsData: IStudentsData): Promise<Students> {
     const { email, groupToken } = studentsData;
 
     if (await teachersService.findOneByEmail(email)) {
@@ -53,36 +53,39 @@ class StudentsService {
     return await students.save();
   }
 
-  public async findOneByEmail(email: string) {
+  public async findOneByEmail(email: string): Promise<Students> {
     const student = await Students.findOne({
       where: { email },
       include: [{
         model: Avatars, as: 'avatar', attributes: ['avatarLink'],
       }],
-    });
+  });
 
     return student;
   }
 
-  public async findOneByIdOrThrow(id: number, transaction: Transaction) {
+  public async findOneById(id: number, transaction?: Transaction): Promise<Students> {
     const student = await Students.findOne({
       where: { id },
       include: [{
-        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+          model: Avatars, as: 'avatar', attributes: ['avatarLink'],
       }],
-      attributes: {
-          exclude: ['password'],
-      },
+      attributes: {exclude: ['password']},
       transaction,
     });
-    if (!student) {
-      throw new BadRequest(`User with id ${id} not found`);
-    }
+
     return student;
-  }
+    }
 
+    public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Students> {
+        const student = this.findOneById(id);
+        if (!student) {
+          throw new BadRequest(`User with id ${id} not found`);
+        }
+        return student;
+    }
 
-  public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students) {
+  public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
       return sequelize.transaction(async (transaction) => {
           if (id !== user.id) {
               throw new Unauthorized('You cannot change another profile');
@@ -100,7 +103,7 @@ class StudentsService {
   }
 
    public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
-                               { email, password }: Students) {
+                               { email, password }: Students): Promise<Students> {
     const userForUpdate: Students = await this.findOneByEmail(email);
 
     if (!bcrypt.compareSync(oldPassword, password)) {
