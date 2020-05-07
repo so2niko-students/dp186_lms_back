@@ -21,6 +21,7 @@ export class Teachers extends Model {
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
+          allowNull: false,
         },
         firstName: DataTypes.STRING(255),
         lastName: DataTypes.STRING(255),
