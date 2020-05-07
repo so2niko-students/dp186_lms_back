@@ -22,26 +22,24 @@ class TeachersService {
 
   public async createOne(teacherData: ITeachersData, user: CustomUser): Promise<Teachers> {
 
-    // superAdmin validation
+    return sequelize.transaction(async (transaction) => {
+      // superAdmin validation
     if (!user.isAdmin) {
       throw new Unauthorized(NO_PERMISSION_MSG);
     }
 
     // duplicate validation
-    if (await this.findOneByEmail(teacherData.email)) {
+    if (await this.findOneByEmail(teacherData.email, transaction)) {
       throw new BadRequest('User with provided email already exists');
     }
-
-    const { password } = teacherData;
-
-    teacherData.password = hashFunc(password);
-    teacherData.isAdmin = false;
     
-    const result: Teachers = await Teachers.create(teacherData); // what should i return ?
+    const result: Teachers = await Teachers.create(teacherData, { transaction: transaction });
 
     delete result.password
 
     return result
+    });
+    
   }
 
   public async deleteOneById(id: number, user: CustomUser): Promise<number> {
@@ -62,91 +60,46 @@ class TeachersService {
     });
   }
 
-  public async findAll(supposedPage: number = 1, limit: number = 10) : Promise<IPaginationOuterData<Teachers>>{
+  public async findAll(page: number = 1, limit: number = 10) : Promise<IPaginationOuterData<Teachers>>{
 
     const total: number = await Teachers.count(); // actual teachers count in db
-    const {offset, actualPage} = await paginationService.getOffset(supposedPage, limit, total);
+    const { offset, actualPage } = await paginationService.getOffset(page, limit, total);
+    page = actualPage;
     const data: Teachers[] = await Teachers.findAll({offset, limit});
 
-    // take necessary groups info out from db
-    const groupsData: Groups[] = await Groups.findAll({
-      attributes: ['id', 'teacherId'],
-    });
-
-    // take necessary students info out from db
-    const studentsData: Students[] = await Students.findAll({
-      attributes: ['id', 'groupId'],
-    }); 
-
-    // add in the data groupsCount field with the value
-    data.forEach(item => {
-      let groupsSet: Set<number> = new Set([]); // Set collection of unique group IDs
-
-      // fulfill Set collection of unique group IDs
-      groupsData.forEach(el => {
-        if (item.id === el.teacherId) {
-          groupsSet.add(el.id);
-        }
-      });
-
-      const groupsCount: number = groupsSet.size; // groups count
-
-      let studentsCount: number = 0; // define students counter
-
-      // iterate students counter if the id of group === student.groupId
-      groupsSet.forEach(groupId => {
-        studentsData.forEach(student => {
-          if (groupId === student.groupId) {
-            studentsCount++;
-          }
-        });
-      });
-
-      // give a teacher object props for goups and students quantity
-      item.studentsCount = studentsCount;
-      item.groupsCount = groupsCount;
-    });
-
-    return { data, actualPage, total, limit };
+    return { data, page, total, limit };
   }
 
-  public async findOneByEmail(email: string) {
+  public async findOneByEmail(email: string, transaction?: Transaction) {
     return await Teachers.findOne({
         where: { email },
         include: [{
             model: Avatars, as: 'avatar', attributes: ['avatarLink'],
         }],
-    }); 
+        transaction,
+    });
   }
 
   public async findOneById(id: number, transaction?: Transaction) {
-    const teacher = await Teachers.findOne({
+    return await Teachers.findOne({
       where: { id },
       include: [{
           model: Avatars, as: 'avatar', attributes: ['avatarLink'],
       }],
+      attributes: {exclude: ['password']},
       transaction,
     });
-
-    return teacher;
   }
 
   public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Teachers> {
-      const teacher = await Teachers.findOne({
-          where: {id},
-          include: [{
-              model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-          }],
-          attributes: {exclude: ['password']},
-          transaction,
-      });
+      const teacher = await this.findOneById(id, transaction);
       if (!teacher) {
           throw new NotFound(`Teacher with ${id} not found`);
       }
       return teacher;
   }
 
-    public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers) {
+    public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers): Promise<Teachers> {
         return sequelize.transaction(async (transaction: Transaction) => {
             if (id !== user.id && !user.isAdmin) {
                 throw new Unauthorized('You cannot change another profile');
@@ -166,7 +119,7 @@ class TeachersService {
       }
 
     public async updatePassword({oldPassword, newPassword}: IUpdatePassword,
-                                user: Teachers) {
+                                user: Teachers): Promise<Teachers> {
         const userForUpdate: Teachers = await this.findOneById(user.id);
 
         if (!bcrypt.compareSync(oldPassword, user.password)) {
@@ -179,7 +132,7 @@ class TeachersService {
     }
 
     public async updatePasswordBySuperAdmin(id: number,
-                                            {newPassword}: IUpdatePassword, user: Teachers) {
+                                            {newPassword}: IUpdatePassword, user: Teachers): Promise<Teachers> {
         if (!user.isAdmin) {
             throw new Unauthorized('You cannot change password for another teacher');
         }
