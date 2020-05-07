@@ -6,7 +6,7 @@ export async function up(query: QueryInterface) {
         type: DataTypes.INTEGER,
         allowNull: true,
         onUpdate: 'CASCADE',
-        onDelete: 'NULL',
+        onDelete: 'SET NULL',
     });
 }
 

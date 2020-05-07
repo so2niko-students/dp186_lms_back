@@ -2,13 +2,7 @@ import { cd } from '../../config/cloudinary.config';
 import { BadRequest } from '../../common/exeptions';
 import { File } from './files.model';
 import { Transaction } from 'sequelize';
-
-interface IFileCreate {
-    fileLink: string;
-    commentId: number;
-    taskId?: number;
-    fileNameExtension: string;
-}
+import {IFileCreate} from '../../common/interfaces/files.interfaces';
 
 const extensions = [
         {'zip': 'application/zip'},

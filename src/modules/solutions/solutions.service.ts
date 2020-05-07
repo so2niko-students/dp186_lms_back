@@ -7,13 +7,7 @@ import {studentsService} from '../students/students.service';
 import {Transaction} from 'sequelize';
 import {Tasks} from '../tasks/tasks.model';
 import {sequelize} from '../../database';
-
-export interface ISolutionCreate {
-    studentId: number;
-    taskId: number;
-    grade?: number;
-    isCompleted?: number;
-}
+import {ISolutionCreate} from '../../common/interfaces/solutions.interfaces';
 
 class SolutionsService {
 

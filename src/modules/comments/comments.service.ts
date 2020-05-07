@@ -8,15 +8,7 @@ import { tasksService } from '../tasks/tasks.service';
 import {ISolutionCreate, solutionsService} from '../solutions/solutions.service';
 import { ICreateGroup, groupsService } from '../groups/groups.service';
 import { Tasks } from '../tasks/tasks.model';
-
-interface ICommentCreate {
-    solutionId: number;
-    studentId?: number;
-    teacherId?: number;
-    text: string;
-    fileLink?: string;
-    fileNameExtension?:string
-}
+import {ICommentCreate} from '../../common/interfaces/comments.interfaces';
 
 class CommentsService {
 
