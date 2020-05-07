@@ -20,6 +20,15 @@ interface ICommentCreate {
 
 class CommentsService {
 
+    public async findAll(solutionId) {
+      return Comment.findAll({
+        where: { solutionId },
+        include: [
+          { model: File, as: 'comment', attributes: ['fileLink']}
+        ]
+      })
+    }
+
     public async createOne(commentData: ICommentCreate, user:CustomUser): Promise<Comment> {
 
         console.log('user = ', user);

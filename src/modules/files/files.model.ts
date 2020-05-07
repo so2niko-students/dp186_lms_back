@@ -52,12 +52,13 @@ File.prepareInit(sequelize);
 
 File.belongsTo(Comment, {
     foreignKey: 'commentId',
-    as: 'comment'
+    as: 'file'
 });
 
 Comment.hasMany(File, {
     foreignKey: 'commentId',
-    onDelete: 'cascade'
+    onDelete: 'cascade',
+    as: 'file'
 });
 
 File.belongsTo(Tasks, {
@@ -67,5 +68,6 @@ File.belongsTo(Tasks, {
 
 Tasks.hasMany(File, {
     foreignKey: 'taskId',
-    onDelete: 'cascade'
+    onDelete: 'cascade',
+    as: 'files'
 });

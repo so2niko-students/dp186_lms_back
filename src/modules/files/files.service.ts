@@ -22,6 +22,10 @@ const extensions = [
 
 class FilesService {
 
+    // public async findOneById(fileId): Promise<File> {
+    //   return await File.findOne({ where: { id: fileId }});
+    // }
+
     public async createOne({fileContent, fileNameExtension, commentId, taskId}:IFileCreate, transaction: Transaction): Promise<File> {
         try {
 

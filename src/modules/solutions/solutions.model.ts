@@ -51,12 +51,15 @@ export class Solution extends Model {
 Solution.prepareInit(sequelize);
 
 Solution.belongsTo(Tasks, {
+    targetKey: 'id',
     foreignKey: 'taskId',
-    as: 'task'
+    as: 'tasks'
 });
 
 Tasks.hasMany(Solution, {
+    sourceKey: 'id',
     foreignKey: 'taskId',
+    as: 'solutions',
     onDelete: 'cascade'
 });
 
@@ -68,5 +71,5 @@ Solution.belongsTo(Students, {
 Students.hasOne(Solution, {
     foreignKey: 'studentId',
     onDelete: 'cascade',
-    as: 'student'
+    as: 'solution'
 });

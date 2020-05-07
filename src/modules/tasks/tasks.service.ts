@@ -4,6 +4,11 @@ import { CustomUser } from '../../common/types/types';
 import {NotFound, Forbidden} from '../../common/exeptions/';
 import { sequelize } from '../../database';
 import {Solution} from '../solutions/solutions.model';
+import {Students} from '../students/students.model';
+import {Teachers} from '../teachers/teachers.model';
+import {Avatars} from '../avatars/avatars.model';
+import {File} from '../files/files.model';
+import {Comment} from '../comments/comments.model';
 import {solutionsService} from '../solutions/solutions.service';
 import {Transaction} from 'sequelize';
 
@@ -23,12 +28,50 @@ class TasksService {
 
             return tasks;
         }
-
+        // return Task.findAll({ 
+        //   include: [{ 
+        //     model: Solution, as: 'solution', include: [{
+        //       model: 
+        //     }] 
+        //   }] 
+        // });
         return Task.findAll();
     }
 
     public async findOneById(id: number, user: CustomUser, transaction?: Transaction) {
-        const task: Task = await Task.findOne({ where: { id }, transaction });
+        // const task: Task = await Task.findOne({ where: { id }, transaction });
+
+        // const task: Task = await Task.findOne({  // ITS FOR TEACHER
+        //   where: { id }, include: [{ 
+        //     model: Solution, as: 'solutions', include: [{
+        //       model: Students, as: 'student', attributes: ['firstNameEng', 'lastNameEng'], include: [{
+        //         model: Avatars, as: 'avatar', attributes: ['avatarLink']
+        //       }]
+        //     }]
+        //   }],
+        //   transaction 
+        // });
+
+        const task: Task = await Task.findOne({  // ITS FOR TEACHER
+          where: { id }, 
+          include: [{
+            model: File, as: 'files', attributes: ['fileLink'], 
+          }, { 
+            model: Solution, as: 'solutions', where: {studentId: user.id}, include: [{
+              model: Comment, as: 'comments', attributes: ['text', 'updatedAt'], include: [{
+                model: Students, as: 'student', attributes: ['firstNameEng', 'lastNameEng'], include: [{
+                  model: Avatars, as: 'avatar', attributes: ['avatarLink']
+                }]
+              }, {
+                model: Teachers, as: 'teacher' , attributes: ['firstName', 'lastName'], include: [{
+                  model: Avatars, as: 'avatar', attributes: ['avatarLink']
+                }]
+              }]
+            }]
+          }],
+          transaction 
+        });
+
         if (!task) {
             throw new NotFound(`Can't find task with id ${id}`);
         }
