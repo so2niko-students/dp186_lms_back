@@ -20,45 +20,46 @@ const NO_PERMISSION_MSG = 'You do not have permission for this';
 
 class TeachersService {
 
-  public async createOne(teacherData: ITeachersData, user: CustomUser): Promise<Teachers> {
+    public async createOne(teacherData: ITeachersData, user: CustomUser): Promise<Teachers> {
 
-    return sequelize.transaction(async (transaction) => {
-      // superAdmin validation
-    if (!user.isAdmin) {
-      throw new Unauthorized(NO_PERMISSION_MSG);
+        return sequelize.transaction(async (transaction) => {
+            // superAdmin validation
+            if (!user.isAdmin) {
+                throw new Unauthorized(NO_PERMISSION_MSG);
+            }
+
+            // duplicate validation
+            if (await this.findOneByEmail(teacherData.email, transaction)) {
+                throw new BadRequest('User with provided email already exists');
+            }
+
+            const result: Teachers = await Teachers.create(teacherData, {transaction: transaction});
+
+            delete result.password;
+
+            return result
+        });
+
     }
 
-    // duplicate validation
-    if (await this.findOneByEmail(teacherData.email, transaction)) {
-      throw new BadRequest('User with provided email already exists');
+    public async deleteOneById(id: number, user: CustomUser): Promise<number> {
+
+        // superAdmin validation
+        if (!user.isAdmin) {
+            throw new Unauthorized(NO_PERMISSION_MSG);
+        }
+
+        return sequelize.transaction(async (transaction) => {
+            const teacher = await Teachers.findOne({where: {id}, transaction});
+            if (!teacher) {
+                throw new NotFound(`Can't find the teacher with id ${id}`);
+            }
+
+            await Teachers.destroy({where: {id}, transaction});
+            return id;
+        });
     }
 
-    const result: Teachers = await Teachers.create(teacherData, { transaction: transaction });
-
-    delete result.password
-
-    return result
-    });
-
-  }
-
-  public async deleteOneById(id: number, user: CustomUser): Promise<number> {
-
-    // superAdmin validation
-    if (!user.isAdmin) {
-      throw new Unauthorized(NO_PERMISSION_MSG);
-    }
-
-    return sequelize.transaction(async (transaction) => {
-      const teacher = await Teachers.findOne({ where: { id }, transaction });
-      if (!teacher) {
-        throw new NotFound(`Can't find the teacher with id ${id}`);
-      }
-
-      await Teachers.destroy({ where: { id }, transaction });
-      return id;
-    });
-  }
     public async setForgotPasswordToken(email: string): Promise<string> {
         const teacher = await this.findOneByEmail(email);
         const token: string = new TokenService().generateResetToken();
@@ -68,14 +69,15 @@ class TeachersService {
         return token;
     }
 
-    public findTeacherByToken(token:string):Promise<Teachers>{
+    public findTeacherByToken(token: string): Promise<Teachers> {
         return Teachers.findOne({
             where: {resetPasswordToken: token},
         });
     }
-    public async resetPassword(password:string, token: string): Promise<void> {
+
+    public async resetPassword(password: string, token: string): Promise<void> {
         const user = await this.findTeacherByToken(token);
-        if(!user){
+        if (!user) {
             throw new NotFound('User for your token does not exist')
         }
         user.password = hashFunc(password);
@@ -86,44 +88,43 @@ class TeachersService {
     }
 
 
-  public async findAll(page: number = 1, limit: number = 10) : Promise<IPaginationOuterData<Teachers>>{
+    public async findAll(page: number = 1, limit: number = 10): Promise<IPaginationOuterData<Teachers>> {
+        const total: number = await Teachers.count(); // actual teachers count in db
+        const {offset, actualPage} = await paginationService.getOffset(page, limit, total);
+        page = actualPage;
+        const data: Teachers[] = await Teachers.findAll({offset, limit});
 
-    const total: number = await Teachers.count(); // actual teachers count in db
-    const { offset, actualPage } = await paginationService.getOffset(page, limit, total);
-    page = actualPage;
-    const data: Teachers[] = await Teachers.findAll({offset, limit});
+        return {data, page, total, limit};
+    }
 
-    return { data, page, total, limit };
-  }
+    public async findOneByEmail(email: string, transaction?: Transaction) {
+        return Teachers.findOne({
+            where: {email},
+            include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+            transaction,
+        });
+    }
 
-  public async findOneByEmail(email: string, transaction?: Transaction) {
-    return await Teachers.findOne({
-        where: { email },
-        include: [{
-            model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-        }],
-        transaction,
-    });
-  }
+    public async findOneById(id: number, transaction?: Transaction) {
+        return Teachers.findOne({
+            where: {id},
+            include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+            attributes: {exclude: ['password']},
+            transaction,
+        });
+    }
 
-  public async findOneById(id: number, transaction?: Transaction) {
-    return await Teachers.findOne({
-      where: { id },
-      include: [{
-          model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-      }],
-      attributes: {exclude: ['password']},
-      transaction,
-    });
-  }
-
-  public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Teachers> {
-      const teacher = await this.findOneById(id, transaction);
-      if (!teacher) {
-          throw new NotFound(`Teacher with ${id} not found`);
-      }
-      return teacher;
-  }
+    public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Teachers> {
+        const teacher = await this.findOneById(id, transaction);
+        if (!teacher) {
+            throw new NotFound(`Teacher with ${id} not found`);
+        }
+        return teacher;
+    }
 
     public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers): Promise<Teachers> {
         return sequelize.transaction(async (transaction: Transaction) => {
@@ -134,12 +135,12 @@ class TeachersService {
             if (user.isAdmin && !teacher) {
                 throw new NotFound(`There is no teacher with id ${id}`);
             }
-            const { avatar } = data;
+            const {avatar} = data;
             if (avatar) {
                 const {img, format} = avatar;
                 await avatarService.setAvatarToUserOrThrow(img, format, teacher, transaction);
             }
-            await Teachers.update(data, { where: { id }, transaction });
+            await Teachers.update(data, {where: {id}, transaction});
             return this.findOneByIdOrThrow(id, transaction);
         });
     }

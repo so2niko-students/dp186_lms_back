@@ -56,54 +56,54 @@ class StudentsService {
         return students.save();
     }
 
-  public async findOneByEmail(email: string): Promise<Students> {
-    const student = await Students.findOne({
-      where: { email },
-      include: [{
-        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-      }],
-  });
+    public async findOneByEmail(email: string): Promise<Students> {
+        const student = await Students.findOne({
+            where: {email},
+            include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+        });
 
-    return student;
-  }
+        return student;
+    }
 
-  public async findOneById(id: number, transaction?: Transaction): Promise<Students> {
-    const student = await Students.findOne({
-      where: { id },
-      include: [{
-          model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-      }],
-      attributes: {exclude: ['password']},
-      transaction,
-    });
+    public async findOneById(id: number, transaction?: Transaction): Promise<Students> {
+        const student = await Students.findOne({
+            where: {id},
+            include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+            attributes: {exclude: ['password']},
+            transaction,
+        });
 
-    return student;
+        return student;
     }
 
     public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Students> {
         const student = this.findOneById(id);
         if (!student) {
-          throw new BadRequest(`User with id ${id} not found`);
+            throw new BadRequest(`User with id ${id} not found`);
         }
         return student;
     }
 
-  public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
-      return sequelize.transaction(async (transaction) => {
-          if (id !== user.id) {
-              throw new Unauthorized('You cannot change another profile');
-          }
-          const student = await this.findOneByIdOrThrow(id, transaction);
-          const { avatar } = data;
-          if (avatar) {
-              const { img, format} = avatar;
-              await avatarService.setAvatarToUserOrThrow(img, format, student, transaction);
-          }
-          Object.keys(data).forEach((k) => student[k] = data[k]);
-          await student.save({transaction});
-          return this.findOneByIdOrThrow(id, transaction);
-      });
-  }
+    public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
+        return sequelize.transaction(async (transaction) => {
+            if (id !== user.id) {
+                throw new Unauthorized('You cannot change another profile');
+            }
+            const student = await this.findOneByIdOrThrow(id, transaction);
+            const {avatar} = data;
+            if (avatar) {
+                const {img, format} = avatar;
+                await avatarService.setAvatarToUserOrThrow(img, format, student, transaction);
+            }
+            Object.keys(data).forEach((k) => student[k] = data[k]);
+            await student.save({transaction});
+            return this.findOneByIdOrThrow(id, transaction);
+        });
+    }
 
     public async setForgotPasswordToken(email: string): Promise<string> {
         //Generate and hash password token
@@ -116,11 +116,8 @@ class StudentsService {
     }
 
     public async updatePassword({oldPassword, newPassword}: IUpdatePassword,
-                                {email, password}: Students) {
+                                {email, password}: Students): Promise<Students> {
         const userForUpdate: Students = await this.findOneByEmail(email);
-   public async updatePassword({ oldPassword, newPassword }: IUpdatePassword,
-                               { email, password }: Students): Promise<Students> {
-    const userForUpdate: Students = await this.findOneByEmail(email);
 
         if (!bcrypt.compareSync(oldPassword, password)) {
             throw new Unauthorized('Wrong password');
@@ -141,7 +138,9 @@ class StudentsService {
 
     public async resetPassword(password: string, token: string): Promise<void> {
         const user: Students = await this.findStudentByToken(token);
-        if(!user){throw new NotFound('User for your token does not exist')}
+        if (!user) {
+            throw new NotFound('User for your token does not exist')
+        }
         user.password = hashFunc(password);
         user.resetPasswordToken = null;
         user.resetPasswordExpire = Date.now();
