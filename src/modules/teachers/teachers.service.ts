@@ -84,6 +84,7 @@ class TeachersService {
       include: [{
           model: Avatars, as: 'avatar', attributes: ['avatarLink'],
       }],
+      attributes: {exclude: ['password']},
       transaction,
     });
   }
@@ -96,7 +97,7 @@ class TeachersService {
       return teacher;
   }
 
-    public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers) {
+    public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers): Promise<Teachers> {
         return sequelize.transaction(async (transaction: Transaction) => {
             if (id !== user.id && !user.isAdmin) {
                 throw new Unauthorized('You cannot change another profile');
@@ -116,7 +117,7 @@ class TeachersService {
     }
 
     public async updatePassword({oldPassword, newPassword}: IUpdatePassword,
-                                user: Teachers) {
+                                user: Teachers): Promise<Teachers> {
         const userForUpdate: Teachers = await this.findOneById(user.id);
 
         if (!bcrypt.compareSync(oldPassword, user.password)) {
@@ -129,7 +130,7 @@ class TeachersService {
     }
 
     public async updatePasswordBySuperAdmin(id: number,
-                                            {newPassword}: IUpdatePassword, user: Teachers) {
+                                            {newPassword}: IUpdatePassword, user: Teachers): Promise<Teachers> {
         if (!user.isAdmin) {
             throw new Unauthorized('You cannot change password for another teacher');
         }
