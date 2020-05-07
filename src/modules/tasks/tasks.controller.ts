@@ -12,7 +12,8 @@ class TasksController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const tasks: Task[] = await tasksService.findAll(req.user);
+      // const tasks: Task[] = await tasksService.findAll(req.user);
+      const tasks = await tasksService.findAll(req.user);
       res.json(tasks);
     } catch (e) {
       next(e);
