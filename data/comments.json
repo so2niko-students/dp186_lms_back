@@ -10,11 +10,5 @@
     "studentId": null,
     "teacherId": 1,
     "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
-  },
-  {
-    "solutionId": 1,
-    "studentId": 3,
-    "teacherId": null,
-    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
   }
 ]
