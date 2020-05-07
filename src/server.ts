@@ -26,7 +26,7 @@ app.use('/groups', authJwt, groupsRoutes);
 app.use('/solutions', authJwt, solutionsRoutes);
 app.use('/comments', authJwt, commentsRoutes);
 app.use('/students', studentsRoutes);
-app.use('/teachers', authJwt, teachersRoutes);
+app.use('/teachers', teachersRoutes);
 app.use('/tasks', authJwt, tasksRoutes);
 
 // authorization
