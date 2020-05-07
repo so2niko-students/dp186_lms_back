@@ -2,17 +2,14 @@ import { IPaginationInnerData } from '../../common/interfaces/pagination.interfa
   
 class PaginationService {
 
-  public async getOffset(supposedPage: number = 1, limit: number = 10, total: number): Promise<IPaginationInnerData> {
+  public async getOffset(page: number = 1, limit: number = 10, total: number): Promise<IPaginationInnerData> {
 
-    let offset: number = (supposedPage - 1) * limit // default offset by pages number
-    let actualPage = supposedPage;
-
-    if(total <= offset) { // when you click 'next' and it should return page №1
+    let offset: number = (page - 1) * limit // default offset by pages number
+    let actualPage = page;
+    
+    if(total <= offset || page < 1) { // when you click 'next' and it should return page №1
       offset = 0;
       actualPage = 1; 
-    } else if(supposedPage === 0) {
-      actualPage = Math.ceil(total / limit);
-      offset = (actualPage - 1) * limit; // when you click 'prev' and it should return the last page
     }
 
     return { offset, actualPage };

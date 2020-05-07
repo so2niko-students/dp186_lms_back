@@ -58,13 +58,14 @@ class TeachersService {
     });
   }
 
-  public async findAll(supposedPage: number = 1, limit: number = 10) : Promise<IPaginationOuterData<Teachers>>{
+  public async findAll(page: number = 1, limit: number = 10) : Promise<IPaginationOuterData<Teachers>>{
 
     const total: number = await Teachers.count(); // actual teachers count in db
-    const {offset, actualPage} = await paginationService.getOffset(supposedPage, limit, total);
+    const { offset, actualPage } = await paginationService.getOffset(page, limit, total);
+    page = actualPage;
     const data: Teachers[] = await Teachers.findAll({offset, limit});
 
-    return { data, actualPage, total, limit };
+    return { data, page, total, limit };
   }
 
   public async findOneByEmail(email: string, transaction?: Transaction) {
