@@ -7,10 +7,10 @@ import {Solution} from '../solutions/solutions.model';
 import {solutionsService} from '../solutions/solutions.service';
 import {Transaction} from 'sequelize';
 
-export interface ITasks {
-    groupId: number;
-    taskName: string;
-    fileURL: string;
+interface ITasks {
+  groupId: number;
+  taskName: string;
+  description: string | null;
 }
 
 const NO_RIGHTS = 'You do not have rights to do this.';
