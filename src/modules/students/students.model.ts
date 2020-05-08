@@ -64,6 +64,6 @@ Students.belongsTo(Groups, {
 
 Groups.hasMany(Students, {
     foreignKey: 'groupId',
-    as: 'group',
+    as: 'students',
 });
 
