@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 
-export const CreateStudentsDto = Joi.object().keys({
+export const createStudentsDto = Joi.object().keys({
   firstNameUkr: Joi.string().min(1).required(),
   lastNameUkr: Joi.string().min(1).required(),
   firstNameEng: Joi.string().min(1).required(),
@@ -12,4 +12,15 @@ export const CreateStudentsDto = Joi.object().keys({
   groupToken: Joi.string().min(1).required(),
 });
 
-export const DeleteStudentsDto = Joi.array().items(Joi.number().integer());
+export const updateStudentsDto = Joi.object().keys({
+  firstNameUkr: Joi.string().min(1),
+  lastNameUkr: Joi.string().min(1),
+  firstNameEng: Joi.string().min(1),
+  lastNameEng: Joi.string().min(1),
+  email: Joi.string().email(),
+  phoneNumber: Joi.number().integer(),
+  avatar: Joi.object().keys({
+    img: Joi.string().base64({paddingRequired: true}).required(),
+    format: Joi.string().required(),
+  }),
+})

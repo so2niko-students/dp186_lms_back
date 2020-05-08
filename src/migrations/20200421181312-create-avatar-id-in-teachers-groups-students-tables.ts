@@ -1,10 +1,13 @@
 import { QueryInterface, DataTypes } from 'sequelize';
 import { Avatars } from '../modules/avatars/avatars.model';
+import { Teachers } from '../modules/teachers/teachers.model'
+import { Students } from '../modules/students/students.model'
+import { Groups } from '../modules/groups/groups.model'
 
 export async function up(query: QueryInterface) {
     return query.sequelize.transaction( t => {
       return Promise.all([
-        query.addColumn('teachers', 'avatarId', {
+        query.addColumn(Teachers.tableName, 'avatarId', {
           type: DataTypes.INTEGER,
           allowNull: true,
           references:{
@@ -12,9 +15,9 @@ export async function up(query: QueryInterface) {
             key: 'id',
           },
           onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+          onDelete: 'SET NULL',
         }, { transaction: t }),
-        query.addColumn('groups', 'avatarId', {
+        query.addColumn(Groups.tableName, 'avatarId', {
           type: DataTypes.INTEGER,
           allowNull: true,
           references:{
@@ -22,9 +25,9 @@ export async function up(query: QueryInterface) {
             key: 'id',
           },
           onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+          onDelete: 'SET NULL',
         }, { transaction: t }),
-        query.addColumn('students', 'avatarId', {
+        query.addColumn(Students.tableName, 'avatarId', {
           type: DataTypes.INTEGER,
           allowNull: true,
           references:{
@@ -32,7 +35,7 @@ export async function up(query: QueryInterface) {
             key: 'id',
           },
           onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+          onDelete: 'SET NULL',
         }, { transaction: t })
       ]);
     });

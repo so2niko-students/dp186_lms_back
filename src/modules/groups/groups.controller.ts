@@ -4,7 +4,6 @@ import { groupsService } from './groups.service';
 import {AuthRequest} from '../../common/types/types';
 import {validateIdOrThrow} from '../../common/validators/';
 
-
 class GroupsController {
     public async createOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -27,7 +26,7 @@ class GroupsController {
     public async updateOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             validateIdOrThrow(+req.params.id);
-            const group: Group = await groupsService.updateOne(+req.params.id, req.body, req.user);
+            const group: Group = await groupsService.updateOneOrThrow(+req.params.id, req.body, req.user);
             res.send(group);
         } catch (e) {
             next(e);
@@ -44,7 +43,9 @@ class GroupsController {
     }
     public async findMany(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
-            const groups: Group[] = await groupsService.findMany(req.user);
+            const { mentorId } = req.query;
+            validateIdOrThrow(+mentorId);
+            const groups: Group[] = await groupsService.findMany(+mentorId, req.user);
             res.send(groups);
         } catch (e) {
             next(e);

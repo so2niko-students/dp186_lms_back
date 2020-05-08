@@ -5,10 +5,10 @@ import { Groups } from '../groups/groups.model';
 export class Tasks extends Model {
   public static readonly tableName: string = 'tasks';
 
-  public id!: number;
+  public id: number;
   public groupId: number;
   public taskName: string;
-  public fileURL: string;
+  public description!: string;
   public createdAt: Date;
   public updatedAt: Date;
 
@@ -18,12 +18,13 @@ export class Tasks extends Model {
         id: {
           type: DataTypes.INTEGER,
           primaryKey: true,
-          defaultValue: DataTypes.INTEGER,
+          autoIncrement: true,
+          allowNull: false,
           comment: 'Id of the instance',
         },
         groupId: DataTypes.INTEGER,
         taskName: DataTypes.STRING(255),
-        fileURL: DataTypes.STRING(255),
+        description: DataTypes.TEXT,
       },
       {
         sequelize,
@@ -41,4 +42,7 @@ Groups.hasMany(Tasks, {
   as: 'tasks'
 });
 
-Tasks.belongsTo(Groups, {targetKey: 'id'});
+Tasks.belongsTo(Groups, {
+  foreignKey: 'groupId',
+  as: 'tasks'
+});

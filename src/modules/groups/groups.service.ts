@@ -3,13 +3,29 @@ import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
 import {CustomUser} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
+import {avatarService} from '../avatars/avatars.service';
+import {Avatars} from '../avatars/avatars.model';
+import {Transaction} from 'sequelize';
+import {sequelize} from '../../database';
 
 const NO_RIGHTS = 'You do not have rights to do this.';
+const NO_TIGHTS_TO_UPDATE = 'Only teacher or super admin can update group.';
+
+interface ICreateGroup {
+    groupName?: string;
+    groupToken?: string;
+    teacherId?: number;
+    avatar?: {
+        img: string;
+        format: string;
+    };
+}
+
 
 class GroupsService {
     public async createOne({ groupName, teacherId }, user: CustomUser) {
-        const mentor = await this.mentorVerification(user);
-        if (teacherId && !mentor.isAdmin) {
+        this.checkIsMentorOrThrow(user);
+        if (teacherId && !user.isAdmin) {
             throw new Forbidden(NO_RIGHTS);
         }
         const group = await Groups.findOne( { where: {groupName}} );
@@ -26,11 +42,17 @@ class GroupsService {
         }
         return Groups.create({groupName,  groupToken, teacherId: user.id});
     }
-    public async findOneOrThrow(id: number, user: CustomUser) {
+    public async findOneOrThrow(id: number, user: CustomUser, transaction ?: Transaction) {
         if (user.groupId !== id && !user.isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
-        const group = Groups.findOne({ where: {id} } );
+        const group = Groups.findOne({
+            include: [{
+               model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+            where: {id},
+            transaction,
+        });
         if (!group) {
             throw new NotFound(`Group with ${id} not found.`);
         }
@@ -43,45 +65,76 @@ class GroupsService {
         }
         return group;
     }
-    public async updateOne(id: number, data: Groups, user: CustomUser) {
-        const mentor = await this.mentorVerification(user);
-        const group = await this.findOneOrThrow(id, user);
-        if (group.teacherId !== mentor.id && !mentor.isAdmin) {
-            throw new Forbidden(NO_RIGHTS);
-        }
-        if (data.teacherId && !mentor.isAdmin) {
-            throw new Forbidden(NO_RIGHTS);
-        }
-        Object.keys(data).forEach((k) => group[k] = data[k]);
-        group.save();
-        return group;
+    public async updateOneOrThrow(id: number, data: Partial<ICreateGroup>, user: CustomUser) {
+        return sequelize.transaction(async (transaction: Transaction) => {
+            this.checkIsMentorOrThrow(user);
+            const group = await this.findOneOrThrow(id, user, transaction);
+            if (group.teacherId !== user.id && !user.isAdmin) {
+                throw new Forbidden(NO_TIGHTS_TO_UPDATE);
+            }
+            if (data.teacherId && !user.isAdmin) {
+                throw new Forbidden(NO_TIGHTS_TO_UPDATE);
+            }
+            const { avatar } = data;
+            if (avatar) {
+                const { img, format } = avatar;
+                await avatarService.setAvatarToGroupOrThrow(img, format, group, transaction);
+            }
+            Object.keys(data).forEach((k) => group[k] = data[k]);
+            await group.save({transaction});
+            return this.findOneOrThrow(id, user, transaction);
+        });
     }
     public async deleteOne(id: number, user: CustomUser) {
-        const mentor = await this.mentorVerification(user);
-        const group = await this.findOneOrThrow(id, user);
-        if (group.teacherId !== mentor.id && !mentor.isAdmin) {
-            throw new Forbidden(NO_RIGHTS);
-        }
-        group.destroy();
-        return group;
+        return sequelize.transaction(async (transaction: Transaction) => {
+            this.checkIsMentorOrThrow(user);
+            const group = await this.findOneOrThrow(id, user, transaction);
+            if (group.teacherId !== user.id && !user.isAdmin) {
+                throw new Forbidden(NO_RIGHTS);
+            }
+            group.destroy({transaction});
+            return group;
+        });
     }
-    public async findMany(user: CustomUser) {
+    public async findMany(mentorId: number, user: CustomUser) {
         if (!user.isMentor) {
             return Groups.findAll({ where: {id: user.groupId} });
         }
-        return Groups.findAll();
+        if (mentorId) {
+            return Groups.findAll({
+              where: {teacherId: mentorId},
+              include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+              }],
+            });
+        }
+        return Groups.findAll({
+            include: [{
+                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+            }],
+        });
+    }
+    // method to count groups in UI
+    public async findAllByMentorId(mentorId: number, user: CustomUser) {
+        if (!user.isMentor) {
+            throw new Forbidden(NO_RIGHTS);
+        }
+        const groups = await Groups.findAll({
+            where: { teacherId: mentorId },
+            attributes: ['id'],
+        });
+        return {groups, count: groups.length};
     }
     private async createGroupToken(name: string): Promise<string> {
         const salt = genSaltSync(5, 'b');
         const hash = hashSync(name, salt);
         return hash.replace(/\//g, 'slash');
     }
-    private async mentorVerification(user: CustomUser) {
+    private checkIsMentorOrThrow(user: CustomUser): void {
         const { isMentor } = user;
         if (!isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
-        return user;
     }
 }
 

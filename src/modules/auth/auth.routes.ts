@@ -1,19 +1,29 @@
-import { LoginDto } from './auth.dtos';
+import { loginDto, updatePasswordDto } from './auth.dtos';
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
-import { createValidator } from '../../common/middlewares/create.validation';
+import { createValidator } from '../../common/middlewares/create-validator';
+import { authJwt } from '../../common/middlewares/auth.middleware';
+import asyncHandler from "../../common/async.handler";
 
 export class AuthRoute {
 
-    router: Router;
-    public authController: AuthController = new AuthController()
+    public router: Router;
+    public authController: AuthController = new AuthController();
 
     constructor() {
         this.router = Router();
         this.route();
     }
 
-    route() {
-        this.router.post('/login', createValidator(LoginDto), this.authController.login);
+    public route() {
+        this.router.post('/login', createValidator(loginDto), this.authController.login);
+        this.router.put('/change-password/student', authJwt, createValidator(updatePasswordDto),
+            this.authController.updateStudentPassword);
+        this.router.put('/change-password/teacher', authJwt, createValidator(updatePasswordDto),
+            this.authController.updateTeacherPassword);
+        this.router.put('/change-password/teacher/:id/', authJwt, createValidator(updatePasswordDto),
+            this.authController.updateTeacherPasswordBySuperAdmin);
+        this.router.post('/forgotPassword', asyncHandler(this.authController.forgotPassword));
+        this.router.put('/resetPassword/:token', asyncHandler(this.authController.resetPassword));
     }
 }

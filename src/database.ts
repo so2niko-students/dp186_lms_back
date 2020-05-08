@@ -9,12 +9,12 @@ export const sequelize: Sequelize = new Sequelize(process.env.DB_NAME,
     port: +process.env.DB_PORT,
     // @ts-ignore
     dialect: process.env.DB_DIALECT,
-    dialectOptions:{
+    dialectOptions: {
         supportBigNumbers: true,
     },
 });
 
 sequelize
     .authenticate()
-    .then(() => console.log('Connection to DataBase is successfully set.'))
+    .then(() => console.log('Connection to DataBase is successfully set on port ' + process.env.DB_PORT))
     .catch(err => console.log(err));
