@@ -135,7 +135,6 @@ class TeachersService {
                 throw new BadRequest('User with provided email already exists');
             }
 
-            if (data.email && await studentsService.findOneByEmail(data.email)) {
                 throw new BadRequest('User with provided email already exists');
             }
 
