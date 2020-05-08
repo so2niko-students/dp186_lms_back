@@ -82,6 +82,10 @@ class StudentsService {
         return student;
     }
 
+    public async findAllByGroupId(groupId: number) {
+        return Students.findAll( { where: {groupId}} );
+    }
+
     public async findOneByIdOrThrow(id: number, transaction?: Transaction): Promise<Students> {
         const student = this.findOneById(id);
         if (!student) {
