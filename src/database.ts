@@ -16,5 +16,5 @@ export const sequelize: Sequelize = new Sequelize(process.env.DB_NAME,
 
 sequelize
     .authenticate()
-    .then(() => console.log('Connection to DataBase is successfully set.'))
+    .then(() => console.log('Connection to DataBase is successfully set on port ' + process.env.DB_PORT))
     .catch(err => console.log(err));
