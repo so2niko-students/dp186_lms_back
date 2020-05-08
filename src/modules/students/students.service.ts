@@ -154,22 +154,19 @@ class StudentsService {
         await user.save();
     }
 
-    public async deleteStudent(id: number, user: CustomUser): Promise<number> {
+    public async deleteStudent(id: number, user: CustomUser): Promise<void> {
       
       if (!user.isMentor) {
         throw new Forbidden(NO_RIGHTS);
       }
-      return sequelize.transaction(async (transaction) => {
+      return sequelize.transaction(async (transaction: Transaction) => {
         const student = await this.findOneById(id, transaction);
         if(!student){
           throw new BadRequest(`User with ${id} is not found`)
         }
-        await Students.destroy({where: { id }, transaction});
-        return id;
+        student.destroy();
       })
-
   }
-
 }
 
 export const studentsService = new StudentsService();

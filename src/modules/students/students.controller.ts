@@ -18,12 +18,11 @@ class StudentsController {
   public async deleteStudents( req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       validateIdOrThrow(+req.params.id);
-      const student = await studentsService.deleteStudent(
+      await studentsService.deleteStudent(
           +req.params.id,
           req.user
       );
-      console.log(student);
-      res.json(student)
+      res.send(201)
     } catch(e){
       next(e)
     }}
