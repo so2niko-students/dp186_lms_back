@@ -7,7 +7,7 @@ import { sequelize } from '../../database';
 interface ITasks {
   groupId: number;
   taskName: string;
-  fileURL: string;
+  description: string | null;
 }
 
 const NO_RIGHTS = 'You do not have rights to do this.';
