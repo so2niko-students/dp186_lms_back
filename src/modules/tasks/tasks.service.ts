@@ -11,6 +11,7 @@ import {File} from '../files/files.model';
 import {Comment} from '../comments/comments.model';
 import {solutionsService} from '../solutions/solutions.service';
 import {Transaction} from 'sequelize';
+// import { request } from 'http';
 
 export interface ITasks {
     groupId: number;
@@ -22,12 +23,33 @@ export interface ITasks {
 const NO_RIGHTS = 'You do not have rights to do this.';
 
 class TasksService {
-    public async findAll(user: CustomUser): Promise<Task[]> {
-        if (!user.isMentor) {
-            const tasks: Task[] = await Task.findAll({ where: {groupId: user.groupId} });
-
-            return tasks;
-        }
+    public async additionalInfo(tasks, transaction?) {
+      await tasks.forEach(async task => {
+        const isReady = await Solution.count({
+          where: {
+            taskId: task.id,
+            isCompleted: 1,
+            // grade: !null
+          }, transaction
+        })
+        task.isReady = isReady;
+        // task.setDataValue('isReady', isReady)
+        // Object.assign(task, {isReady})
+        // console.log(task)
+      })
+    }
+    // public async findAll(user: CustomUser): Promise<Task[]> {
+    public async findAll(user: CustomUser) {
+        // if (!user.isMentor) {
+        //     const tasks = await Task.findAll({ where: {groupId: user.groupId} });
+        //     this.additionalInfo(tasks)
+        //     return tasks;
+        // }
+        // return sequelize.transaction(async (transaction) => {
+          const tasks = await Task.findAll();
+          this.additionalInfo(tasks)
+          return tasks;
+        // });
         // return Task.findAll({ 
         //   include: [{ 
         //     model: Solution, as: 'solution', include: [{
@@ -35,42 +57,49 @@ class TasksService {
         //     }] 
         //   }] 
         // });
-        return Task.findAll();
+        // return Task.findAll();
     }
 
     public async findOneById(id: number, user: CustomUser, transaction?: Transaction) {
         // const task: Task = await Task.findOne({ where: { id }, transaction });
+        let fullRequest;
 
-        // const task: Task = await Task.findOne({  // ITS FOR TEACHER
-        //   where: { id }, include: [{ 
-        //     model: Solution, as: 'solutions', include: [{
-        //       model: Students, as: 'student', attributes: ['firstNameEng', 'lastNameEng'], include: [{
-        //         model: Avatars, as: 'avatar', attributes: ['avatarLink']
-        //       }]
-        //     }]
-        //   }],
-        //   transaction 
-        // });
+        if (!user.isMentor) {
+          fullRequest = {  // ITS FOR STUDENT
+            where: { id }, 
+            include: [{
+              model: File, as: 'files', attributes: ['fileLink'], 
+            }, { 
+              model: Solution, as: 'solutions', where: {studentId: user.id}, include: [{
+                model: Comment, as: 'comments', attributes: ['text', 'updatedAt'], include: [{
+                  model: Students, as: 'student', attributes: ['firstNameEng', 'lastNameEng'], include: [{
+                    model: Avatars, as: 'avatar', attributes: ['avatarLink']
+                  }]
+                }, {
+                  model: Teachers, as: 'teacher' , attributes: ['firstName', 'lastName'], include: [{
+                    model: Avatars, as: 'avatar', attributes: ['avatarLink']
+                  }]
+                }]
+              }]
+            }],
+            transaction 
+          }
+        } 
 
-        const task: Task = await Task.findOne({  // ITS FOR TEACHER
-          where: { id }, 
-          include: [{
-            model: File, as: 'files', attributes: ['fileLink'], 
-          }, { 
-            model: Solution, as: 'solutions', where: {studentId: user.id}, include: [{
-              model: Comment, as: 'comments', attributes: ['text', 'updatedAt'], include: [{
+        if (user.isMentor && !user.isAdmin){
+          fullRequest = {  // ITS FOR TEACHER
+            where: { id }, include: [{ 
+              model: Solution, as: 'solutions', include: [{
                 model: Students, as: 'student', attributes: ['firstNameEng', 'lastNameEng'], include: [{
                   model: Avatars, as: 'avatar', attributes: ['avatarLink']
                 }]
-              }, {
-                model: Teachers, as: 'teacher' , attributes: ['firstName', 'lastName'], include: [{
-                  model: Avatars, as: 'avatar', attributes: ['avatarLink']
-                }]
               }]
-            }]
-          }],
-          transaction 
-        });
+            }],
+            transaction 
+          };
+        }
+
+        const task: Task = await Task.findOne(fullRequest);
 
         if (!task) {
             throw new NotFound(`Can't find task with id ${id}`);
