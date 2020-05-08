@@ -125,34 +125,36 @@ class TeachersService {
       const total: number = await Teachers.count(); // actual teachers count in db
       const { offset, actualPage } = await paginationService.getOffset(page, limit, total);
       page = actualPage;
-      let data: Teachers[] = await Teachers.findAll({offset, limit});
+      let teachers: Teachers[] = await Teachers.findAll({offset, limit});
     
-      const groupsData: Groups[] = await groupsService.findAllByMentorsIdsArray(data.map(e => e.id)) // take necessary groups info out from db
+      const groupsData: Groups[] = await groupsService.findAllByMentorsIdsArray(teachers.map(e => e.id)) // take necessary groups info out from db
       let totalGroupsIdsSet = new Set([]); // Set collection of unique group IDs for all teachers
-      data = this.addGroupsCount(data, groupsData, totalGroupsIdsSet); // add in the data studentsCount field with the value
+      teachers = this.addGroupsCount(teachers, groupsData, totalGroupsIdsSet); // add in the data studentsCount field with the value
     
       const totalGroupsIdsArr = [];
       totalGroupsIdsSet.forEach(e => totalGroupsIdsArr.push(e));
     
       const studentsData: Students[] = await studentsService.findAllByGroupsIdsArray(totalGroupsIdsArr) // take necessary students info out from db
-      data = this.addStudentsCount(data, groupsData, studentsData); // add in the data studentsCount field with the value
+      teachers = this.addStudentsCount(teachers, groupsData, studentsData); // add in the data studentsCount field with the value
     
+      const data = teachers;
+
       return { data, page, total, limit };
     }
   
-    public addGroupsCount(data: Teachers[], groupsData: Groups[], totalGroupsIdsSet: Set<number>): Teachers[] {
+    private addGroupsCount(data: Teachers[], groupsData: Groups[], totalGroupsIdsSet: Set<number>): Teachers[] {
       data.forEach(item => {
-        let groupsSet: Set<number> = new Set([]); // Set collection of unique group IDs
+        let groups: number[] = []; // array of group IDs
       
         // fulfill Set collection of unique group IDs
         groupsData.forEach(group => {
           if (item.id === group.teacherId) {
-            groupsSet.add(group.id);
+            groups.push(group.id);
             totalGroupsIdsSet.add(group.id);
           }
         });
       
-        const groupsCount: number = groupsSet.size; // groups count
+        const groupsCount: number = groups.length; // groups count
         // give a teacher object prop for students quantity
         item.groupsCount = groupsCount;
       });
@@ -160,26 +162,15 @@ class TeachersService {
       return data
     }
   
-    public addStudentsCount(data: Teachers[], groupsData: Groups[], studentsData: Students[]): Teachers[] {
+    private addStudentsCount(data: Teachers[], groupsData: Groups[], studentsData: Students[]): Teachers[] {
       data.forEach(item => {
-        let groupsSet: Set<number> = new Set([]); // Set collection of unique group IDs
-      
-        // fulfill Set collection of unique group IDs
-        groupsData.forEach(group => {
-          if (item.id === group.teacherId) {
-            groupsSet.add(group.id);
-          }
-        });
+        let groups: number[] = groupsData.filter(group => item.id === group.teacherId).map(group => group.id);
       
         let studentsCount: number = 0; // define students counter
       
         // iterate students counter if the id of group === student.groupId
-        groupsSet.forEach(groupId => {
-          studentsData.forEach(student => {
-            if (groupId === student.groupId) {
-              studentsCount++;
-            }
-          });
+        groups.forEach(groupId => {
+          studentsCount += studentsData.filter(student => groupId === student.groupId).length;
         });
       
         // give a teacher object prop for students quantity
