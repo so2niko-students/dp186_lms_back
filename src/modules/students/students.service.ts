@@ -31,9 +31,9 @@ interface IStudentsData {
 }
 
 class StudentsService {
-  
-  public async createOne(studentsData: IStudentsData): Promise<Students> {
-    const { email, groupToken } = studentsData;
+
+    public async createOne(studentsData: IStudentsData): Promise<Students> {
+        const {email, groupToken} = studentsData;
 
         if (await teachersService.findOneByEmail(email)) {
             throw new BadRequest('User with provided email already exists');
@@ -148,9 +148,9 @@ class StudentsService {
 
         await user.save();
     }
-  
-    public async findAllByGroupId(groupId: number, transaction?:Transaction): Promise<Students[]> {
-        return Students.findAll({ where: { groupId }, transaction });
-}
 
+    public async findAllByGroupId(groupId: number, transaction?: Transaction): Promise<Students[]> {
+        return Students.findAll({where: {groupId}, transaction});
+    }
+}
 export const studentsService = new StudentsService();

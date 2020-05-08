@@ -2,25 +2,40 @@ import { cd } from '../../config/cloudinary.config';
 import { BadRequest } from '../../common/exeptions';
 import { File } from './files.model';
 import { Transaction } from 'sequelize';
-import {IFileCreate} from '../../common/interfaces/files.interfaces';
 
-const extensions = [
-        {'zip': 'application/zip'},
-        {'txt': 'text/plain'},
-        {'doc': 'application/msword'},
-        {'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'},
-        {'pdf': 'application/pdf'},
-        {'rtf': 'application/rtf'},
-        {'odt': 'application/vnd.oasis.opendocument.text'}
-    ];
+interface IFileCreate {
+    fileLink: string;
+    commentId: number;
+    taskId?: number;
+    fileNameExtension: string;
+}
+
+// const extensions = [
+//         {'zip': 'application/zip'},
+//         {'txt': 'text/plain'},
+//         {'doc': 'application/msword'},
+//         {'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'},
+//         {'pdf': 'application/pdf'},
+//         {'rtf': 'application/rtf'},
+//         {'odt': 'application/vnd.oasis.opendocument.text'}
+//     ];
+
+const extensions = {
+    'zip': 'application/zip',
+    'txt': 'text/plain',
+    'doc': 'application/msword',
+    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'pdf': 'application/pdf',
+    'rtf': 'application/rtf',
+    'odt': 'application/vnd.oasis.opendocument.text'
+}
 
 class FilesService {
 
     // fileNameExtension (from front) = zip...
     public async createOne({fileLink, fileNameExtension, commentId, taskId}:IFileCreate, transaction: Transaction): Promise<File> {
         try {
-
-            const ext: {}|undefined = extensions.find(obj => Object.keys(obj).includes(fileNameExtension));
+            const ext: {}|undefined = Object.keys(extensions).includes(fileNameExtension);
 
             if (!ext) {
                 throw new BadRequest(`Extension of upload file is not correct`);

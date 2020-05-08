@@ -7,7 +7,13 @@ import {studentsService} from '../students/students.service';
 import {Transaction} from 'sequelize';
 import {Tasks} from '../tasks/tasks.model';
 import {sequelize} from '../../database';
-import {ISolutionCreate} from '../../common/interfaces/solutions.interfaces';
+
+export interface ISolutionCreate {
+    studentId: number;
+    taskId: number;
+    grade?: number;
+    isCompleted?: number;
+}
 
 class SolutionsService {
 
@@ -33,21 +39,21 @@ class SolutionsService {
     public async updateOneOrThrow(id: number, data: Partial<ISolutionCreate>, user: CustomUser):Promise<Solution> {
         const { isCompleted, grade } = data;
 
-        // нахожу по id решение, проверяю можно ли его обновлять
-        const solution = await this.checkIsCompletedOrThrow(id);
-
-        //нахожу по id - таску
-        const task = await tasksService.findOneById(solution.taskId, user);
-
-        // нахожу по id группу
-        const group = await groupsService.findOneOrThrow(task.groupId, user);
-
-        // проверяю, совпадает ли поль-ль с ментором группы
-        if (group.teacherId !== user.id) {
-            throw new Forbidden('The only teacher can update solution');
-        }
-
         return sequelize.transaction(async (transaction: Transaction) => {
+
+            // нахожу по id решение, проверяю можно ли его обновлять
+            const solution = await this.checkIsCompletedOrThrow(id);
+
+            //нахожу по id - таску
+            const task = await tasksService.findOneById(solution.taskId, user, transaction);
+
+            // нахожу по id группу
+            const group = await groupsService.findOneOrThrow(task.groupId, user, transaction);
+
+            // проверяю, совпадает ли поль-ль с ментором группы
+            if (group.teacherId !== user.id) {
+                throw new Forbidden('The only teacher can update solution');
+            }
 
             // мержим объект
             Object.keys(data).forEach((k) => solution[k] = data[k]);
