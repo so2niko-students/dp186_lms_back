@@ -56,5 +56,5 @@ Groups.belongsTo(Teachers, {
 
 Teachers.hasMany(Groups, {
   foreignKey: 'teacherId',
-  as: 'teacher',
+  as: 'groups',
 });

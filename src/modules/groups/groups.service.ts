@@ -1,7 +1,7 @@
 import { Groups } from './groups.model';
 import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
-import {CustomGroup, CustomUser} from '../../common/types/types';
+import {GroupWithStudents, CustomUser} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
 import {avatarService} from '../avatars/avatars.service';
 import {Avatars} from '../avatars/avatars.model';
@@ -9,6 +9,7 @@ import {Transaction} from 'sequelize';
 import {sequelize} from '../../database';
 import {Teachers} from '../teachers/teachers.model';
 import {studentsService} from '../students/students.service';
+import {Students} from '../students/students.model';
 
 const NO_RIGHTS = 'You do not have rights to do this.';
 const NO_TIGHTS_TO_UPDATE = 'Only teacher or super admin can update group.';
@@ -48,13 +49,17 @@ class GroupsService {
         if (user.groupId !== id && !user.isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
-        const group: CustomGroup = await Groups.findOne({
+        const group: GroupWithStudents = await Groups.findOne({
             include: [
                 {
                     model: Avatars, as: 'avatar', attributes: ['avatarLink'],
                 },
                 {
                     model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                    include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                },
+                {
+                    model: Students, as: 'students',
                     include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
                 },
             ],
@@ -64,8 +69,6 @@ class GroupsService {
         if (!group) {
             throw new NotFound(`Group with ${id} not found.`);
         }
-        const students = await studentsService.findAllByGroupId(id);
-        group.setDataValue('students', students)
         return group;
     }
     public async findByTokenOrThrow(groupToken: string) {

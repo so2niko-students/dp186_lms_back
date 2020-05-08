@@ -19,11 +19,12 @@ class AuthService {
 
         const token: string = jwt.sign({id: user.id, email: user.email}, auth.secretKey);
 
+        user.password = null;
+
         return {
             token,
             expires: auth.expiresIn,
-            user: await studentsService.findOneById(user.id) ||
-            await teachersService.findOneById(user.id),
+            user,
         };
 
     }
