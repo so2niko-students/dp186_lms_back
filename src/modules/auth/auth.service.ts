@@ -19,7 +19,7 @@ class AuthService {
 
         const token: string = jwt.sign({id: user.id, email: user.email}, auth.secretKey);
 
-        user.password = null;
+        user.password = undefined;
 
         return {
             token,
