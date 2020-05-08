@@ -94,6 +94,14 @@ class StudentsService {
 
     public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
         return sequelize.transaction(async (transaction) => {
+
+            if (data.email) {
+                if (await this.findOneByEmail(data.email) ||
+                    teachersService.findOneByEmail(data.email)) {
+                        throw new BadRequest('User with provided email already exists');
+                }
+            }
+
             if (id !== user.id) {
                 throw new Unauthorized('You cannot change another profile');
             }

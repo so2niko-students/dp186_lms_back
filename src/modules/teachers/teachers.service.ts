@@ -14,6 +14,7 @@ import { ITeachersData } from '../../common/interfaces/teachers.interfaces';
 import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces';
 import { TokenService } from "../../common/crypto/TokenService";
 import { studentsService } from '../students/students.service';
+import { Students } from '../students/students.model';
 
 
 const NO_PERMISSION_MSG = 'You do not have permission for this';
@@ -131,16 +132,17 @@ class TeachersService {
         Promise<Teachers> {
         return sequelize.transaction(async (transaction: Transaction) => {
 
-            if (data.email && await this.findOneByEmail(data.email)) {
-                throw new BadRequest('User with provided email already exists');
-            }
-
-                throw new BadRequest('User with provided email already exists');
+            if (data.email) {
+                if (await this.findOneByEmail(data.email) ||
+                    studentsService.findOneByEmail(data.email)) {
+                        throw new BadRequest('User with provided email already exists');
+                }
             }
 
             if (id !== user.id && !user.isAdmin) {
                 throw new Unauthorized('You cannot change another profile');
             }
+
             const teacher: Teachers = await this.findOneByIdOrThrow(id, transaction);
             if (user.isAdmin && !teacher) {
                 throw new NotFound(`There is no teacher with id ${id}`);
