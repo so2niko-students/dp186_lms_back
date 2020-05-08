@@ -131,11 +131,11 @@ class TeachersService {
         Promise<Teachers> {
         return sequelize.transaction(async (transaction: Transaction) => {
 
-            if (await this.findOneByEmail(user.email)) {
+            if (data.email && await this.findOneByEmail(data.email)) {
                 throw new BadRequest('User with provided email already exists');
             }
 
-            if (await studentsService.findOneByEmail(user.email)) {
+            if (data.email && await studentsService.findOneByEmail(data.email)) {
                 throw new BadRequest('User with provided email already exists');
             }
 
