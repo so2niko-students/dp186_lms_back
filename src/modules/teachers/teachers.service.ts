@@ -113,29 +113,29 @@ class TeachersService {
     }
 
     public async findAll(page: number = 1, limit: number = 10) : Promise<IPaginationOuterData<Teachers>>{
-    
+
       const total: number = await Teachers.count(); // actual teachers count in db
       const { offset, actualPage } = await paginationService.getOffset(page, limit, total);
       page = actualPage;
       let data: Teachers[] = await Teachers.findAll({offset, limit});
-    
+
       const groupsData: Groups[] = await groupsService.findAllByMentorsIdsArray(data.map(e => e.id)) // take necessary groups info out from db
       let totalGroupsIdsSet = new Set([]); // Set collection of unique group IDs for all teachers
       data = this.addGroupsCount(data, groupsData, totalGroupsIdsSet); // add in the data studentsCount field with the value
-    
+
       const totalGroupsIdsArr = [];
       totalGroupsIdsSet.forEach(e => totalGroupsIdsArr.push(e));
-    
+
       const studentsData: Students[] = await studentsService.findAllByGroupsIdsArray(totalGroupsIdsArr) // take necessary students info out from db
       data = this.addStudentsCount(data, groupsData, studentsData); // add in the data studentsCount field with the value
-    
+
       return { data, page, total, limit };
     }
-  
+
     public addGroupsCount(data: Teachers[], groupsData: Groups[], totalGroupsIdsSet: Set<number>): Teachers[] {
       data.forEach(item => {
         let groupsSet: Set<number> = new Set([]); // Set collection of unique group IDs
-      
+
         // fulfill Set collection of unique group IDs
         groupsData.forEach(group => {
           if (item.id === group.teacherId) {
@@ -143,28 +143,28 @@ class TeachersService {
             totalGroupsIdsSet.add(group.id);
           }
         });
-      
+
         const groupsCount: number = groupsSet.size; // groups count
         // give a teacher object prop for students quantity
         item.groupsCount = groupsCount;
       });
-    
+
       return data
     }
-  
+
     public addStudentsCount(data: Teachers[], groupsData: Groups[], studentsData: Students[]): Teachers[] {
       data.forEach(item => {
         let groupsSet: Set<number> = new Set([]); // Set collection of unique group IDs
-      
+
         // fulfill Set collection of unique group IDs
         groupsData.forEach(group => {
           if (item.id === group.teacherId) {
             groupsSet.add(group.id);
           }
         });
-      
+
         let studentsCount: number = 0; // define students counter
-      
+
         // iterate students counter if the id of group === student.groupId
         groupsSet.forEach(groupId => {
           studentsData.forEach(student => {
@@ -173,11 +173,11 @@ class TeachersService {
             }
           });
         });
-      
+
         // give a teacher object prop for students quantity
         item.studentsCount = studentsCount;
       });
-    
+
       return data
     }
 
@@ -186,7 +186,7 @@ class TeachersService {
             if (id !== user.id && !user.isAdmin) {
                 throw new Unauthorized('You cannot change another profile');
             }
-            const teacher: Teachers = await this.findOneByIdOrThrow(id, transaction);
+            const teacher: Teachers = await this.findOneById(id, transaction);
             if (user.isAdmin && !teacher) {
                 throw new NotFound(`There is no teacher with id ${id}`);
             }
@@ -196,7 +196,7 @@ class TeachersService {
                 await avatarService.setAvatarToUserOrThrow(img, format, teacher, transaction);
             }
             await Teachers.update(data, {where: {id}, transaction});
-            return this.findOneByIdOrThrow(id, transaction);
+            return this.findOneById(id, transaction);
         });
       }
 
