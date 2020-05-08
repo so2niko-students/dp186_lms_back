@@ -136,6 +136,16 @@ class GroupsService {
             throw new Forbidden(NO_RIGHTS);
         }
     }
+
+    // method that front needs to get groups by teachers IDs
+    public async findAllByMentorsIdsArray(teachersIds: number[]): Promise<Groups[]> {
+      return await Groups.findAll({
+        where: {
+          teacherId: teachersIds,
+        },
+        attributes: ['id', 'teacherId'],
+      });
+    }
 }
 
 export const groupsService = new GroupsService();

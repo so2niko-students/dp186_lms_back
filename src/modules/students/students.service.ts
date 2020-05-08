@@ -115,6 +115,16 @@ class StudentsService {
     return userForUpdate.save();
 
   }
+
+  // method that front needs to get students by teachers IDs
+  public async findAllByGroupsIdsArray(groupsIds: number[]): Promise<Students[]> {
+    return await Students.findAll({
+      where: {
+        groupId: groupsIds,
+      },
+      attributes: ['id', 'groupId'],
+    });
+  }
 }
 
 export const studentsService = new StudentsService();
