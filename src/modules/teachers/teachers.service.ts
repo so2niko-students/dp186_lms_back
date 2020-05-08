@@ -13,6 +13,7 @@ import { paginationService } from '../pagination/pagination.service';
 import { ITeachersData } from '../../common/interfaces/teachers.interfaces';
 import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces';
 import { TokenService } from "../../common/crypto/TokenService";
+import { studentsService } from '../students/students.service';
 
 
 const NO_PERMISSION_MSG = 'You do not have permission for this';
@@ -126,8 +127,18 @@ class TeachersService {
         return teacher;
     }
 
-    public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers): Promise<Teachers> {
+    public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers):
+        Promise<Teachers> {
         return sequelize.transaction(async (transaction: Transaction) => {
+
+            if (await this.findOneByEmail(user.email)) {
+                throw new BadRequest('User with provided email already exists');
+            }
+
+            if (await studentsService.findOneByEmail(user.email)) {
+                throw new BadRequest('User with provided email already exists');
+            }
+
             if (id !== user.id && !user.isAdmin) {
                 throw new Unauthorized('You cannot change another profile');
             }
