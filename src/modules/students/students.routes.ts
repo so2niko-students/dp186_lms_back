@@ -6,6 +6,6 @@ import { authJwt } from '../../common/middlewares/auth.middleware';
 
 export const router: Router = Router();
 
-router.post('/', createValidator(CreateStudentsDto), studentsController.createOne);
-router.delete('/delete', authJwt, createValidator(DeleteStudentsDto), studentsController.deleteStudents);
+router.post('/', createValidator(createStudentsDto), studentsController.createOne);
+router.delete('/:id', authJwt, studentsController.deleteStudents);
 router.put('/:id', authJwt, createValidator(updateStudentsDto), studentsController.updateOne);

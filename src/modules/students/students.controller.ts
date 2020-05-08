@@ -15,15 +15,15 @@ class StudentsController {
     }
   }
 
-  public async deleteStudents( req: AuthRequest, res: Response, next: NextFunction) {
+  public async deleteStudents( req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const student = await studentsService.deleteStudents(
-          req.body,
+      validateIdOrThrow(+req.params.id);
+      const student = await studentsService.deleteStudent(
+          +req.params.id,
           req.user
       );
-      if(student){
-        res.status(201)
-      }
+      console.log(student);
+      res.json(student)
     } catch(e){
       next(e)
     }}

@@ -10,8 +10,10 @@ import { sequelize } from '../../database';
 import { Transaction } from 'sequelize';
 import { TokenService } from "../../common/crypto/TokenService";
 import { IUpdatePassword } from "../../common/interfaces/auth.interfaces";
+import { CustomUser } from '../../common/types/types';
 import { Teachers } from "../teachers/teachers.model";
 
+const NO_RIGHTS = 'You do not have rights to do this.';
 
 interface IStudentsData {
     email: string;
@@ -148,17 +150,22 @@ class StudentsService {
         await user.save();
     }
 
-    public async deleteStudents(users, user: CustomUser ) {
+    public async deleteStudent(id: number, user: CustomUser): Promise<number> {
+      
       if (!user.isMentor) {
-          throw new Forbidden(NO_RIGHTS);
+        throw new Forbidden(NO_RIGHTS);
       }
+      return sequelize.transaction(async (transaction) => {
+        const student = await this.findOneById(id, transaction);
+        if(!student){
+          throw new BadRequest(`User with ${id} is not found`)
+        }
+        await Students.destroy({where: { id }, transaction});
+        return id;
+      })
 
-      const res = await Students.destroy({where: {
-        id: users
-      }});
-
-      return res;
   }
+
 }
 
 export const studentsService = new StudentsService();
