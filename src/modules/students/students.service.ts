@@ -97,7 +97,7 @@ class StudentsService {
 
             if (data.email) {
                 if (await this.findOneByEmail(data.email) ||
-                    teachersService.findOneByEmail(data.email)) {
+                    await teachersService.findOneByEmail(data.email)) {
                         throw new BadRequest('User with provided email already exists');
                 }
             }
