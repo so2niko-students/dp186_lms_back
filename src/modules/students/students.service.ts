@@ -33,8 +33,9 @@ interface IStudentsData {
 }
 
 class StudentsService {
-  public async createOne(studentsData: IStudentsData): Promise<Students> {
-    const { email, groupToken } = studentsData;
+
+    public async createOne(studentsData: IStudentsData): Promise<Students> {
+        const {email, groupToken} = studentsData;
 
         if (await teachersService.findOneByEmail(email)) {
             throw new BadRequest('User with provided email already exists');
@@ -96,6 +97,14 @@ class StudentsService {
 
     public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
         return sequelize.transaction(async (transaction) => {
+
+            if (data.email) {
+                if (await this.findOneByEmail(data.email) ||
+                    await teachersService.findOneByEmail(data.email)) {
+                        throw new BadRequest('User with provided email already exists');
+                }
+            }
+
             if (id !== user.id) {
                 throw new Unauthorized('You cannot change another profile');
             }
@@ -154,7 +163,7 @@ class StudentsService {
         await user.save();
     }
 
-    public async deleteStudent(id: number, user: CustomUser): Promise<void> {
+  public async deleteStudent(id: number, user: CustomUser): Promise<void> {
       
       if (!user.isMentor) {
         throw new Forbidden(NO_RIGHTS);
@@ -168,5 +177,8 @@ class StudentsService {
       })
   }
 }
-
+    public async (groupId: number, transaction?: Transaction): Promise<Students[]> {
+        return Students.findAll({where: {groupId}, transaction});
+    }
+}
 export const studentsService = new StudentsService();

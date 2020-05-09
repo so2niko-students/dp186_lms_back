@@ -14,7 +14,7 @@ import {Students} from '../students/students.model';
 const NO_RIGHTS = 'You do not have rights to do this.';
 const NO_TIGHTS_TO_UPDATE = 'Only teacher or super admin can update group.';
 
-interface ICreateGroup {
+export interface ICreateGroup {
     groupName?: string;
     groupToken?: string;
     teacherId?: number;
@@ -23,7 +23,6 @@ interface ICreateGroup {
         format: string;
     };
 }
-
 
 class GroupsService {
     public async createOne({ groupName, teacherId }, user: CustomUser) {
@@ -45,7 +44,7 @@ class GroupsService {
         }
         return Groups.create({groupName,  groupToken, teacherId: user.id});
     }
-    public async findOneOrThrow(id: number, user: CustomUser, transaction ?: Transaction) {
+    public async findOneOrThrow(id: number, user: CustomUser, transaction?: Transaction) {
         if (user.groupId !== id && !user.isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
