@@ -150,7 +150,7 @@ class StudentsService {
         await user.save();
     }
 
-    public async deleteStudent(id: number, user: CustomUser): Promise<void> {
+  public async deleteStudent(id: number, user: CustomUser): Promise<void> {
       
       if (!user.isMentor) {
         throw new Forbidden(NO_RIGHTS);
