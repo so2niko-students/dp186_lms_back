@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../../common/types/types';
 import { tasksService } from './tasks.service';
 import { validateIdOrThrow } from '../../common/validators';
+import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces'
 
 import { Tasks as Task } from './tasks.model';
 
@@ -12,7 +13,7 @@ class TasksController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const tasks: Task[] = await tasksService.findAll(req.user);
+      const tasks: IPaginationOuterData<Task> = await tasksService.findAll(req.user, req.query);
       res.json(tasks);
     } catch (e) {
       next(e);

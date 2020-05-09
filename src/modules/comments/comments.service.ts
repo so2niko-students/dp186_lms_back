@@ -8,6 +8,7 @@ import { tasksService } from '../tasks/tasks.service';
 import {ISolutionCreate, solutionsService} from '../solutions/solutions.service';
 import { ICreateGroup, groupsService } from '../groups/groups.service';
 import { Tasks } from '../tasks/tasks.model';
+import { Transaction } from 'sequelize/types';
 
 interface ICommentCreate {
     solutionId: number;
@@ -56,6 +57,10 @@ class CommentsService {
 
             return comment;
         })
+    }
+
+    public async findOneBySolutionId(solutionId: number, transaction?: Transaction): Promise<Comment> {
+      return await Comment.findOne({ where: { solutionId }, transaction })
     }
 }
 export const commentsService = new CommentsService();

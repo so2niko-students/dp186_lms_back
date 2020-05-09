@@ -1,11 +1,17 @@
 import { Tasks as Task } from './tasks.model';
-import { groupsService } from '../groups/groups.service';
+import { Solution } from '../solutions/solutions.model';
+import { Comment } from '../comments/comments.model';
 import { CustomUser } from '../../common/types/types';
-import {NotFound, Forbidden} from '../../common/exeptions/';
+import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces'
+
+import { NotFound, Forbidden, BadRequest } from '../../common/exeptions/';
 import { sequelize } from '../../database';
-import {Solution} from '../solutions/solutions.model';
-import {solutionsService} from '../solutions/solutions.service';
-import {Transaction} from 'sequelize';
+import { Transaction } from 'sequelize';
+
+import { groupsService } from '../groups/groups.service';
+import { paginationService } from "../pagination/pagination.service";
+import { solutionsService } from '../solutions/solutions.service';
+import { commentsService } from '../comments/comments.service';
 
 interface ITasks {
   groupId: number;
@@ -16,43 +22,104 @@ interface ITasks {
 const NO_RIGHTS = 'You do not have rights to do this.';
 
 class TasksService {
-    public async findAll(user: CustomUser): Promise<Task[]> {
-        if (!user.isMentor) {
-            const tasks: Task[] = await Task.findAll({ where: {groupId: user.groupId} });
+    public async findAll(user: CustomUser, query): Promise<IPaginationOuterData<Task>>  {
+      const page: number = parseInt(query.page) || 1;
+      const limit: number = parseInt(query.limit) || 10;
+      const groupId: number = parseInt(query.groupId);
 
-            return tasks;
+      // Checking if STUDENT have rights for this request
+      if (!user.isMentor && user.groupId !== groupId) {
+        throw new Forbidden(NO_RIGHTS);
+      }
+
+      return sequelize.transaction(async (transaction) => {
+        const group = await groupsService.findOneOrThrow(groupId, user, transaction);
+        if (!group) {
+          throw new BadRequest(`There is no group with id ${groupId}`);
         }
 
-        return Task.findAll();
+        // Checking if TEACHER have rights for this request
+        if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
+          throw new Forbidden(NO_RIGHTS);
+        }
+        
+        // Getting pagination information for DB-request
+        const total: number = await Task.count({ where: { groupId }, transaction}); 
+        const {offset, actualPage} = await paginationService.getOffset(page, limit, total);
+
+        // Forming paginated array of tasks with 
+        // additional information (amount of checked and ready for check tasks)
+        const tasks: Task[] = await Task.findAll({ limit, offset, where: { groupId }, transaction }); 
+        if (!tasks.length) {
+          throw new NotFound(`There is no tasks for group with groupId ${groupId}`);
+        } 
+        for (const task of tasks) { 
+          await this.addTaskAdditionalInfo(task, transaction);
+        }
+
+        return {
+          data: tasks, 
+            page: actualPage,
+            total,
+            limit
+        };
+      })
     }
 
+
     public async findOneById(id: number, user: CustomUser, transaction?: Transaction) {
-        const task: Task = await Task.findOne({ where: { id }, transaction });
-        if (!task) {
-            throw new NotFound(`Can't find task with id ${id}`);
-        }
+      const task: Task = await Task.findOne({ where: { id }, transaction });
+      if (!task) {
+          throw new NotFound(`Can't find task with id ${id}`);
+      }
 
-        if (!user.isMentor && user.groupId !== task.groupId) {
-            throw new Forbidden(NO_RIGHTS);
-        }
+      if (!user.isMentor && user.groupId !== task.groupId) {
+          throw new Forbidden(NO_RIGHTS);
+      }
 
-        return task;
+      return task;
+    }
+
+    private async addTaskAdditionalInfo(task, transaction?: Transaction): Promise<void> {
+      const amountOfChecked: number = await solutionsService.countChecked(task.id, transaction);
+      const solutions: Solution[] = await solutionsService.findByTaskId(task.id, transaction);
+      const solutionIds: number[] = solutions.map(item => item.id);
+
+      let amountOfReady: number = 0;
+      for (const id of solutionIds) {
+        const comment: Comment = await commentsService.findOneBySolutionId(id, transaction);
+        if (comment) {
+          amountOfReady++;
+        }
+      }
+
+      const averageGrade: number = this.calcAverageGrade(solutions);
+
+      task.setDataValue('averageGrade', averageGrade)
+      task.setDataValue('amountOfChecked', amountOfChecked)
+      task.setDataValue('amountOfReady', amountOfReady)
+    }
+
+    private calcAverageGrade(solutions: Solution[]): number {
+      return solutions.reduce((previous, current) => {
+        return previous += current.grade
+      }, 0) / solutions.length;
     }
 
     public async createOne(task: ITasks, user: CustomUser):Promise<Task> {
-        if (!user.isMentor) {
+      if (!user.isMentor) {
+          throw new Forbidden(NO_RIGHTS);
+      }
+
+      return sequelize.transaction(async (transaction) => {
+        const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
+        if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
             throw new Forbidden(NO_RIGHTS);
         }
-
-        return sequelize.transaction(async (transaction) => {
-            const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
-            if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
-                throw new Forbidden(NO_RIGHTS);
-            }
-            const createdTask:Task = await Task.create(task, {transaction});
-            const solutionsCreate:Solution[] = await solutionsService.createSolutions(createdTask, user, transaction);
-            return createdTask;
-        });
+        const createdTask:Task = await Task.create(task, {transaction});
+        const solutionsCreate:Solution[] = await solutionsService.createSolutions(createdTask, user, transaction);
+        return createdTask;
+      });
     }
 
     public async updateOne(
@@ -60,49 +127,49 @@ class TasksService {
         updates: ITasks,
         user: CustomUser
     ): Promise<Task> {
-        if (!user.isMentor) {
+      if (!user.isMentor) {
+        throw new Forbidden(NO_RIGHTS);
+      }
+
+      return sequelize.transaction(async (transaction) => {
+        const task: Task = await Task.findOne({ where: { id }, transaction });
+        if (!task) {
+            throw new NotFound(`Can't find task with id ${id}`);
+        }
+
+        const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
+        if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
             throw new Forbidden(NO_RIGHTS);
         }
 
-        return sequelize.transaction(async (transaction) => {
-            const task: Task = await Task.findOne({ where: { id }, transaction });
-            if (!task) {
-                throw new NotFound(`Can't find task with id ${id}`);
-            }
-
-            const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
-            if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
-                throw new Forbidden(NO_RIGHTS);
-            }
-
-            const [updatedRow, [updatedTask]] = await Task.update(updates, {
-                returning: true,
-                where: { id },
-                transaction,
-            });
-            return updatedTask;
+        const [updatedRow, [updatedTask]] = await Task.update(updates, {
+            returning: true,
+            where: { id },
+            transaction,
         });
+        return updatedTask;
+      });
     }
 
     public async deleteOne(id: number, user: CustomUser): Promise<number> {
-        if (!user.isMentor) {
+      if (!user.isMentor) {
+        throw new Forbidden(NO_RIGHTS);
+      }
+
+      return sequelize.transaction(async (transaction) => {
+        const task: Task = await Task.findOne({ where: { id }, transaction });
+        if (!task) {
+            throw new NotFound(`Can't find task with id ${id}`);
+        }
+
+        const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
+        if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
             throw new Forbidden(NO_RIGHTS);
         }
 
-        return sequelize.transaction(async (transaction) => {
-            const task: Task = await Task.findOne({ where: { id }, transaction });
-            if (!task) {
-                throw new NotFound(`Can't find task with id ${id}`);
-            }
-
-            const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
-            if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
-                throw new Forbidden(NO_RIGHTS);
-            }
-
-            await Task.destroy({ where: { id }, transaction });
-            return id;
-        });
+        await Task.destroy({ where: { id }, transaction });
+        return id;
+      });
     }
 }
 
