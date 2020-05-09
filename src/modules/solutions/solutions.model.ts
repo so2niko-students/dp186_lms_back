@@ -6,12 +6,13 @@ import {Students} from '../students/students.model';
 export class Solution extends Model {
     public static readonly tableName: string = 'solutions';
 
-    public id!: number;
+    public id: number;
     public studentId: number;
     public taskId: number;
     public grade: number;
     public createdAt: Date;
     public updatedAt: Date;
+    public isCompleted: number;
 
     public static prepareInit(sequelize: Sequelize) {
         this.init(
@@ -34,6 +35,10 @@ export class Solution extends Model {
                     type: DataTypes.NUMBER(),
                     allowNull: true,
                 },
+                isCompleted: {
+                    type: DataTypes.NUMBER(),
+                    allowNull: true,
+                },
             },
             {
                 sequelize,
@@ -52,6 +57,7 @@ Solution.belongsTo(Tasks, {
 
 Tasks.hasMany(Solution, {
     foreignKey: 'taskId',
+    onDelete: 'cascade'
 });
 
 Solution.belongsTo(Students, {
@@ -61,5 +67,6 @@ Solution.belongsTo(Students, {
 
 Students.hasOne(Solution, {
     foreignKey: 'studentId',
+    onDelete: 'cascade',
     as: 'student'
 });
