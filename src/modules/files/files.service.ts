@@ -10,16 +10,6 @@ interface IFileCreate {
     fileNameExtension: string;
 }
 
-// const extensions = [
-//         {'zip': 'application/zip'},
-//         {'txt': 'text/plain'},
-//         {'doc': 'application/msword'},
-//         {'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'},
-//         {'pdf': 'application/pdf'},
-//         {'rtf': 'application/rtf'},
-//         {'odt': 'application/vnd.oasis.opendocument.text'}
-//     ];
-
 const extensions = {
     'zip': 'application/zip',
     'txt': 'text/plain',
@@ -28,12 +18,13 @@ const extensions = {
     'pdf': 'application/pdf',
     'rtf': 'application/rtf',
     'odt': 'application/vnd.oasis.opendocument.text'
-}
+};
 
 class FilesService {
 
     // fileNameExtension (from front) = zip...
-    public async createOne({fileLink, fileNameExtension, commentId, taskId}:IFileCreate, transaction: Transaction): Promise<File> {
+    public async createOne({fileLink, fileNameExtension, commentId, taskId}: IFileCreate,
+                           transaction: Transaction): Promise<File> {
         try {
             const ext: {}|undefined = Object.keys(extensions).includes(fileNameExtension);
 
@@ -42,8 +33,8 @@ class FilesService {
             }
 
             const fileString = `data:${ext[fileNameExtension]};base64,${fileLink}`;
-            
-            const file = await cd.uploader.upload(fileString, {resource_type: 'raw', format:`${fileNameExtension}`}, (err, res) => {
+
+            const file = await cd.uploader.upload(fileString, {resource_type: 'raw', format: `${fileNameExtension}`}, (err, res) => {
                 return err ? Object.keys(err) : res;
             });
 
