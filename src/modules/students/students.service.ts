@@ -92,6 +92,13 @@ class StudentsService {
 
     public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
         return sequelize.transaction(async (transaction) => {
+
+            if (data.email) {	
+                if (await this.findOneByEmail(data.email) ||	
+                    await teachersService.findOneByEmail(data.email)) {	
+                        throw new BadRequest('User with provided email already exists');	
+                }	
+            }
             if (id !== user.id) {
                 throw new Unauthorized('You cannot change another profile');
             }
@@ -150,18 +157,19 @@ class StudentsService {
         await user.save();
     }
 
-  public async deleteStudent(id: number, user: CustomUser): Promise<void> {
+    public async deleteStudent(id: number, user: CustomUser): Promise<void> {
       
-      if (!user.isMentor) {
-        throw new Forbidden(NO_RIGHTS);
-      }
-      return sequelize.transaction(async (transaction: Transaction) => {
+        if (!user.isMentor) {
+            throw new Forbidden(NO_RIGHTS);
+        }
+        return sequelize.transaction(async (transaction: Transaction) => {
+
         const student = await this.findOneById(id, transaction);
         if(!student){
-          throw new BadRequest(`User with ${id} is not found`)
+            throw new BadRequest(`User with ${id} is not found`)
         }
-        student.destroy();
-      })
+            student.destroy();
+        })
     }
 
     public async findAllByGroupId(groupId: number, transaction?: Transaction): Promise<Students[]> {
