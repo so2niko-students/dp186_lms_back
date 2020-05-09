@@ -9,7 +9,6 @@ import {Transaction} from 'sequelize';
 import {sequelize} from '../../database';
 import {Teachers} from '../teachers/teachers.model';
 import {Students} from '../students/students.model';
-import {Group} from 'nodemailer/lib/addressparser';
 
 const NO_RIGHTS = 'You do not have rights to do this.';
 const NO_TIGHTS_TO_UPDATE = 'Only teacher or super admin can update group.';
