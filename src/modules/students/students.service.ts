@@ -168,7 +168,7 @@ class StudentsService {
         if(!student){
             throw new BadRequest(`User with ${id} is not found`)
         }
-            student.destroy();
+            student.destroy({transaction});
         })
     }
 
