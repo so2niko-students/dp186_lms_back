@@ -8,8 +8,8 @@ import {Avatars} from '../avatars/avatars.model';
 import {Transaction} from 'sequelize';
 import {sequelize} from '../../database';
 import {Teachers} from '../teachers/teachers.model';
-import {studentsService} from '../students/students.service';
 import {Students} from '../students/students.model';
+import {Group} from 'nodemailer/lib/addressparser';
 
 const NO_RIGHTS = 'You do not have rights to do this.';
 const NO_TIGHTS_TO_UPDATE = 'Only teacher or super admin can update group.';
@@ -121,6 +121,10 @@ class GroupsService {
                         model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
                         include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
                     },
+                    {
+                        model: Students, as: 'students',
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
                 ],
             });
         }
@@ -135,6 +139,28 @@ class GroupsService {
                         model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
                         include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
                     },
+                    {
+                        model: Students, as: 'students',
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
+                ],
+            });
+        }
+        if (!user.isAdmin) {
+            return Groups.findAll({
+                where: {teacherId: user.id},
+                include: [
+                    {
+                        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+                    },
+                    {
+                        model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
+                    {
+                        model: Students, as: 'students',
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
                 ],
             });
         }
@@ -145,6 +171,10 @@ class GroupsService {
                 },
                 {
                     model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                    include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                },
+                {
+                    model: Students, as: 'students',
                     include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
                 },
             ],
