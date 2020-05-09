@@ -77,6 +77,14 @@ class SolutionsService {
         })
     }
 
+    public async countChecked(taskId) {
+      return await Solution.count({ where: {taskId, isCompleted: 1} })
+    }
+
+    public async countReady(taskId) {
+      return await Solution.count({ where: {taskId} })
+    }
+
     private async checkIsCompletedOrThrow(id): Promise<Solution> {
 
         const solution = await this.findOneOrThrow(id);

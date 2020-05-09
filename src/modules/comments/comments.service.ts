@@ -14,7 +14,7 @@ interface ICommentCreate {
     studentId?: number;
     teacherId?: number;
     text: string;
-    fileContent?: string;
+    fileLink?: string;
     fileNameExtension?:string
 }
 
@@ -35,7 +35,7 @@ class CommentsService {
         return sequelize.transaction(async transaction => {
 
             const { isMentor } = user;
-            const { solutionId, fileContent, fileNameExtension } = commentData;
+            const { solutionId, fileLink, fileNameExtension } = commentData;
 
             //нахожу по id - solution
             const solution: ISolutionCreate = await solutionsService.findOneOrThrow(solutionId, transaction)
@@ -57,9 +57,9 @@ class CommentsService {
 
             const comment:Comment = await Comment.create(commentData, {transaction});
 
-            if(fileContent && fileContent.length > 0) {
+            if(fileLink && fileLink.length > 0) {
 
-                const fileData = {fileContent, fileNameExtension, commentId:comment.id, taskId:task.id};
+                const fileData = {fileLink, fileNameExtension, commentId:comment.id, taskId:task.id};
                 const file: File = await filesService.createOne(fileData, transaction);
             }
 

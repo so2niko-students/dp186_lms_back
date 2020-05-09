@@ -4,7 +4,7 @@ import { File } from './files.model';
 import { Transaction } from 'sequelize';
 
 interface IFileCreate {
-    fileContent: string;
+    fileLink: string;
     commentId: number;
     taskId: number;
     fileNameExtension: string;
@@ -26,7 +26,9 @@ class FilesService {
     //   return await File.findOne({ where: { id: fileId }});
     // }
 
-    public async createOne({fileContent, fileNameExtension, commentId, taskId}:IFileCreate, transaction: Transaction): Promise<File> {
+
+
+    public async createOne({fileLink, fileNameExtension, commentId, taskId}:IFileCreate, transaction: Transaction): Promise<File> {
         try {
 
             const ext: {}|undefined = extensions.find(obj => Object.keys(obj).includes(fileNameExtension));
@@ -35,14 +37,14 @@ class FilesService {
                 throw new BadRequest(`Extension of upload file is not correct`);
             }
 
-            const fileString = `data:${fileNameExtension};base64,${fileContent}`;
+            const fileString = `data:${fileNameExtension};base64,${fileLink}`;
             
             const file = await cd.uploader.upload(fileString, {resource_type: 'raw', format:`${ext[fileNameExtension]}`}, (err, res) => {
                 return err ? Object.keys(err) : res;
             });
 
-            const fileDataForCreate: IFileCreate = {
-                fileContent: file.url,
+            const fileDataForCreate = {
+                fileLink: file.url,
                 fileNameExtension,
                 commentId,
                 taskId,

@@ -13,7 +13,7 @@ class TasksController {
   ): Promise<void> {
     try {
       // const tasks: Task[] = await tasksService.findAll(req.user);
-      const tasks = await tasksService.findAll(req.user);
+      const tasks = await tasksService.findAll(req.user, req.query);
       res.json(tasks);
     } catch (e) {
       next(e);
@@ -27,7 +27,7 @@ class TasksController {
   ): Promise<void> {
     try {
       const idNumb: number = validateIdOrThrow(req.params.id);
-      const task: Task = await tasksService.findOneById(idNumb, req.user);
+      const task: Task = await tasksService.getTaskInfoById(idNumb, req.user);
 
       res.json(task);
     } catch (e) {
