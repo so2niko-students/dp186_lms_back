@@ -1,6 +1,11 @@
 import { Tasks as Task } from './tasks.model';
 import { Solution } from '../solutions/solutions.model';
 import { Comment } from '../comments/comments.model';
+import { Students as Student } from '../students/students.model';
+import { Avatars as Avatar } from '../avatars/avatars.model';
+import { Teachers as Teacher } from '../teachers/teachers.model';
+import { File } from '../files/files.model';
+import { Groups as Group } from '../groups/groups.model';
 import { CustomUser } from '../../common/types/types';
 import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces'
 
@@ -59,15 +64,71 @@ class TasksService {
 
         return {
           data: tasks, 
-            page: actualPage,
-            total,
-            limit
+          page: actualPage,
+          total,
+          limit
         };
       })
     }
 
 
-    public async findOneById(id: number, user: CustomUser, transaction?: Transaction) {
+    public async getFullInfoById(id: number, user: CustomUser, transaction?: Transaction): Promise<Task> {
+        let fullRequest;
+
+        if (!user.isMentor) { // student 
+          fullRequest = {  
+            where: { id }, 
+            include: [{
+              model: File, as: 'files', attributes: ['fileLink'], 
+            }, { 
+              model: Solution, as: 'solutions', where: {studentId: user.id}, include: [{
+                model: Comment, as: 'comments', attributes: ['text', 'updatedAt'], include: [{
+                  model: Student, as: 'student', attributes: ['firstNameEng', 'lastNameEng'], include: [{
+                    model: Avatar, as: 'avatar', attributes: ['avatarLink']
+                  }]
+                }, {
+                  model: Teacher, as: 'teacher' , attributes: ['firstName', 'lastName'], include: [{
+                    model: Avatar, as: 'avatar', attributes: ['avatarLink']
+                  }]
+                }]
+              }]
+            }],
+            transaction
+          }
+        } else { // teacher or superAdmin
+          fullRequest = {  
+            where: { id }, include: [{ 
+              model: Solution, as: 'solutions', include: [{
+                model: Student, as: 'student', attributes: ['firstNameEng', 'lastNameEng'], include: [{
+                  model: Avatar, as: 'avatar', attributes: ['avatarLink']
+                }]
+              }]
+            }],
+            transaction
+          };
+        }
+
+        return sequelize.transaction(async (transaction) => {
+          const task: Task = await Task.findOne(fullRequest);
+          if (!task) {
+              throw new NotFound(`Can't find task with id ${id}`);
+          }
+          await this.addTaskAdditionalInfo(task, transaction);
+
+          const group = await groupsService.findOneOrThrow(task.groupId, user, transaction);
+          if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
+            throw new Forbidden(NO_RIGHTS);
+          }
+          
+          if (!user.isMentor && user.groupId !== task.groupId) {
+              throw new Forbidden(NO_RIGHTS);
+          }
+
+          return task;
+        });
+    }
+
+    public async findOneById(id: number, user: CustomUser, transaction?: Transaction): Promise<Task> {
       const task: Task = await Task.findOne({ where: { id }, transaction });
       if (!task) {
           throw new NotFound(`Can't find task with id ${id}`);
@@ -80,7 +141,7 @@ class TasksService {
       return task;
     }
 
-    private async addTaskAdditionalInfo(task, transaction?: Transaction): Promise<void> {
+    private async addTaskAdditionalInfo(task: Task, transaction?: Transaction): Promise<void> {
       const amountOfChecked: number = await solutionsService.countChecked(task.id, transaction);
       const solutions: Solution[] = await solutionsService.findByTaskId(task.id, transaction);
       const solutionIds: number[] = solutions.map(item => item.id);
@@ -106,13 +167,13 @@ class TasksService {
       }, 0) / solutions.length;
     }
 
-    public async createOne(task: ITasks, user: CustomUser):Promise<Task> {
+    public async createOne(task: ITasks, user: CustomUser): Promise<Task> {
       if (!user.isMentor) {
-          throw new Forbidden(NO_RIGHTS);
+        throw new Forbidden(NO_RIGHTS);
       }
 
       return sequelize.transaction(async (transaction) => {
-        const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
+        const group: Group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
         if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
             throw new Forbidden(NO_RIGHTS);
         }
@@ -137,7 +198,7 @@ class TasksService {
             throw new NotFound(`Can't find task with id ${id}`);
         }
 
-        const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
+        const group: Group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
         if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
             throw new Forbidden(NO_RIGHTS);
         }

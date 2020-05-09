@@ -20,14 +20,14 @@ class TasksController {
     }
   }
 
-  public async findOneById(
+  public async getFullInfoById(
     req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
       const idNumb: number = validateIdOrThrow(req.params.id);
-      const task: Task = await tasksService.findOneById(idNumb, req.user);
+      const task: Task = await tasksService.getFullInfoById(idNumb, req.user);
 
       res.json(task);
     } catch (e) {
