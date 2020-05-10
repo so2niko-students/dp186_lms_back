@@ -62,6 +62,7 @@ class TeachersService {
 
     public async setForgotPasswordToken(email: string): Promise<string> {
         const teacher = await this.findOneByEmail(email);
+        if(!teacher){throw new NotFound(`User with email ${email} does not exist`)}
         const token: string = new TokenService().generateResetToken();
         teacher.resetPasswordExpire = Date.now() + (60 * 1000 * 360);
         teacher.resetPasswordToken = token;

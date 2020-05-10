@@ -24,7 +24,7 @@ export class AuthController {
 
     public forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
         const token: string = await authService.setResetToken(req.body.email);
-        const resetLink = `https://${req.get('host')}/resetPassword/${token}`;
+        const resetLink = `${req.body.host}/resetPassword/${token}`;
         const resetMessage = `You receive this email as you or someone else requested password change
         for your account. Please follow the next link to make it: ${resetLink}`;
         MailGun.fireMessage(req.body.email, resetMessage);
