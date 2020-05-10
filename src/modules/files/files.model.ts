@@ -7,10 +7,11 @@ export class File extends Model {
     public static readonly tableName: string = 'files';
 
     public id: number;
-    public commentId: number;
-    public taskId?: number;
+    public commentId!: number;
+    public taskId!: number;
     public fileLink: string;
     public fileNameExtension: string;
+    public removeId: string;
     public createdAt: Date;
     public updatedAt: Date;
 
@@ -25,7 +26,7 @@ export class File extends Model {
                 },
                 commentId: {
                     type: DataTypes.INTEGER(),
-                    allowNull: false,
+                    allowNull: true,
                 },
                 taskId: {
                     type: DataTypes.INTEGER(),
@@ -38,7 +39,11 @@ export class File extends Model {
                 fileNameExtension: {
                     type: DataTypes.STRING(),
                     allowNull: true,
-                }
+                },
+                removeId: {
+                  type: DataTypes.STRING(100),
+                  allowNull: false,
+                },
             },
             {
                 sequelize,

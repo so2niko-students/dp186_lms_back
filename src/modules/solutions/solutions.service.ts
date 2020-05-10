@@ -93,6 +93,10 @@ class SolutionsService {
     public async findByTaskId(taskId: number, transaction?: Transaction): Promise<Solution[]> {
       return await Solution.findAll({ where: { taskId }, transaction})
     }
+
+    public async deleteOne(taskId: number, transaction?: Transaction): Promise<void> {
+      await Solution.destroy({ where: { taskId }, transaction })
+    }
 }
 
 export const solutionsService = new SolutionsService();

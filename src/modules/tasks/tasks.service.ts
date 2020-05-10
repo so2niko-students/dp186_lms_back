@@ -1,13 +1,15 @@
+import { Teachers as Teacher } from '../teachers/teachers.model';
+import { Groups as Group } from '../groups/groups.model';
+import { Students as Student } from '../students/students.model';
+import { Avatars as Avatar } from '../avatars/avatars.model';
 import { Tasks as Task } from './tasks.model';
 import { Solution } from '../solutions/solutions.model';
 import { Comment } from '../comments/comments.model';
-import { Students as Student } from '../students/students.model';
-import { Avatars as Avatar } from '../avatars/avatars.model';
-import { Teachers as Teacher } from '../teachers/teachers.model';
 import { File } from '../files/files.model';
-import { Groups as Group } from '../groups/groups.model';
+
 import { CustomUser } from '../../common/types/types';
-import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces'
+import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces';
+import { IFileCreate } from '../files/files.service';
 
 import { NotFound, Forbidden, BadRequest } from '../../common/exeptions/';
 import { sequelize } from '../../database';
@@ -17,11 +19,14 @@ import { groupsService } from '../groups/groups.service';
 import { paginationService } from "../pagination/pagination.service";
 import { solutionsService } from '../solutions/solutions.service';
 import { commentsService } from '../comments/comments.service';
+import { filesService } from '../files/files.service';
 
 interface ITasks {
   groupId: number;
   taskName: string;
   description: string | null;
+  fileNameExtension: string;
+  fileContent: string;
 }
 
 const NO_RIGHTS = 'You do not have rights to do this.';
@@ -70,7 +75,6 @@ class TasksService {
         };
       })
     }
-
 
     public async getFullInfoById(id: number, user: CustomUser, transaction?: Transaction): Promise<Task> {
         let fullRequest;
@@ -173,12 +177,26 @@ class TasksService {
       }
 
       return sequelize.transaction(async (transaction) => {
+        // Checks if tacher has this group
         const group: Group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
         if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
             throw new Forbidden(NO_RIGHTS);
         }
-        const createdTask:Task = await Task.create(task, {transaction});
-        const solutionsCreate:Solution[] = await solutionsService.createSolutions(createdTask, user, transaction);
+
+        // Creates ask in DataBase
+        const createdTask: Task = await Task.create(task, {transaction});
+
+        // Creates file in DataBase and Clodinary
+        const fileData: IFileCreate = {
+          fileLink: task.fileContent, 
+          fileNameExtension: task.fileNameExtension, 
+          taskId: createdTask.id
+        };
+        await filesService.createOne(fileData, transaction);
+
+        // Creates solutions per every student for this task
+        await solutionsService.createSolutions(createdTask, user, transaction);
+
         return createdTask;
       });
     }
@@ -198,16 +216,30 @@ class TasksService {
             throw new NotFound(`Can't find task with id ${id}`);
         }
 
+        // Checks if tacher has this group
         const group: Group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
-        if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
+        if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) { 
             throw new Forbidden(NO_RIGHTS);
         }
 
+        // Removes old file from DataBase and Cloudinary
+        await filesService.deleteOne(id, transaction);
+
+        // Updates Task table
         const [updatedRow, [updatedTask]] = await Task.update(updates, {
             returning: true,
             where: { id },
             transaction,
         });
+
+        // Creates new file in DataBase and Cloudinary
+        const fileData: IFileCreate = {
+          fileLink: updates.fileContent, 
+          fileNameExtension: updates.fileNameExtension, 
+          taskId: id
+        };
+        await filesService.createOne(fileData, transaction);
+
         return updatedTask;
       });
     }
@@ -223,12 +255,16 @@ class TasksService {
             throw new NotFound(`Can't find task with id ${id}`);
         }
 
+        // Checks if tacher has this group
         const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
         if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
             throw new Forbidden(NO_RIGHTS);
         }
 
-        await Task.destroy({ where: { id }, transaction });
+        await filesService.deleteOne(id, transaction); // Removes file from DataBase and Cloudinary
+        await solutionsService.deleteOne(id, transaction); // Removes solutions for this task
+        await Task.destroy({ where: { id }, transaction }); // Removes task
+
         return id;
       });
     }
