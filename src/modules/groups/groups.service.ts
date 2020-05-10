@@ -1,17 +1,19 @@
 import { Groups } from './groups.model';
 import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { hashSync, genSaltSync } from 'bcrypt';
-import {CustomUser} from '../../common/types/types';
+import {GroupWithStudents, CustomUser} from '../../common/types/types';
 import {teachersService} from '../teachers/teachers.service';
 import {avatarService} from '../avatars/avatars.service';
 import {Avatars} from '../avatars/avatars.model';
 import {Transaction} from 'sequelize';
 import {sequelize} from '../../database';
+import {Teachers} from '../teachers/teachers.model';
+import {Students} from '../students/students.model';
 
 const NO_RIGHTS = 'You do not have rights to do this.';
 const NO_TIGHTS_TO_UPDATE = 'Only teacher or super admin can update group.';
 
-interface ICreateGroup {
+export interface ICreateGroup {
     groupName?: string;
     groupToken?: string;
     teacherId?: number;
@@ -20,7 +22,6 @@ interface ICreateGroup {
         format: string;
     };
 }
-
 
 class GroupsService {
     public async createOne({ groupName, teacherId }, user: CustomUser) {
@@ -42,14 +43,24 @@ class GroupsService {
         }
         return Groups.create({groupName,  groupToken, teacherId: user.id});
     }
-    public async findOneOrThrow(id: number, user: CustomUser, transaction ?: Transaction) {
+    public async findOneOrThrow(id: number, user: CustomUser, transaction?: Transaction) {
         if (user.groupId !== id && !user.isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
-        const group = Groups.findOne({
-            include: [{
-               model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-            }],
+        const group: GroupWithStudents = await Groups.findOne({
+            include: [
+                {
+                    model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+                },
+                {
+                    model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                    include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                },
+                {
+                    model: Students, as: 'students',
+                    include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                },
+            ],
             where: {id},
             transaction,
         });
@@ -98,20 +109,73 @@ class GroupsService {
     }
     public async findMany(mentorId: number, user: CustomUser) {
         if (!user.isMentor) {
-            return Groups.findAll({ where: {id: user.groupId} });
+            return Groups.findAll({
+                where: {id: user.groupId},
+                include: [
+                    {
+                        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+                    },
+                    {
+                        model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
+                    {
+                        model: Students, as: 'students',
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
+                ],
+            });
         }
         if (mentorId) {
             return Groups.findAll({
               where: {teacherId: mentorId},
-              include: [{
-                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-              }],
+                include: [
+                    {
+                        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+                    },
+                    {
+                        model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
+                    {
+                        model: Students, as: 'students',
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
+                ],
+            });
+        }
+        if (!user.isAdmin) {
+            return Groups.findAll({
+                where: {teacherId: user.id},
+                include: [
+                    {
+                        model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+                    },
+                    {
+                        model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
+                    {
+                        model: Students, as: 'students',
+                        include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                    },
+                ],
             });
         }
         return Groups.findAll({
-            include: [{
-                model: Avatars, as: 'avatar', attributes: ['avatarLink'],
-            }],
+            include: [
+                {
+                    model: Avatars, as: 'avatar', attributes: ['avatarLink'],
+                },
+                {
+                    model: Teachers, as: 'teacher', attributes: {exclude: ['password']},
+                    include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                },
+                {
+                    model: Students, as: 'students',
+                    include: [ { model: Avatars, as: 'avatar', attributes: ['avatarLink'] } ],
+                },
+            ],
         });
     }
     // method to count groups in UI
@@ -135,6 +199,16 @@ class GroupsService {
         if (!isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
+    }
+
+    // method that front needs to get groups by teachers IDs
+    public async findAllByMentorsIdsArray(teachersIds: number[]): Promise<Groups[]> {
+      return await Groups.findAll({
+        where: {
+          teacherId: teachersIds,
+        },
+        attributes: ['id', 'teacherId'],
+      });
     }
 }
 
