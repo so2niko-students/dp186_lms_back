@@ -143,7 +143,7 @@ class TeachersService {
     }
   
     private addGroupsCount(data: Teachers[], groupsData: Groups[], totalGroupsIdsSet: Set<number>): Teachers[] {
-      data.forEach(item => {
+        return data.map(item => {
         let groups: number[] = []; // array of group IDs
       
         // fulfill Set collection of unique group IDs
@@ -157,13 +157,13 @@ class TeachersService {
         const groupsCount: number = groups.length; // groups count
         // give a teacher object prop for students quantity
         item.groupsCount = groupsCount;
+
+        return item
       });
-    
-      return data
     }
   
     private addStudentsCount(data: Teachers[], groupsData: Groups[], studentsData: Students[]): Teachers[] {
-      data.forEach(item => {
+      return data.map(item => {
         let groups: number[] = groupsData.filter(group => item.id === group.teacherId).map(group => group.id);
       
         let studentsCount: number = 0; // define students counter
@@ -175,9 +175,9 @@ class TeachersService {
       
         // give a teacher object prop for students quantity
         item.studentsCount = studentsCount;
+
+        return item
       });
-    
-      return data
     }
 
     public async updateOneOrThrow(id: number, data: ITeachersData, user: Teachers): Promise<Teachers> {
