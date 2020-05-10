@@ -9,7 +9,7 @@ import { router as commentsRoutes } from './modules/comments/comments.routes';
 import { router as tasksRoutes} from './modules/tasks/tasks.routes';
 import { errorHandler } from './common/middlewares/errors.middleware';
 import { authJwt } from './common/middlewares/auth.middleware';
-import passport = require ('passport');
+import passport = require('passport');
 import { strategy } from './common/passport/auth.strategy';
 import { AuthRoute } from './modules/auth/auth.routes';
 import * as dotenv from 'dotenv';
