@@ -139,6 +139,16 @@ class StudentsService {
         return userForUpdate.save();
     }
 
+    // method that front needs to get students by teachers IDs
+    public async findAllByGroupsIdsArray(groupsIds: number[]): Promise<Students[]> {
+      return await Students.findAll({
+        where: {
+          groupId: groupsIds,
+        },
+        attributes: ['id', 'groupId'],
+      });
+    }
+
     public async findStudentByToken(token: string): Promise<Students> {
         return Students.findOne({
             where: {resetPasswordToken: token},
