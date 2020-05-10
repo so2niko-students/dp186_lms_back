@@ -2,7 +2,7 @@ import { Students } from './students.model';
 import { groupsService } from '../groups/groups.service';
 import { teachersService } from '../teachers/teachers.service';
 import { avatarService } from '../avatars/avatars.service';
-import { BadRequest, NotFound, Unauthorized } from '../../common/exeptions';
+import { BadRequest, NotFound, Unauthorized, Forbidden } from '../../common/exeptions';
 import { hashFunc } from '../auth/password.hash';
 import * as bcrypt from 'bcrypt';
 import { Avatars } from '../avatars/avatars.model';
@@ -10,7 +10,10 @@ import { sequelize } from '../../database';
 import { Transaction } from 'sequelize';
 import { TokenService } from "../../common/crypto/TokenService";
 import { IUpdatePassword } from "../../common/interfaces/auth.interfaces";
+import { CustomUser } from '../../common/types/types';
+import { Teachers } from "../teachers/teachers.model";
 
+const NO_RIGHTS = 'You do not have rights to do this.';
 
 interface IStudentsData {
     email: string;
@@ -89,6 +92,13 @@ class StudentsService {
 
     public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
         return sequelize.transaction(async (transaction) => {
+
+            if (data.email) {	
+                if (await this.findOneByEmail(data.email) ||	
+                    await teachersService.findOneByEmail(data.email)) {	
+                        throw new BadRequest('User with provided email already exists');	
+                }	
+            }
             if (id !== user.id) {
                 throw new Unauthorized('You cannot change another profile');
             }
@@ -155,6 +165,25 @@ class StudentsService {
         user.resetPasswordExpire = Date.now();
 
         await user.save();
+    }
+
+    public async deleteStudent(id: number, user: CustomUser): Promise<void> {
+      
+        if (!user.isMentor) {
+            throw new Forbidden(NO_RIGHTS);
+        }
+        return sequelize.transaction(async (transaction: Transaction) => {
+
+        const student = await this.findOneById(id, transaction);
+        if(!student){
+            throw new BadRequest(`User with ${id} is not found`)
+        }
+            student.destroy({transaction});
+        })
+    }
+
+    public async findAllByGroupId(groupId: number, transaction?: Transaction): Promise<Students[]> {
+        return Students.findAll({where: {groupId}, transaction});
     }
 }
 
