@@ -3,9 +3,15 @@ import { NotFound, BadRequest, Forbidden } from '../../common/exeptions/';
 import { CustomUser } from '../../common/types/types';
 import {tasksService} from '../tasks/tasks.service';
 import {groupsService} from '../groups/groups.service';
+import {commentsService} from '../comments/comments.service';
 import {studentsService} from '../students/students.service';
 import {Transaction} from 'sequelize';
 import {Tasks} from '../tasks/tasks.model';
+import { Teachers as Teacher } from '../teachers/teachers.model';
+import { Students as Student } from '../students/students.model';
+import { Avatars as Avatar } from '../avatars/avatars.model';
+import { Comment } from '../comments/comments.model';
+import { File } from '../files/files.model';
 import {sequelize} from '../../database';
 
 export interface ISolutionCreate {
@@ -97,7 +103,44 @@ class SolutionsService {
     public async deleteOne(taskId: number, transaction?: Transaction): Promise<void> {
       await Solution.destroy({ where: { taskId }, transaction })
     }
+
+    public async getFullInfoById(id: number, query) {
+      const offset: number = parseInt(query.offset) || 0;
+      const limit: number = parseInt(query.limit) || 20;
+
+      return sequelize.transaction(async (transaction) => {
+        const total: number = await commentsService.countComments(id, transaction);
+
+        const solutionWithComments = await Solution.findOne({ 
+          where: { id },
+          include: [{
+            model: Student, as: 'student', include: [{
+              model: Avatar, as: 'avatar', attributes: ['avatarLink']
+            }]
+          }, {
+            model: Comment, as: 'comments', attributes: ['text', 'updatedAt', 'createdAt'], limit, include: [{ //offset isn't working here (???)
+              model: Student, as: 'student', attributes: ['firstNameEng', 'lastNameEng'], include: [{
+                model: Avatar, as: 'avatar', attributes: ['avatarLink']
+              }]
+            }, {
+              model: Teacher, as: 'teacher' , attributes: ['firstName', 'lastName'], include: [{
+                model: Avatar, as: 'avatar', attributes: ['avatarLink']
+              }]
+            }, {
+              model: File, as: 'files', attributes: ['fileLink']
+            }]
+          }],
+          transaction
+        });
+
+        return {
+          data: solutionWithComments,
+          total,
+          offset,
+          limit
+        }
+      });
+    }
 }
 
 export const solutionsService = new SolutionsService();
-

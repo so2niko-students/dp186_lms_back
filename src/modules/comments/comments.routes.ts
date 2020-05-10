@@ -5,4 +5,5 @@ import {createCommentDto} from '../comments/comments.dtos';
 
 export const router: Router = Router();
 
+router.get('/:solutionId', commentsController.findBySolutionId);
 router.post('/', createValidator(createCommentDto), commentsController.createOne);

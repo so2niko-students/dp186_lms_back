@@ -14,6 +14,16 @@ class SolutionsController {
             next(e);
         }
     }
+
+    public async getFullInfoById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const idNumb: number = validateIdOrThrow(req.params.id);
+            const solution = await solutionsService.getFullInfoById(idNumb, req.query);
+            res.send(solution);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 export const solutionsController = new SolutionsController();
