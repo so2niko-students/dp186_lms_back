@@ -81,3 +81,4 @@ router.post('/', createValidator(createStudentsDto), studentsController.createOn
  *          description: Updated student.
  */
 router.put('/:id', authJwt, createValidator(updateStudentsDto), studentsController.updateOne);
+router.delete('/:id', authJwt, studentsController.deleteStudents);

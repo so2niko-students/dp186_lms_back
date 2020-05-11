@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { studentsService } from './students.service';
+import { AuthRequest } from '../../common/types/types';
 import { Students } from './students.model';
 import { UpdateRequest } from '../../common/types/types';
 import { validateIdOrThrow } from '../../common/validators/';
@@ -13,6 +14,18 @@ class StudentsController {
       next(e);
     }
   }
+
+  public async deleteStudents( req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      validateIdOrThrow(+req.params.id);
+      await studentsService.deleteStudent(
+          +req.params.id,
+          req.user
+      );
+      res.send(201)
+    } catch(e){
+      next(e)
+    }}
 
   public async updateOne(req: UpdateRequest<Students>,
                          res: Response, next: NextFunction): Promise<void> {
