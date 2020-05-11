@@ -93,7 +93,7 @@ class StudentsService {
     public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
         return sequelize.transaction(async (transaction) => {
 
-            if (data.email) {	
+            if (data.email && user.email !== data.email) {	
                 if (await this.findOneByEmail(data.email) ||	
                     await teachersService.findOneByEmail(data.email)) {	
                         throw new BadRequest('User with provided email already exists');	
