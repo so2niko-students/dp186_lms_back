@@ -12,10 +12,7 @@ class TeachersController {
 
   public async createOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const body = req.body;
-      const user: CustomUser = req.user;
-
-      const teachers = await teachersService.createOne(body, user);
+      const teachers = await teachersService.createOne(req.body, req.user);
       res.json(teachers);
     }
     catch (e) {
@@ -27,10 +24,7 @@ class TeachersController {
     try {
       validateIdOrThrow(+req.params.id);
 
-      const id: number = +req.params.id;
-      const user: CustomUser = req.user;
-
-      const removedTeacherId = await teachersService.deleteOneById(id, user);
+      const removedTeacherId = await teachersService.deleteOneById(+req.params.id, req.user);
       res.json(removedTeacherId);
     }
     catch (e) {
@@ -39,11 +33,8 @@ class TeachersController {
   }
 
   public async findAll(req: AuthRequest, res: Response, next: NextFunction) {
-    try {
-      const page: number = +req.query.page;
-      const limit: number = +req.query.limit;
-    
-      const teachers = await teachersService.findAll(page, limit);
+    try {  
+      const teachers = await teachersService.findAll(+req.query.page, +req.query.limit);
       res.json(teachers);
     }
     catch (e) {
@@ -55,9 +46,7 @@ class TeachersController {
     try {
       validateIdOrThrow(+req.params.id);
 
-      const id: number = +req.params.id;
-
-      const teacher = await teachersService.findOneById(id);
+      const teacher = await teachersService.findOneById(+req.params.id);
       res.json(teacher);
     }
     catch (e) {

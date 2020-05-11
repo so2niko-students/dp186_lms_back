@@ -15,6 +15,8 @@ export class Teachers extends Model {
   public createdAt: Date;
   public updatedAt: Date;
   public avatarId: number;
+  public groupsCount?: number;
+  public studentsCount?: number;
 
   public static prepareInit(sequelize: Sequelize) {
     this.init(
@@ -35,6 +37,18 @@ export class Teachers extends Model {
         avatarId: {
             type: DataTypes.INTEGER,
             allowNull: true,
+        },
+        groupsCount: {
+          type: DataTypes.VIRTUAL,
+          set: function (val) {
+            this.setDataValue('groupsCount', val);
+          }
+        },
+        studentsCount: {
+          type: DataTypes.VIRTUAL,
+          set: function (val) {
+            this.setDataValue('studentsCount', val);
+          }
         },
       },
       {
