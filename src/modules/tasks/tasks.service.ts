@@ -252,7 +252,7 @@ class TasksService {
             throw new Forbidden(NO_RIGHTS);
         }
 
-        // await filesService.deleteOne(id, transaction); // Removes file from DataBase and Cloudinary
+        await filesService.deleteOne(id, transaction); // Removes file from DataBase and Cloudinary
         await solutionsService.deleteOne(id, transaction); // Removes solutions for this task
         await Task.destroy({ where: { id }, transaction }); // Removes task
 
