@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../../common/types/types';
 import { tasksService } from './tasks.service';
 import { validateIdOrThrow } from '../../common/validators';
+import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces'
 
 import { Tasks as Task } from './tasks.model';
 
@@ -12,21 +13,21 @@ class TasksController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const tasks: Task[] = await tasksService.findAll(req.user);
+      const tasks: IPaginationOuterData<Task> = await tasksService.findAll(req.user, req.query);
       res.json(tasks);
     } catch (e) {
       next(e);
     }
   }
 
-  public async findOneById(
+  public async getFullInfoById(
     req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
       const idNumb: number = validateIdOrThrow(req.params.id);
-      const task: Task = await tasksService.findOneById(idNumb, req.user);
+      const task: Task = await tasksService.getFullInfoById(idNumb, req.user);
 
       res.json(task);
     } catch (e) {
