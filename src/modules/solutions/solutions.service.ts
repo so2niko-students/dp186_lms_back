@@ -93,11 +93,11 @@ class SolutionsService {
     }
 
     public async countChecked(taskId: number, transaction: Transaction): Promise<number> {
-      return await Solution.count({ where: { taskId, isCompleted: 1 }, transaction });
+      return Solution.count({ where: { taskId, isCompleted: 1 }, transaction });
     }
 
     public async findByTaskId(taskId: number, transaction?: Transaction): Promise<Solution[]> {
-      return await Solution.findAll({ where: { taskId }, transaction})
+      return Solution.findAll({ where: { taskId }, transaction})
     }
 
     public async deleteOne(taskId: number, transaction?: Transaction): Promise<void> {

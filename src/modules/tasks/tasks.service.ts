@@ -36,7 +36,9 @@ class TasksService {
       const page: number = parseInt(query.page) || 1;
       const limit: number = parseInt(query.limit) || 10;
       const groupId: number = parseInt(query.groupId);
-
+      if(!groupId) {
+        throw new BadRequest(`Invalid groupId (${groupId})`);
+      }
       // Checking if STUDENT have rights for this request
       if (!user.isMentor && user.groupId !== groupId) {
         throw new Forbidden(NO_RIGHTS);

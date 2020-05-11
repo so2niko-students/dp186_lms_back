@@ -18,8 +18,7 @@ class CommentsController {
 
     public async findBySolutionId(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
       try {
-        const idNumb: number = validateIdOrThrow(req.params.solutionId);
-        const comments: IPaginationOuterData<Comment> = await commentsService.findBySolutionId(idNumb, req.query);
+        const comments: IPaginationOuterData<Comment> = await commentsService.findBySolutionId(req.query);
         res.send(comments);
       } catch (e) {
         next(e);

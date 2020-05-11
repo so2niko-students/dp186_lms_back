@@ -1,5 +1,5 @@
 import { Comment } from '../comments/comments.model';
-import { Forbidden } from '../../common/exeptions/';
+import { Forbidden, BadRequest } from '../../common/exeptions/';
 import { CustomUser } from '../../common/types/types';
 import { sequelize } from '../../database';
 import { File } from '../files/files.model';
@@ -65,16 +65,20 @@ class CommentsService {
     }
 
     public async findOneBySolutionId(solutionId: number, transaction?: Transaction): Promise<Comment> {
-      return await Comment.findOne({ where: { solutionId }, transaction })
+      return Comment.findOne({ where: { solutionId }, transaction })
     }
 
     public async countComments(solutionId: number, transaction?: Transaction): Promise<number> {
-      return await Comment.count({ where: { solutionId }, transaction })
+      return Comment.count({ where: { solutionId }, transaction })
     } 
 
-    public async findBySolutionId(solutionId: number, query): Promise<IPaginationOuterData<Comment>> {
+    public async findBySolutionId(query): Promise<IPaginationOuterData<Comment>> {
       const page: number = parseInt(query.page) || 1;
       const limit: number = parseInt(query.limit) || 10
+      const solutionId: number = parseInt(query.solutionId);
+      if(!solutionId) {
+        throw new BadRequest(`Invalid solutionId (${solutionId})`);
+      }
       
       return sequelize.transaction(async (transaction) => {
         const total = await this.countComments(solutionId, transaction);
