@@ -4,8 +4,8 @@ export const createTaskDto = Joi.object().keys({
   groupId: Joi.number().required(),
   taskName: Joi.string().min(2).required(),
   description: Joi.string(),
-  fileContent: Joi.string().base64(),
-  fileNameExtension: Joi.string()
+  fileContent: Joi.string().base64().required(),
+  fileNameExtension: Joi.string().required()
 });
 
 export const updateTaskDto = Joi.object().keys({

@@ -1,7 +1,7 @@
 export interface IPaginationOuterData<T> {
-  data: T[];
+  data: T[] | T;
   page: number;
-  total: number;
+  total?: number;
   limit: number;
 };
 

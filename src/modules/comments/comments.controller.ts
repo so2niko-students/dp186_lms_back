@@ -3,6 +3,7 @@ import { Comment} from './comments.model';
 import { commentsService } from './comments.service';
 import { AuthRequest } from '../../common/types/types';
 import { validateIdOrThrow } from '../../common/validators/';
+import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces';
 
 class CommentsController {
     public async createOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
@@ -18,7 +19,7 @@ class CommentsController {
     public async findBySolutionId(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
       try {
         const idNumb: number = validateIdOrThrow(req.params.solutionId);
-        const comments = await commentsService.findBySolutionId(idNumb, req.query);
+        const comments: IPaginationOuterData<Comment> = await commentsService.findBySolutionId(idNumb, req.query);
         res.send(comments);
       } catch (e) {
         next(e);

@@ -12,6 +12,8 @@ import { Students as Student } from '../students/students.model';
 import { Avatars as Avatar } from '../avatars/avatars.model';
 import { Tasks } from '../tasks/tasks.model';
 import { Transaction } from 'sequelize/types';
+import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces';
+import { paginationService } from "../pagination/pagination.service";
 
 interface ICommentCreate {
     solutionId: number;
@@ -70,14 +72,15 @@ class CommentsService {
       return await Comment.count({ where: { solutionId }, transaction })
     } 
 
-    public async findBySolutionId(solutionId: number, query) {
-      const offset: number = parseInt(query.offset) || 0;
-      const limit: number = parseInt(query.limit) || 20;
+    public async findBySolutionId(solutionId: number, query): Promise<IPaginationOuterData<Comment>> {
+      const page: number = parseInt(query.page) || 1;
+      const limit: number = parseInt(query.limit) || 10
       
       return sequelize.transaction(async (transaction) => {
         const total = await this.countComments(solutionId, transaction);
+        const {offset, actualPage} = await paginationService.getOffset(page, limit, total);
 
-        const comments: Comment[] = await Comment.findAll({ where: { solutionId }, offset, limit, include: [{ 
+        const comments: Comment[] = await Comment.findAll({ where: { solutionId }, offset, limit, order: [['id', 'ASC']], include: [{ 
           model: Student, as: 'student', attributes: ['firstNameEng', 'lastNameEng'], include: [{ 
             model: Avatar, as: 'avatar', attributes: ['avatarLink'] 
           }] 
@@ -93,8 +96,7 @@ class CommentsService {
 
         return {
           data: comments,
-          total,
-          offset,
+          page: actualPage,
           limit
         }
       })

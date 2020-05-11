@@ -59,7 +59,7 @@ class TasksService {
 
         // Forming paginated array of tasks with 
         // additional information (amount of checked and ready for check tasks)
-        const tasks: Task[] = await Task.findAll({ limit, offset, where: { groupId }, transaction }); 
+        const tasks: Task[] = await Task.findAll({ limit, offset, where: { groupId }, order: [['id', 'ASC']], transaction }); 
         if (!tasks.length) {
           throw new NotFound(`There is no tasks for group with groupId ${groupId}`);
         } 
@@ -119,7 +119,7 @@ class TasksService {
           }
           await this.addTaskAdditionalInfo(task, transaction);
 
-          const group = await groupsService.findOneOrThrow(task.groupId, user, transaction);
+          const group: Group = await groupsService.findOneOrThrow(task.groupId, user, transaction);
           if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
             throw new Forbidden(NO_RIGHTS);
           }
@@ -183,16 +183,8 @@ class TasksService {
             throw new Forbidden(NO_RIGHTS);
         }
 
-        // Creates ask in DataBase
         const createdTask: Task = await Task.create(task, {transaction});
-
-        // Creates file in DataBase and Clodinary
-        const fileData: IFileCreate = {
-          fileLink: task.fileContent, 
-          fileNameExtension: task.fileNameExtension, 
-          taskId: createdTask.id
-        };
-        await filesService.createOne(fileData, transaction);
+        await this.createFile(task.fileContent, task.fileNameExtension, createdTask.id, transaction)
 
         // Creates solutions per every student for this task
         await solutionsService.createSolutions(createdTask, user, transaction);
@@ -222,23 +214,22 @@ class TasksService {
             throw new Forbidden(NO_RIGHTS);
         }
 
-        // Removes old file from DataBase and Cloudinary
-        await filesService.deleteOne(id, transaction);
-
         // Updates Task table
-        const [updatedRow, [updatedTask]] = await Task.update(updates, {
-            returning: true,
-            where: { id },
-            transaction,
-        });
+        let updatedTask: Task;
+        if (updates.description, updates.groupId, updates.taskName) {
+          const [updatedRow, [updTask]] = await Task.update(updates, {
+              returning: true,
+              where: { id },
+              transaction,
+          });
+          updatedTask = updTask;
+        }
 
-        // Creates new file in DataBase and Cloudinary
-        const fileData: IFileCreate = {
-          fileLink: updates.fileContent, 
-          fileNameExtension: updates.fileNameExtension, 
-          taskId: id
-        };
-        await filesService.createOne(fileData, transaction);
+        // Removes old and creates new file in DataBase and Cloudinary
+        if (updates.fileContent && updates.fileNameExtension) {
+          await filesService.deleteOne(id, transaction);
+          await this.createFile(updates.fileContent, updates.fileNameExtension, id, transaction)
+        }
 
         return updatedTask;
       });
@@ -256,17 +247,27 @@ class TasksService {
         }
 
         // Checks if tacher has this group
-        const group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
+        const group: Group = await groupsService.findOneOrThrow(task.groupId, user, transaction)
         if (user.isMentor && !user.isAdmin && user.id !== group.teacherId) {
             throw new Forbidden(NO_RIGHTS);
         }
 
-        await filesService.deleteOne(id, transaction); // Removes file from DataBase and Cloudinary
+        // await filesService.deleteOne(id, transaction); // Removes file from DataBase and Cloudinary
         await solutionsService.deleteOne(id, transaction); // Removes solutions for this task
         await Task.destroy({ where: { id }, transaction }); // Removes task
 
         return id;
       });
+    }
+
+    private async createFile(fileLink: string, fileNameExtension: string, taskId: number, transaction?: Transaction): Promise<void> {
+        // Creates new file in DataBase and Cloudinary
+        const fileData: IFileCreate = {
+          fileLink, 
+          fileNameExtension, 
+          taskId
+        };
+        await filesService.createOne(fileData, transaction);
     }
 }
 
