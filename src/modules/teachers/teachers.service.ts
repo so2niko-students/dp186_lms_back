@@ -182,7 +182,7 @@ class TeachersService {
         Promise<Teachers> {
         return sequelize.transaction(async (transaction: Transaction) => {
 
-            if (data.email) {
+            if (data.email && user.email !== data.email) {
                 if (await this.findOneByEmail(data.email) ||
                     await studentsService.findOneByEmail(data.email)) {
                         throw new BadRequest('User with provided email already exists');
