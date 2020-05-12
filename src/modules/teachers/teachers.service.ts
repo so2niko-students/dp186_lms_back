@@ -35,6 +35,9 @@ class TeachersService {
                 throw new BadRequest('User with provided email already exists');
             }
 
+            teacherData.password = hashFunc(teacherData.password);
+            teacherData.isAdmin = false;
+
             const result: Teachers = await Teachers.create(teacherData, {transaction: transaction});
 
             delete result.password;
