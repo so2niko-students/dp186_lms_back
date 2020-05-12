@@ -11,6 +11,9 @@ export class Tasks extends Model {
   public description!: string;
   public createdAt: Date;
   public updatedAt: Date;
+  public averageGrade!: number;
+  public amountOfChecked!: number;
+  public amountOfReady!: number;
 
   public static prepareInit(sequelize: Sequelize) {
     this.init(
@@ -25,6 +28,9 @@ export class Tasks extends Model {
         groupId: DataTypes.INTEGER,
         taskName: DataTypes.STRING(255),
         description: DataTypes.TEXT,
+        averageGrade: DataTypes.VIRTUAL,
+        amountOfChecked: DataTypes.VIRTUAL,
+        amountOfReady: DataTypes.VIRTUAL,
       },
       {
         sequelize,

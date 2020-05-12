@@ -6,7 +6,13 @@ import {groupsService} from '../groups/groups.service';
 import {studentsService} from '../students/students.service';
 import {Transaction} from 'sequelize';
 import {Tasks} from '../tasks/tasks.model';
+import { Teachers as Teacher } from '../teachers/teachers.model';
+import { Students as Student } from '../students/students.model';
+import { Avatars as Avatar } from '../avatars/avatars.model';
+import { Comment } from '../comments/comments.model';
+import { File } from '../files/files.model';
 import {sequelize} from '../../database';
+import { IPaginationOuterData } from '../../common/interfaces/pagination.interfaces';
 
 export interface ISolutionCreate {
     studentId: number;
@@ -85,7 +91,49 @@ class SolutionsService {
         }
         return solution;
     }
+
+    public async countChecked(taskId: number, transaction: Transaction): Promise<number> {
+      return Solution.count({ where: { taskId, isCompleted: 1 }, transaction });
+    }
+
+    public async findByTaskId(taskId: number, transaction?: Transaction): Promise<Solution[]> {
+      return Solution.findAll({ where: { taskId }, transaction})
+    }
+
+    public async deleteOne(taskId: number, transaction?: Transaction): Promise<void> {
+      await Solution.destroy({ where: { taskId }, transaction })
+    }
+
+    public async getFullInfoById(id: number, query): Promise<IPaginationOuterData<Solution>>  {
+      const limit: number = parseInt(query.limit) || 20;
+
+      const data = await Solution.findOne({ 
+        where: { id },
+        include: [{
+          model: Student, as: 'student', include: [{
+            model: Avatar, as: 'avatar', attributes: ['avatarLink']
+          }]
+        }, {
+          model: Comment, as: 'comments', attributes: ['text', 'updatedAt', 'createdAt'], limit, order: [['id', 'ASC']], include: [{
+            model: Student, as: 'student', attributes: ['firstNameEng', 'lastNameEng'], include: [{
+              model: Avatar, as: 'avatar', attributes: ['avatarLink']
+            }]
+          }, {
+            model: Teacher, as: 'teacher' , attributes: ['firstName', 'lastName'], include: [{
+              model: Avatar, as: 'avatar', attributes: ['avatarLink']
+            }]
+          }, {
+            model: File, as: 'files', attributes: ['fileLink']
+          }]
+        }],
+      });
+
+      return {
+        data,
+        page: 1,
+        limit
+      }
+    }
 }
 
 export const solutionsService = new SolutionsService();
-

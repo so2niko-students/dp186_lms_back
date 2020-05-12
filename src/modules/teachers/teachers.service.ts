@@ -35,6 +35,9 @@ class TeachersService {
                 throw new BadRequest('User with provided email already exists');
             }
 
+            teacherData.password = hashFunc(teacherData.password);
+            teacherData.isAdmin = false;
+
             const result: Teachers = await Teachers.create(teacherData, {transaction: transaction});
 
             delete result.password;
@@ -185,7 +188,7 @@ class TeachersService {
         Promise<Teachers> {
         return sequelize.transaction(async (transaction: Transaction) => {
 
-            if (data.email) {
+            if (data.email && user.email !== data.email) {
                 if (await this.findOneByEmail(data.email) ||
                     await studentsService.findOneByEmail(data.email)) {
                         throw new BadRequest('User with provided email already exists');
