@@ -112,7 +112,7 @@ export class AuthRoute {
 
         /**
          * @swagger
-         * /auth/change-password/teacher/:id:
+         * /auth/change-password/teacher/{id}:
          *    put:
          *      tags:
          *          - Auth

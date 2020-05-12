@@ -21,7 +21,7 @@ router.get('/', groupsController.findMany);
 
 /**
  * @swagger
- * /group/:id:
+ * /group/{id}:
  *    get:
  *      tags:
  *          - Groups
@@ -66,7 +66,7 @@ router.post('/', createValidator(createGroupDto), groupsController.createOne);
 
 /**
  * @swagger
- * /groups/:id:
+ * /groups/{id}:
  *    put:
  *      tags:
  *          - Groups
@@ -83,7 +83,7 @@ router.put('/:id', createValidator(updateGroupDto), groupsController.updateOne);
 
 /**
  * @swagger
- * /groups/:id:
+ * /groups/{id}:
  *    delete:
  *      tags:
  *          - Groups

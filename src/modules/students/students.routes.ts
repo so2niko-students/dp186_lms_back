@@ -49,7 +49,7 @@ router.post('/', createValidator(createStudentsDto), studentsController.createOn
 
 /**
  * @swagger
- * /students/:id:
+ * /students/{id}:
  *    put:
  *      tags:
  *          - Students

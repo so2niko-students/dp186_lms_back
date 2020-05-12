@@ -24,7 +24,7 @@ router.get('/', teachersController.findAll );
 
 /**
  * @swagger
- * /teachers/:id:
+ * /teachers/{id}:
  *    get:
  *      tags:
  *          - Teachers
@@ -44,7 +44,7 @@ router.get('/:id', teachersController.findById );
  *    post:
  *      tags:
  *          - Teachers
- *      summary: Gets a teacher by id.
+ *      summary: Creates a new teacher.
  *      description: This route is made to get a single teacher.
  *      consumes:
  *        - application/json
@@ -70,14 +70,14 @@ router.get('/:id', teachersController.findById );
  *                  type: number
  *      responses:
  *        200:
- *          description: Get list of teachers.
+ *          description: Returns teacher you have just created.
  */
 router.post('/', authJwt, createValidator(createTeachersDto), teachersController.createOne );
 
 
 /**
  * @swagger
- * /teachers/:id:
+ * /teachers/{id}:
  *    delete:
  *      tags:
  *          - Teachers

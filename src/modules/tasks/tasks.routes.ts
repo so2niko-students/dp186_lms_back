@@ -21,12 +21,11 @@ export const router: Router = Router();
  *          description: Array of tasks.
  */
 router.get('/', tasksController.findAll);
-router.get('/:id', tasksController.getFullInfoById);
 
 
 /**
  * @swagger
- * /tasks/:id:
+ * /tasks/{id}:
  *    get:
  *      tags:
  *          - Tasks
@@ -38,7 +37,7 @@ router.get('/:id', tasksController.getFullInfoById);
  *        200:
  *          description: Get single task.
  */
-router.get('/:id', tasksController.findOneById);
+router.get('/:id', tasksController.getFullInfoById);
 
 /**
  * @swagger
@@ -73,7 +72,7 @@ router.post('/', createValidator(createTaskDto), tasksController.createOne);
 
 /**
  * @swagger
- * /tasks/:id:
+ * /tasks/{id}:
  *    put:
  *      tags:
  *          - tasks
@@ -104,16 +103,16 @@ router.put('/:id', createValidator(updateTaskDto), tasksController.updateOne);
 
 /**
  * @swagger
- * /tasks/:id:
+ * /tasks/{id}:
  *    delete:
  *      tags:
  *          - tasks
- *      summary: Creates a task
- *      description: This route is made to create a task.
+ *      summary: Deletes a task
+ *      description: This route is made to delete a task.
  *      consumes:
  *        - application/json
  *      responses:
  *        200:
- *          description: Created task.
+ *          description: Deleted task.
  */
 router.delete('/:id', tasksController.deleteOne);
