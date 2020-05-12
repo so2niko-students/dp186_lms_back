@@ -22,7 +22,7 @@ class StudentsController {
           +req.params.id,
           req.user
       );
-      res.send(201)
+      res.sendStatus(201)
     } catch(e){
       next(e)
     }}

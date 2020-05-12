@@ -21,6 +21,7 @@ export const router: Router = Router();
  *          description: Array of tasks.
  */
 router.get('/', tasksController.findAll);
+router.get('/:id', tasksController.getFullInfoById);
 
 
 /**
