@@ -1,12 +1,12 @@
 import { createTeachersDto, updateTeachersDto, findAllTeachersDto } from './teachers.dtos';
 import { Router } from 'express';
 import { teachersController } from './teachers.controller';
-import { createValidator } from '../../common/middlewares/create-validator';
+import { createValidator} from '../../common/middlewares/create-validator';
 import { authJwt } from '../../common/middlewares/auth.middleware';
 
 export const router: Router = Router();
 
-router.get('/', createValidator(findAllTeachersDto), teachersController.findAll ); 
+router.get('/', createValidator(findAllTeachersDto, 'query'), teachersController.findAll ); 
 
 router.get('/:id', teachersController.findById ); 
 
