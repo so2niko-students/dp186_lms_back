@@ -13,6 +13,10 @@ class AuthService {
         const user: Students | Teachers = await studentsService.findOneByEmail(email) ||
             await teachersService.findOneByEmail(email);
 
+        if (!user) {
+            throw new Unauthorized('User with provided email does not exist');
+        }
+
         if (!bcrypt.compareSync(password, user.password)) {
             throw new Unauthorized('Wrong password');
         }
