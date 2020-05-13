@@ -67,6 +67,9 @@ class TeachersService {
 
     public async setForgotPasswordToken(email: string): Promise<string> {
         const teacher = await this.findOneByEmail(email);
+        if(!teacher){
+            throw new NotFound(`User with email ${email} does not exist`);
+        }
         const token: string = new TokenService().generateResetToken();
         teacher.resetPasswordExpire = Date.now() + (60 * 1000 * 360);
         teacher.resetPasswordToken = token;
@@ -122,31 +125,31 @@ class TeachersService {
     }
 
     public async findAll(page: number = 1, limit: number = 10) : Promise<IPaginationOuterData<Teachers>>{
-    
+
       const total: number = await Teachers.count(); // actual teachers count in db
       const { offset, actualPage } = await paginationService.getOffset(page, limit, total);
       page = actualPage;
       let teachers: Teachers[] = await Teachers.findAll({offset, limit});
-    
+
       const groupsData: Groups[] = await groupsService.findAllByMentorsIdsArray(teachers.map(e => e.id)) // take necessary groups info out from db
       let totalGroupsIdsSet = new Set([]); // Set collection of unique group IDs for all teachers
       teachers = this.addGroupsCount(teachers, groupsData, totalGroupsIdsSet); // add in the data studentsCount field with the value
-    
+
       const totalGroupsIdsArr = [];
       totalGroupsIdsSet.forEach(e => totalGroupsIdsArr.push(e));
-    
+
       const studentsData: Students[] = await studentsService.findAllByGroupsIdsArray(totalGroupsIdsArr) // take necessary students info out from db
       teachers = this.addStudentsCount(teachers, groupsData, studentsData); // add in the data studentsCount field with the value
-    
+
       const data = teachers;
 
       return { data, page, total, limit };
     }
-  
+
     private addGroupsCount(data: Teachers[], groupsData: Groups[], totalGroupsIdsSet: Set<number>): Teachers[] {
         return data.map(item => {
         let groups: number[] = []; // array of group IDs
-      
+
         // fulfill Set collection of unique group IDs
         groupsData.forEach(group => {
           if (item.id === group.teacherId) {
@@ -154,7 +157,7 @@ class TeachersService {
             totalGroupsIdsSet.add(group.id);
           }
         });
-      
+
         const groupsCount: number = groups.length; // groups count
         // give a teacher object prop for students quantity
         item.groupsCount = groupsCount;
@@ -162,18 +165,18 @@ class TeachersService {
         return item
       });
     }
-  
+
     private addStudentsCount(data: Teachers[], groupsData: Groups[], studentsData: Students[]): Teachers[] {
       return data.map(item => {
         let groups: number[] = groupsData.filter(group => item.id === group.teacherId).map(group => group.id);
-      
+
         let studentsCount: number = 0; // define students counter
-      
+
         // iterate students counter if the id of group === student.groupId
         groups.forEach(groupId => {
           studentsCount += studentsData.filter(student => groupId === student.groupId).length;
         });
-      
+
         // give a teacher object prop for students quantity
         item.studentsCount = studentsCount;
 

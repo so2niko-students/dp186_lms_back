@@ -93,11 +93,11 @@ class StudentsService {
     public async updateOneOrThrow(id: number, data: Partial<IStudentsData>, user: Students): Promise<Students> {
         return sequelize.transaction(async (transaction) => {
 
-            if (data.email && user.email !== data.email) {	
-                if (await this.findOneByEmail(data.email) ||	
-                    await teachersService.findOneByEmail(data.email)) {	
-                        throw new BadRequest('User with provided email already exists');	
-                }	
+            if (data.email && user.email !== data.email) {
+                if (await this.findOneByEmail(data.email) ||
+                    await teachersService.findOneByEmail(data.email)) {
+                        throw new BadRequest('User with provided email already exists');
+                }
             }
             if (id !== user.id) {
                 throw new Unauthorized('You cannot change another profile');
@@ -117,6 +117,9 @@ class StudentsService {
     public async setForgotPasswordToken(email: string): Promise<string> {
         //Generate and hash password token
         const student = await this.findOneByEmail(email);
+        if(!student){
+            throw new NotFound(`User with email ${email} does not exist`);
+        }
         const token: string = new TokenService().generateResetToken();
         student.resetPasswordExpire = Date.now() + (60 * 1000 * 360);
         student.resetPasswordToken = token;
@@ -168,7 +171,7 @@ class StudentsService {
     }
 
     public async deleteStudent(id: number, user: CustomUser): Promise<void> {
-      
+
         if (!user.isMentor) {
             throw new Forbidden(NO_RIGHTS);
         }
