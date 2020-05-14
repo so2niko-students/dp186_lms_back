@@ -216,24 +216,24 @@ class TasksService {
             throw new Forbidden(NO_RIGHTS);
         }
 
+        // Removes old and creates new file in DataBase and Cloudinary
+        if (updates.fileContent && updates.fileNameExtension) {
+          await filesService.deleteOne(id, transaction);
+          await this.createFile(updates.fileContent, updates.fileNameExtension, id, transaction);
+          delete updates.fileContent;
+          delete updates.fileNameExtension;
+        }
+
         // Updates Task table
-        let updatedTask: Task;
-        if (updates.description || updates.groupId || updates.taskName) {
-          const [updatedRow, [updTask]] = await Task.update(updates, {
+        if (Object.entries(updates).length !== 0) {
+          const [updatedRow, [updatedTask]] = await Task.update(updates, {
               returning: true,
               where: { id },
               transaction,
           });
-          updatedTask = updTask;
+          return updatedTask;
         }
 
-        // Removes old and creates new file in DataBase and Cloudinary
-        if (updates.fileContent && updates.fileNameExtension) {
-          await filesService.deleteOne(id, transaction);
-          await this.createFile(updates.fileContent, updates.fileNameExtension, id, transaction)
-        }
-
-        return updatedTask;
       });
     }
 
