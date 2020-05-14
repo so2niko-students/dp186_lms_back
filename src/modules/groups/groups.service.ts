@@ -31,7 +31,7 @@ class GroupsService {
         }
         const group = await Groups.findOne( { where: {groupName}} );
         if (group) {
-            throw new BadRequest(`Group with name "${groupName} already exists`);
+            throw new BadRequest(`Group with name "${groupName}" already exists`);
         }
         const groupToken = await this.createGroupToken(groupName);
         if (teacherId) {
@@ -103,8 +103,7 @@ class GroupsService {
             if (group.teacherId !== user.id && !user.isAdmin) {
                 throw new Forbidden(NO_RIGHTS);
             }
-            group.destroy({transaction});
-            return group;
+            return group.destroy({transaction});
         });
     }
     public async findMany(mentorId: number, user: CustomUser) {

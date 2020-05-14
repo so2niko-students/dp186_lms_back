@@ -35,7 +35,7 @@ class GroupsController {
     public async deleteOne(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             validateIdOrThrow(+req.params.id);
-            const group: Group = await groupsService.deleteOne(+req.params.id, req.user);
+            const group: void = await groupsService.deleteOne(+req.params.id, req.user);
             res.send(group);
         } catch (e) {
             next(e);
