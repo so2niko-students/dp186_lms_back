@@ -2,7 +2,7 @@ import express = require('express');
 import cors = require('cors');
 import * as bodyParser from 'body-parser';
 import * as swaggerUi from 'swagger-ui-express';
-import specs from './config/swagger.config'
+import { specs }  from './config/swagger.config'
 import { router as groupsRoutes } from './modules/groups/groups.routes';
 import { router as studentsRoutes } from './modules/students/students.routes';
 import { router as teachersRoutes } from './modules/teachers/teachers.routes';
