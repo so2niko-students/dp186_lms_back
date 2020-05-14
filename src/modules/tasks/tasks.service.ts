@@ -218,7 +218,7 @@ class TasksService {
 
         // Updates Task table
         let updatedTask: Task;
-        if (updates.description, updates.groupId, updates.taskName) {
+        if (updates.description || updates.groupId || updates.taskName) {
           const [updatedRow, [updTask]] = await Task.update(updates, {
               returning: true,
               where: { id },
