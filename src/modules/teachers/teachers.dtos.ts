@@ -16,3 +16,8 @@ export const updateTeachersDto = Joi.object().keys({
         format: Joi.string().required(),
     }),
 });
+
+export const findAllTeachersDto = Joi.object().keys({
+  page: Joi.number().min(1),
+  limit: Joi.number().min(1),
+});

@@ -1,7 +1,7 @@
-import { createTeachersDto, updateTeachersDto } from './teachers.dtos';
+import { createTeachersDto, updateTeachersDto, findAllTeachersDto } from './teachers.dtos';
 import { Router } from 'express';
 import { teachersController } from './teachers.controller';
-import { createValidator } from '../../common/middlewares/create-validator';
+import { createValidator} from '../../common/middlewares/create-validator';
 import { authJwt } from '../../common/middlewares/auth.middleware';
 
 export const router: Router = Router();
@@ -20,7 +20,7 @@ export const router: Router = Router();
  *        200:
  *          description: Array of teachers.
  */
-router.get('/', teachersController.findAll );
+router.get('/', createValidator(findAllTeachersDto, 'query'), teachersController.findAll );
 
 /**
  * @swagger
